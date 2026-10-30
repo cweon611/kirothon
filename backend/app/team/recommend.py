@@ -58,18 +58,26 @@ def classify(programs: tuple[ProgramSummary, ...], trip_type: str) -> tuple[Prog
     def needs_stay(p: ProgramSummary) -> bool:
         return trip_type == "day" and (p.constraints.min_nights or 0) >= 1
 
+    # needs_verification with an unmet condition means "unmet, but the rule is not from a
+    # verified source"; such programs are shown in group 2, not as refund regions.
     usable = [p for p in programs
-              if p.judgment != "ineligible" and p.application_open is not False and not needs_stay(p)]
+              if p.judgment != "ineligible" and p.application_open is not False and not needs_stay(p)
+              and not (p.judgment == "needs_verification" and p.unmet_codes)]
     if usable:
         best = min(usable, key=lambda p: (JUDGMENT_ORDER[p.judgment], -(p.cap_krw or 0), p.program_id))
         applicable = best.judgment == "potentially_eligible" and best.application_open is True
         return best, "applicable" if applicable else "needs_verification", True
-    stay = [p for p in programs if needs_stay(p) and p.judgment != "ineligible" and p.application_open is not False]
+    # A day trip fails an overnight program only because of the stay: show "needs_stay", not "ineligible".
+    stay = [p for p in programs if needs_stay(p) and p.application_open is not False
+            and (p.judgment != "ineligible" or set(p.unmet_codes) <= {"stay"})]
     if stay:
         return stay[0], "needs_stay", False
     closed = [p for p in programs if p.application_open is False]
     if closed:
         return closed[0], "closed", False
+    unverified = [p for p in programs if p.judgment == "needs_verification"]
+    if unverified:
+        return unverified[0], "unmet_unverified", False
     return programs[0], "ineligible", False
 
 
@@ -157,11 +165,14 @@ def recommend(snapshot: Snapshot, query: TripQuery, origin: Origin, lookup: Bene
     lookup_ok = lookup.status in ("ok", "partial")
     results: list[RegionResult] = []
     scored_by_code: dict[str, dict] = {}
-    excluded = []
+    excluded, no_data = [], []
     for code in sigungu_map():
         scored = score_region(snapshot, code, query, origin)
         if scored["over_cap"]:
             excluded.append(code)
+            continue
+        if scored["travel_min"] is None:  # nothing cached: no course can be built there
+            no_data.append(code)
             continue
         programs = lookup.by_region.get(code, ()) if lookup_ok else ()
         program, badge, group1 = classify(programs, query.trip_type)
@@ -187,7 +198,7 @@ def recommend(snapshot: Snapshot, query: TripQuery, origin: Origin, lookup: Bene
             "candidates": candidates, "demo_data": result.code in snapshot.demo_filled,
         })
     return {"regions": regions, "no_refund_notice": notice(lookup, results),
-            "excluded_by_travel_cap": len(excluded),
+            "excluded_by_travel_cap": len(excluded), "excluded_no_data": len(no_data),
             "interest_basis": interest_basis(snapshot.codes)}
 
 

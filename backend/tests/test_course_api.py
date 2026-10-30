@@ -8,6 +8,9 @@ from sqlmodel import Session, select
 from app.database import engine
 from app.main import app
 from app.team import benefit_port
+from app.team.benefit_bridge import BenefitsEnginePort
+from app.team.benefits.store_models import (BenefitRecordVersion, BenefitSourceRecord, BenefitSyncRun,
+                                            BenefitSyncState)
 from app.team.tourism_models import Course, HubRank, Place, RelatedPlace, TourismSyncRun
 
 from course_fixtures import MUAN, FakePort, hub_rows, place_rows, program, related_rows
@@ -15,22 +18,27 @@ from course_fixtures import MUAN, FakePort, hub_rows, place_rows, program, relat
 TRIP = {"trip_type": "1N2D", "start_date": "2026-11-10", "origin": "gj-buk", "interests": ["nature"],
         "party_size": 2}
 RESIDENCE = "29170"
+MUAN_PROGRAM = "manual:muan-halfprice-2026"  # benefits module's manual registry entry
+TABLES = (Place, HubRank, RelatedPlace, Course, TourismSyncRun,
+          BenefitSourceRecord, BenefitRecordVersion, BenefitSyncRun, BenefitSyncState)
 
 
 @pytest.fixture
 def client(monkeypatch):
     monkeypatch.setenv("TEAM_TODAY", "2026-11-02")
     monkeypatch.delenv("TOURAPI_SERVICE_KEY", raising=False)
+    monkeypatch.delenv("KIROTHON_DATA_GO_KR_SERVICE_KEY", raising=False)
+    previous = benefit_port.get_benefit_port()
     with TestClient(app) as test_client:
         with Session(engine) as session:
-            for model in (Place, HubRank, RelatedPlace, Course, TourismSyncRun):
+            for model in TABLES:
                 for row in session.exec(select(model)).all():
                     session.delete(row)
             session.add_all(place_rows() + hub_rows() + related_rows())
             session.add(TourismSyncRun(status="success", base_ym_hub="202410", base_ym_related="202410"))
             session.commit()
         yield test_client
-    benefit_port.set_benefit_port(benefit_port.NotConnectedBenefitPort())
+    benefit_port.set_benefit_port(previous)
 
 
 @pytest.fixture
@@ -41,6 +49,7 @@ def port():
 
 
 def test_meta_lists_inputs_and_data_status(client):
+    benefit_port.set_benefit_port(benefit_port.NotConnectedBenefitPort())
     data = client.get("/api/team/meta").json()
     assert data["today"] == "2026-11-02" and data["today_fixed"] is True
     assert {o["key"] for o in data["origins"]} >= {"gj-buk", "st-mokpo"}
@@ -149,6 +158,42 @@ def test_place_detail_from_cache_with_visit_date(client):
     unknown = client.get("/api/team/places/m4", params={"date": "2026-11-09"}).json()
     assert unknown["check_before_visit"] is True and unknown["detail_status"] == "not_fetched"
     assert client.get("/api/team/places/none").status_code == 404
+
+
+def test_benefits_engine_is_wired_by_default(client):
+    assert isinstance(benefit_port.get_benefit_port(), BenefitsEnginePort)
+    assert client.get("/api/team/meta").json()["benefit_port"]["connected"] is True
+    assert client.get("/api/benefits/sources").status_code == 200
+
+
+def test_recommend_through_benefits_engine(client):
+    data = client.post("/api/team/recommend", json={**TRIP, "residence_code": RESIDENCE}).json()
+    lookup = data["benefit_lookup"]
+    assert lookup["connected"] is True and lookup["status"] == "partial"
+    assert {"gov24_api", "kto_tour50"} <= {s.split(":")[0] for s in lookup["failed_sources"]}
+    first = data["regions"][0]
+    assert first["sigungu_code"] == MUAN and first["group"] == 1
+    assert first["refund"]["program_id"] == MUAN_PROGRAM and first["refund"]["badge"] == "needs_verification"
+    day = client.post("/api/team/recommend", json={**TRIP, "trip_type": "day"}).json()
+    muan = next(r for r in day["regions"] if r["sigungu_code"] == MUAN)
+    assert muan["group"] == 2 and muan["refund"]["badge"] == "needs_stay"
+    assert day["no_refund_notice"]["code"] == "no_applicable_program_in_scope" and day["no_refund_notice"]["partial"]
+    bad = client.post("/api/team/recommend", json={**TRIP, "benefit_conditions": {"birth_date": "not-a-date"}}).json()
+    assert bad["no_refund_notice"]["code"] == "benefit_lookup_failed"
+    assert "birth_date" in bad["benefit_lookup"]["message"]
+
+
+def test_course_applies_benefits_engine_constraints(client):
+    saturday = client.post("/api/team/courses", json={**TRIP, "start_date": "2026-11-14", "sigungu_code": MUAN,
+                                                      "program_id": MUAN_PROGRAM, "residence_code": RESIDENCE})
+    assert saturday.status_code == 200, saturday.text
+    body = saturday.json()
+    assert body["region"]["refund_program"]["program_id"] == MUAN_PROGRAM
+    warnings = {w["code"]: w for w in body["warnings"]}
+    assert warnings["stay_weekday"]["suggested_date"] == "2026-11-13"
+    assert "무안황토갯벌랜드" in warnings["required_place_unmatched"]["message"]
+    elsewhere = client.post("/api/team/courses", json={**TRIP, "sigungu_code": "46860", "program_id": MUAN_PROGRAM})
+    assert any(w["code"] == "program_not_found" for w in elsewhere.json()["warnings"])
 
 
 def test_empty_cache_is_explicit(client):

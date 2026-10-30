@@ -84,11 +84,24 @@ def test_retries_then_raises_without_key_in_message(failure):
 
 def test_missing_key_and_unknown_operation_fail_fast(monkeypatch):
     monkeypatch.delenv("TOURAPI_SERVICE_KEY", raising=False)
+    monkeypatch.delenv("KIROTHON_DATA_GO_KR_SERVICE_KEY", raising=False)
     with pytest.raises(TourApiError) as exc:
         TourApiClient()
     assert exc.value.kind == "config"
     with TourApiClient(SECRET) as client, pytest.raises(TourApiError):
         client.get("KorService2", "madeUpOperation")
+
+
+def test_shared_portal_key_is_used_when_tourapi_key_is_absent(monkeypatch):
+    from app.team.tourapi import has_service_key
+    monkeypatch.delenv("TOURAPI_SERVICE_KEY", raising=False)
+    monkeypatch.setenv("KIROTHON_DATA_GO_KR_SERVICE_KEY", SECRET)
+    assert has_service_key()
+    seen = []
+    handler = lambda r: seen.append(r.url.params["serviceKey"]) or httpx.Response(200, text=body([]))  # noqa: E731
+    with TourApiClient(transport=httpx.MockTransport(handler), min_interval=0) as client:
+        client.get("KorService2", "ldongCode2")
+    assert seen == [SECRET]
 
 
 def test_ldong_resolution_detects_code_change():
@@ -195,6 +208,7 @@ def test_sync_is_idempotent_and_keeps_rows_on_failure(clean_tourism_tables):
 
 def test_sync_without_key_records_failed_run(clean_tourism_tables, monkeypatch):
     monkeypatch.delenv("TOURAPI_SERVICE_KEY", raising=False)
+    monkeypatch.delenv("KIROTHON_DATA_GO_KR_SERVICE_KEY", raising=False)
     record = run(sync_args())
     assert record.status == "failed" and "TOURAPI_SERVICE_KEY" in record.message
 

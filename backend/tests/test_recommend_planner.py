@@ -67,6 +67,26 @@ def test_day_trip_with_overnight_program_is_needs_stay():
     regions = run_recommend(trip("day"), lookup({MUAN: [program(min_nights=1)]}))["regions"]
     muan = next(r for r in regions if r["sigungu_code"] == MUAN)
     assert muan["group"] == 2 and muan["refund"]["badge"] == "needs_stay"
+    only_stay = program(judgment="ineligible", unmet_codes=("stay",), min_nights=1)
+    regions = run_recommend(trip("day"), lookup({MUAN: [only_stay]}))["regions"]
+    assert next(r for r in regions if r["sigungu_code"] == MUAN)["refund"]["badge"] == "needs_stay"
+    also_residence = program(judgment="ineligible", unmet_codes=("stay", "residence"), min_nights=1)
+    regions = run_recommend(trip("day"), lookup({MUAN: [also_residence]}))["regions"]
+    assert next(r for r in regions if r["sigungu_code"] == MUAN)["refund"]["badge"] == "ineligible"
+
+
+def test_unmet_condition_on_unverified_data_is_not_a_refund_region():
+    unverified_unmet = program(judgment="needs_verification", application_open=None, unmet_codes=("trip_period",))
+    regions = run_recommend(look=lookup({MUAN: [unverified_unmet]}))["regions"]
+    muan = next(r for r in regions if r["sigungu_code"] == MUAN)
+    assert muan["group"] == 2 and muan["refund"]["badge"] == "unmet_unverified"
+
+
+def test_regions_without_cached_data_are_skipped():
+    result = run_recommend(look=lookup({"46800": [program(pid="jangheung", codes=("46800",))]}))
+    assert "46800" not in [r["sigungu_code"] for r in result["regions"]]
+    assert result["excluded_no_data"] == 27 - 4
+    assert all(r["travel_min"] is not None for r in result["regions"])
 
 
 def test_lookup_failure_is_not_reported_as_no_program():

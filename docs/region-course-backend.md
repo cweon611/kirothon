@@ -8,7 +8,7 @@
 
 | 범위 | 담당 | 이 브랜치 |
 | --- | --- | --- |
-| 지원제도 조회·판정, 예상 지원액, 신청 기한 (`POST /api/benefits/check`, `GET /api/benefits/{id}`) | 지원제도 담당(`sale-check`) | 구현하지 않음. `benefit_port.py`로 결과만 받는다 |
+| 지원제도 조회·판정, 예상 지원액, 신청 기한 (`POST /api/benefits/check`, `GET /api/benefits/{id}`) | 지원제도 담당(`sale-check`, main에 병합됨) | 구현하지 않음. `benefit_bridge.py`가 그 판정 엔진을 그대로 불러 결과만 받는다(5절) |
 | 지원제도 외부 데이터 자동 수집·갱신, 운영자 동기화 | 지원제도 담당 | 구현하지 않음 |
 | 화면 | 프론트 담당 | 수정하지 않음. 아래 6절 API를 쓴다 |
 | **S1 관광 데이터 수집·캐시** (KorService2, 중심 관광지, 연관 관광지) | 이 브랜치 | `tourapi.py`, `sync_tourism.py` |
@@ -22,8 +22,9 @@ F3의 '여행 전·중·후 할 일 타임라인'은 지원제도의 기한 데�
 
 ```
 backend/app/team/
-  models.py            (수정) 새 테이블 import 한 줄
-  routes.py            (수정) course_routes 라우터 포함 두 줄
+  models.py            (수정) 지원제도 테이블과 관광·코스 테이블 둘 다 등록
+  routes.py            (수정) 지원제도 담당의 라우터 구조 유지 + team_router 아래 course_routes, 판정 엔진 포트 등록
+  benefit_bridge.py    (신규) benefit_port 구현: 지원제도 판정 엔진(app.team.benefits)을 프로세스 안에서 호출
   tourism_models.py    (신규) place · hub_rank · related_place · course · tourism_sync_run
   tourapi.py           (신규) 관광공사 API 클라이언트: 공통 파라미터, 페이지, 재시도, 오류 분류, 키 비노출
   sync_tourism.py      (신규) 수집 명령 7단계
@@ -36,8 +37,8 @@ backend/app/team/
   reasons.py           (신규) 규칙 문장, AI 문장(코스당 2회), 출력 검사
   course_routes.py     (신규) /api/team/* 엔드포인트
   seeds/regions.json · origins.json · interest_map.json · place_overrides.json · demo_places.json
-backend/.env.example   (신규) 변수 이름만
-backend/tests/course_fixtures.py · test_tourapi_sync.py · test_recommend_planner.py · test_course_api.py
+backend/.env.example   (수정) 지원제도 변수 + 관광 변수, 이름만
+backend/tests/course_fixtures.py · test_tourapi_sync.py · test_recommend_planner.py · test_course_api.py · test_benefit_bridge.py
 docs/region-course-backend.md
 ```
 
@@ -69,7 +70,7 @@ docs/region-course-backend.md
 
 ```powershell
 cd backend
-$env:TOURAPI_SERVICE_KEY = '<Decoding 키>'      # 서버는 서비스 환경변수로 넣는다
+$env:TOURAPI_SERVICE_KEY = '<Decoding 키>'      # 비우면 KIROTHON_DATA_GO_KR_SERVICE_KEY를 쓴다. 서버는 서비스 환경변수로
 $env:KIROTHON_DB_PATH = "$PWD\..\.local-data\records.sqlite3"
 .\.venv\Scripts\python.exe -m app.team.sync_tourism --base-ym 202410
 ```
@@ -89,36 +90,30 @@ $env:KIROTHON_DB_PATH = "$PWD\..\.local-data\records.sqlite3"
 - 실행 기록은 `tourism_sync_run` 테이블에 남고 `GET /api/team/meta`의 `tourism_data`로 보인다. 2시간 안에 시작된 실행이 있으면 새 실행을 막는다(`--force`로 해제).
 - 일부만 다시: `--steps places,match --sigungu 46840`.
 
-## 5. 지원제도 모듈 연결 (지원제도 담당에게)
+## 5. 지원제도 판정 엔진 연결
 
-F1·F2는 지원 여부를 직접 판정하지 않는다. 지원제도 모듈이 `benefit_port.BenefitPort`를 구현해 앱 시작 시 한 번 등록하면 된다.
+F1·F2는 지원 여부를 직접 판정하지 않는다. `team/routes.py`가 앱 시작 시 `benefit_bridge.BenefitsEnginePort`를 등록하고, 이 포트가 지원제도 담당의 판정 엔진(`app.team.benefits`)을 같은 프로세스 안에서 부른다. 외부 호출은 없다. `POST /api/benefits/check`와 같은 경로(수집·저장된 자료 + 수동 등록 자료 → `engine.evaluate`)를 탄다.
 
-```python
-# 예: 지원제도 모듈 쪽 (지원제도 담당 코드에 맞게 이름을 바꾼다)
-from app.team.benefit_port import (BenefitLookup, CourseConstraints, ProgramSummary,
-                                   RegionBenefitQuery, set_benefit_port)
+- F1: 여행 지역 후보 27곳 각각을 '그 시군구를 여행 기간에 방문하는 일정 1건'(숙박 수·체크인 날짜·인원·거주지 포함)으로 만들어 판정한다.
+- F2: 고른 지원제도(`program_id` = 지원제도 API의 `benefit_id`, 예: `manual:muan-halfprice-2026`) 하나를 그 지역으로 다시 판정해 코스 조건만 꺼낸다.
+- 판정 기준일은 `TEAM_TODAY`(없으면 한국시간 오늘)를 `reference_date`로 넘겨 두 모듈이 같은 '오늘'을 쓴다. 프론트가 `/api/benefits/check`를 직접 부를 때도 `reference_date`에 `meta.today`를 넣으면 같아진다.
 
-class BenefitsAdapter:
-    def lookup(self, q: RegionBenefitQuery) -> BenefitLookup:
-        # q.sigungu_codes 각각을 '그 시군구를 q.trip_start~q.trip_end에 방문하는 일정'으로 보고
-        # 기존 판정 로직을 돌려 시군구별 ProgramSummary 목록을 돌려준다.
-        ...
-    def program(self, program_id: str, q: RegionBenefitQuery) -> ProgramSummary | None:
-        ...
+| ProgramSummary 필드 | 지원제도 엔진에서 가져오는 값 |
+| --- | --- |
+| `program_id`, `round_id`, `name` | `benefit_id`, `round_id`, `name` |
+| `judgment` | `verdict` 그대로 |
+| `application_open` | `can_apply_now` (`null` = 접수 여부 미확인) |
+| `posted_status` | `timeline.posted_status` (`open`·`closing_soon`·`closed`… 영문 값) |
+| `rate`, `cap_krw` | `estimate.refund_rate`(없으면 제도 환급률), `estimate.cap_amount`(구간을 못 고르면 `null`) |
+| `stale`, `last_verified_at`, `source_url` | 수집 신선도 또는 상태 확인 7일 경과, 공식 안내 URL |
+| `reasons` | `불충족: …` / `확인 필요: …` 조건 이름만(사용자 입력값은 넣지 않음) |
+| `constraints` | `visit_rule.must_include`·`min_total_places` → 필수 방문지·최소 장소 수, `stay_rule.min_nights`·`checkin_weekdays` → 숙박 조건 |
 
-set_benefit_port(BenefitsAdapter())
-```
+F1 그룹 규칙(지원제도 엔진 결과 기준):
+- 1순위: `potentially_eligible`, 또는 불충족 조건 없이 확인할 것만 남은 `needs_verification`. 접수 마감(`can_apply_now=false`)이 아님.
+- 2순위: 당일 일정인데 1박 이상 조건(`needs_stay`), 접수 마감(`closed`), 미검증 자료 기준으로 불충족 조건이 있음(`unmet_unverified`), 확인된 조건 불충족(`ineligible`).
 
-| ProgramSummary 필드 | 뜻 | 모르면 |
-| --- | --- | --- |
-| `judgment` | `potentially_eligible` · `ineligible` · `needs_verification` (지원제도 모듈의 판정 그대로) | 필수 |
-| `application_open` | 지금 접수 가능 여부 | `None` |
-| `rate`, `cap_krw`, `posted_status`, `stale`, `last_verified_at`, `source_url` | 카드 표시용 | `None` |
-| `constraints.required_place_names` / `required_content_ids`, `min_spots` | F2 필수 방문지 | `None` |
-| `constraints.min_nights`, `stay_checkin_weekdays`(0=월) | 당일 일정 제외, 숙박 요일 경고 | `None` |
-| `constraints.merchant_region_only` | 식당을 환급 지역 안에서만 고르기(현재는 항상 코스 지역 안에서 고른다) | `None` |
-
-`BenefitLookup.status`는 `ok`·`partial`·`error`를 구분한다. `error`나 연결 전(`not_connected`)이면 F1은 환급 그룹을 비우고 "확인하지 못함"으로 알린다. '지원제도 없음'으로 바꾸지 않는다. 포트가 예외를 던져도 추천은 계속된다.
+수집 출처(공공서비스 API·반값여행 현황)가 미설정·오류·오래됨이면 `benefit_lookup.status = "partial"`과 `failed_sources`가 붙는다. 이때 판정은 저장된 이전 자료와 수동 등록 자료로 하고, 결과가 없는 지역은 '없음'이 아니라 '미확인'(`refund: null`)으로 둔다. `benefit_conditions` 형식이 틀리면 `status = "error"`와 틀린 필드명이 온다. 포트가 예외를 던져도 추천은 계속된다.
 
 ## 6. API (프론트 담당에게)
 
@@ -135,7 +130,7 @@ set_benefit_port(BenefitsAdapter())
 | `POST /courses/{id}/swap` | 바꾸기 | `{day, order, content_id}` → 다시 계산한 코스 |
 | `GET /places/{content_id}?date=YYYY-MM-DD` | 장소 상세 | 소개·쉬는날·이용시간·근거, 그 날짜 휴무 여부 |
 
-예시 값은 테스트용 합성 데이터다(장소명 '테스트…', 지원제도 `muan_test`).
+예시 값은 테스트용 합성 데이터다(장소명 '테스트…', 지원제도 `muan_test`). 실제 응답의 `program_id`는 지원제도 API의 `benefit_id`(예: `manual:muan-halfprice-2026`)라서 `GET /api/benefits/{program_id}`로 상세를 열 수 있다.
 
 ### POST /api/team/recommend
 
@@ -153,7 +148,10 @@ set_benefit_port(BenefitsAdapter())
 ```
 
 - 검증(422): `interests` 서로 다른 1~3개, `start_date` ≥ 오늘(meta.today), `origin`·`interests`는 meta 값, `party_size` 1~20, 모르는 필드 금지.
-- `residence_code`(5자리)·`benefit_conditions`는 선택이며 지원제도 모듈에 그대로 넘긴다. 형식은 지원제도 API의 입력 형식을 따른다.
+- `residence_code`(5자리)·`benefit_conditions`는 선택이며 지원제도 판정에만 쓰고 저장하지 않는다.
+  - `residence_code`는 광주·전남 27개 시군구 코드(수집 1단계를 돌린 뒤에는 전국 법정동 코드)로 거주지를 만든다.
+  - 광주·전남 밖 거주자는 `benefit_conditions.residence = {"sido": "서울특별시", "sigungu": "강남구"}`처럼 이름으로 보낸다.
+  - `benefit_conditions`에서 쓰는 키: `residence`, `departure`, `birth_date`, `age`, `is_family`, `same_address`, `prior_participated_program_ids`, `expected_spend_total` (지원제도 API 입력과 같은 형식). 나머지 키는 버린다.
 
 ```json
 {
@@ -166,7 +164,7 @@ set_benefit_port(BenefitsAdapter())
     "score_breakdown": {"interest": 34, "access": 30, "hub": 12, "season": 0},
     "travel_min": 63, "travel_note": "직선거리 기반 추정치",
     "refund": {"program_id": "muan_test", "round_id": "muan_test-r1", "name": "muan_test 반값여행",
-               "judgment": "potentially_eligible", "badge": "applicable", "posted_status": "접수중",
+               "judgment": "potentially_eligible", "badge": "applicable", "posted_status": "open",
                "application_open": true, "rate": 0.5, "cap_krw": 200000, "stale": false,
                "last_verified_at": "2026-10-30T09:00:00+09:00", "source_url": "https://example.invalid/notice",
                "reasons": ["테스트 판정"]},
@@ -179,7 +177,7 @@ set_benefit_port(BenefitsAdapter())
     "demo_data": false
   }],
   "no_refund_notice": null,
-  "excluded_by_travel_cap": 0,
+  "excluded_by_travel_cap": 0, "excluded_no_data": 23,
   "interest_basis": "content_type",
   "benefit_lookup": {"status": "ok", "checked_at": "2026-10-30T09:00:00+09:00", "scope_note": "…",
                      "message": null, "failed_sources": [], "connected": true},
@@ -196,16 +194,17 @@ set_benefit_port(BenefitsAdapter())
 | `needs_verification` | 판정이 `needs_verification`이거나 접수 상태 미확인 | 1(배지에 '확인 필요') |
 | `needs_stay` | 1박 이상 조건인데 당일 일정 | 2 |
 | `closed` | 접수 마감 | 2 |
+| `unmet_unverified` | 미검증 자료 기준으로 불충족 조건이 있음(예: 보도상 여행 기간이 끝남). 공고 확인 필요 | 2 |
 | `ineligible` | 확인된 필수 조건 불충족(예: 제외 거주지) | 2 |
 | `unknown` (`refund: null`) | 지원제도 확인 실패·미연결·일부 실패로 이 시군구 미확인 | 2 |
 
 | `no_refund_notice.code` | 화면 문구 방향 |
 | --- | --- |
-| `benefit_not_connected` | 지원제도 확인이 아직 연결되지 않음 |
+| `benefit_not_connected` | 지원제도 판정 포트가 등록되지 않음(정상 배포에서는 나오지 않음) |
 | `benefit_lookup_failed` | 확인 실패. "환급제가 없다는 뜻은 아니에요" |
 | `no_applicable_program_in_scope` | 조회한 범위(`scope_note`)에서 찾지 못함 + `nearest_program` |
 
-`notice.code = "tourism_cache_empty"`이면 수집 전이라 `regions`가 비어 있다.
+`notice.code = "tourism_cache_empty"`이면 수집 전이라 `regions`가 비어 있다. 관광 캐시가 하나도 없는 시군구는 코스를 만들 수 없어 추천에서 빼고 `excluded_no_data`로 개수만 알린다.
 
 ### POST /api/team/courses
 
@@ -226,7 +225,7 @@ set_benefit_port(BenefitsAdapter())
   "interests": ["nature", "history"], "party_size": 2, "transport": "car",
   "region": {"sigungu_code": "46840", "name": "무안군", "refund_program_id": "muan_test",
              "refund_program": {"program_id": "muan_test", "round_id": "muan_test-r1", "name": "muan_test 반값여행",
-                                "posted_status": "접수중", "application_open": true, "rate": 0.5, "cap_krw": 200000,
+                                "posted_status": "open", "application_open": true, "rate": 0.5, "cap_krw": 200000,
                                 "stale": false, "last_verified_at": "2026-10-30T09:00:00+09:00",
                                 "source_url": "https://example.invalid/notice"},
              "benefit_status": "ok"},
@@ -343,7 +342,7 @@ cd backend
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-결과(2026-10-30, Windows, Python 3.12.10): **78 passed** (기존 템플릿 테스트 포함). 실제 외부 API는 부르지 않았고 httpx MockTransport·가짜 클라이언트·합성 데이터만 썼다. 템플릿의 `test_team_extension`이 하위 프로세스 출력을 cp949로 읽으면서 경고 1건을 내지만 테스트는 통과한다.
+결과(2026-10-30, Windows, Python 3.12.10, `sale-check` 병합 후): **164 passed, 3 skipped** (기존 템플릿·지원제도 테스트 포함, skipped 3건은 `KIROTHON_LIVE_TESTS=1`일 때만 도는 지원제도 실호출 테스트). `test_benefit_bridge.py`와 `test_course_api.py`의 일부는 지원제도 담당의 실제 판정 엔진·수동 등록 자료로 F1·F2를 끝까지 돌린다. 실제 외부 API는 부르지 않았고 httpx MockTransport·가짜 클라이언트·합성 데이터만 썼다. 템플릿의 `test_team_extension`이 하위 프로세스 출력을 cp949로 읽으면서 경고 1건을 내지만 테스트는 통과한다.
 
 | 파일 | 확인한 것 |
 | --- | --- |
@@ -359,7 +358,8 @@ cd backend
 - [ ] 중심·연관 관광지가 baseYm 202410에 광주·전남 응답을 주는지, 매칭률이 얼마인지.
 - [ ] `seeds/origins.json` 좌표는 구청·역 위치 근사값이다(이동시간 추정용).
 - [ ] `seeds/demo_places.json`은 비어 있다. 실제 장소를 팀이 확인해 넣어야 한다.
-- [ ] 지원제도 모듈 연결 전이라 F1 1순위 그룹은 항상 비고 `benefit_not_connected`가 나온다. 5절대로 연결한 뒤 같은 시나리오를 다시 확인한다.
+- [ ] 지원제도 수동 등록 자료가 모두 미검증(공고 원문 미검토)이라, 지금은 무안·장흥 등도 `needs_verification`(1순위, '확인 필요')까지만 나온다. 지원제도 담당이 공고를 검증하면 `applicable`로 바뀐다. 수집 출처가 서버에서 돌기 전에는 `benefit_lookup.status`가 항상 `partial`이다.
+- [ ] 지원제도의 '대상 섬 중 1곳 이상'(`visit_rule.any_of`) 조건은 F2가 아직 코스에 넣지 않는다. 필수 방문지(`must_include`)·최소 장소 수만 반영한다.
 - [ ] 서버(Bedrock)에서 실제 AI 문장 품질과 30자·금지어 필터 통과율. 로컬은 mock만 확인했다.
 - [ ] 휴무·이용시간 해석은 단순 규칙이다. 공휴일·격주·계절 운영은 `방문 전 확인`으로만 표시한다.
 - [ ] 1박2일은 두 날 중 하루라도 휴무인 관광지를 아예 뺀다(보수적).

@@ -71,12 +71,13 @@ def snapshot(extra: list[PlaceLite] | None = None) -> Snapshot:
 
 
 def program(pid="muan_test", judgment="potentially_eligible", application_open=True, cap=200_000,
-            codes=(MUAN,), **constraints) -> ProgramSummary:
+            codes=(MUAN,), unmet_codes=(), **constraints) -> ProgramSummary:
     return ProgramSummary(program_id=pid, name=f"{pid} 반값여행", judgment=judgment, round_id=f"{pid}-r1",
-                          sigungu_codes=tuple(codes), posted_status="접수중" if application_open else "마감",
+                          sigungu_codes=tuple(codes), posted_status="open" if application_open else "closed",
                           application_open=application_open, rate=0.5, cap_krw=cap, stale=False,
                           last_verified_at="2026-10-30T09:00:00+09:00", source_url="https://example.invalid/notice",
-                          reasons=("테스트 판정",), constraints=CourseConstraints(**constraints))
+                          reasons=("테스트 판정",), unmet_codes=tuple(unmet_codes),
+                          constraints=CourseConstraints(**constraints))
 
 
 class FakePort:

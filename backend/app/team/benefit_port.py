@@ -9,9 +9,10 @@ F1/F2 need from it, so neither side guesses the other's internals:
 * F2 asks for the course constraints of one chosen program (required places,
   stay weekdays, merchant region) and never re-judges eligibility.
 
-Until the benefits module calls `set_benefit_port(...)`, the default port
-reports `not_connected`; F1 then shows no refund group instead of claiming that
-no program exists. Values the benefits module could not confirm stay None.
+team/routes.py registers benefit_bridge.BenefitsEnginePort, which runs the
+benefits engine in-process. Without a registered port the default reports
+`not_connected`; F1 then shows no refund group instead of claiming that no
+program exists. Values the benefits module could not confirm stay None.
 """
 from dataclasses import asdict, dataclass, field
 from datetime import date
@@ -47,6 +48,7 @@ class ProgramSummary:
     source_url: str | None = None
     apply_url: str | None = None
     reasons: tuple[str, ...] = ()
+    unmet_codes: tuple[str, ...] = ()  # codes of unmet conditions, e.g. ("stay",)
     constraints: CourseConstraints = field(default_factory=CourseConstraints)
 
     def to_dict(self) -> dict:

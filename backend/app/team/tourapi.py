@@ -18,6 +18,9 @@ import httpx
 
 BASE_URL = "https://apis.data.go.kr/B551011"
 KEY_ENV = "TOURAPI_SERVICE_KEY"
+# A data.go.kr key belongs to the account, so the benefits module's key also works
+# once the tourism APIs are approved for that account.
+SHARED_KEY_ENV = "KIROTHON_DATA_GO_KR_SERVICE_KEY"
 APP_ENV = "TOURAPI_MOBILE_APP"
 OPERATIONS = {
     "KorService2": {"ldongCode2", "lclsSystmCode2", "areaBasedList2", "locationBasedList2",
@@ -59,8 +62,12 @@ class Page:
     num_of_rows: int
 
 
+def env_service_key() -> str:
+    return (os.environ.get(KEY_ENV, "").strip() or os.environ.get(SHARED_KEY_ENV, "").strip())
+
+
 def has_service_key() -> bool:
-    return bool(os.environ.get(KEY_ENV, "").strip())
+    return bool(env_service_key())
 
 
 class TourApiClient:
@@ -68,9 +75,9 @@ class TourApiClient:
                  min_interval: float = 0.2, retries: int = 2,
                  transport: httpx.BaseTransport | None = None,
                  sleep: Callable[[float], None] = time.sleep):
-        key = (service_key if service_key is not None else os.environ.get(KEY_ENV, "")).strip()
+        key = (service_key if service_key is not None else env_service_key()).strip()
         if not key:
-            raise TourApiError("config", f"{KEY_ENV} 환경변수가 설정되지 않았습니다.")
+            raise TourApiError("config", f"{KEY_ENV}(또는 {SHARED_KEY_ENV}) 환경변수가 설정되지 않았습니다.")
         # Decoding key goes into params; an Encoding key would be double-encoded.
         self._key = unquote(key)
         self._app = os.environ.get(APP_ENV, "").strip() or "RefundFirstCourse"
