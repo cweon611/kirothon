@@ -264,63 +264,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .mobile-progress span { flex: 1; height: 2px; background: transparent; }
 .mobile-progress span.active { background: var(--teal); }
 
-@media (min-width: 640px) {
-  .field-grid { grid-template-columns: 1fr 1fr; }
-  .home-hero { padding-left: 46px; }
-  .form-card { margin-left: 34px; margin-right: 34px; padding: 32px; }
-  .sticky-action { left: 50%; width: 760px; transform: translateX(-50%); }
-  .compact-region-card img { width: 105px; }
-  .timeline-row { grid-template-columns: 52px 30px 1fr; gap: 8px; }
-  .schedule-card { padding: 12px; }
-  .schedule-card img, .departure-icon { width: 85px; height: 82px; flex-basis: 85px; }
-  .schedule-title { font-size: 15px; }
-  .schedule-copy p { font-size: 10px; }
-}
 
-@media (min-width: 1024px) {
-  body { background: var(--white); }
-  .app-shell { display: grid; grid-template-columns: 320px minmax(0, 1fr); min-height: 100vh; }
-  .desktop-rail { display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; padding: 38px 34px; color: var(--white); background: var(--navy); }
-  .desktop-rail .brand { color: var(--white); }
-  .desktop-rail .brand-mark { color: var(--navy); background: #8ed1c1; }
-  .rail-copy { display: flex; flex-direction: column; margin-top: 68px; }
-  .rail-copy .eyebrow { color: #8ed1c1; }
-  .rail-title { margin-top: 10px; font-size: 28px; line-height: 1.35; font-weight: 800; letter-spacing: -.05em; }
-  .rail-description { margin-top: 14px; color: rgba(255,255,255,.56); font-size: 12px; line-height: 1.75; }
-  .rail-nav { display: flex; flex-direction: column; gap: 5px; margin-top: 45px; }
-  .rail-step { display: flex; align-items: center; gap: 12px; border: 0; padding: 10px; border-radius: 12px; color: rgba(255,255,255,.38); background: transparent; font-size: 12px; font-weight: 700; text-align: left; cursor: default; }
-  .rail-step.done { color: rgba(255,255,255,.68); cursor: pointer; }
-  .rail-step.active { color: var(--white); background: rgba(255,255,255,.09); }
-  .rail-step-number { width: 27px; height: 27px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.2); border-radius: 9px; font-size: 10px; }
-  .rail-step.active .rail-step-number { border-color: #8ed1c1; color: var(--navy); background: #8ed1c1; }
-  .rail-step.done .rail-step-number { color: #8ed1c1; border-color: #8ed1c1; }
-  .rail-support { display: flex; align-items: center; gap: 8px; margin-top: auto; color: rgba(255,255,255,.5); font-size: 10px; }
-  .app-main { min-width: 0; background: var(--ivory); }
-  .home-screen, .content-screen { max-width: 840px; padding-bottom: 60px; }
-  .site-header { height: 82px; padding-left: 34px; padding-right: 34px; }
-  .home-screen .site-header .brand { visibility: hidden; }
-  .content-screen .site-header { margin-left: -20px; margin-right: -20px; }
-  .slogan { display: block; }
-  .home-hero { min-height: 390px; border-radius: var(--radius-xl); margin: 0 20px; padding: 64px 54px; }
-  .hero-art { width: 430px; height: 300px; right: -60px; }
-  .form-card { margin-top: -48px; }
-  .sticky-action { position: static; width: auto; transform: none; border: 0; padding: 24px 34px 0; background: transparent; backdrop-filter: none; }
-  .sticky-action .button { min-height: 56px; }
-  .mobile-progress { display: none; }
-  .page-header { padding-top: 26px; }
-  .page-title { font-size: 30px; }
-  .featured-card { display: grid; grid-template-columns: 48% 52%; }
-  .photo-collage { height: 100%; min-height: 440px; }
-  .featured-body { display: flex; flex-direction: column; justify-content: center; padding: 34px; }
-  .region-name { font-size: 34px; }
-  .secondary-results { grid-template-columns: 1fr 1fr; }
-  .trip-summary { padding: 25px 28px; }
-  .timeline { max-width: 700px; margin: 0 auto; }
-  .benefit-screen, .checklist-screen { max-width: 760px; }
-  .benefit-hero { padding: 30px; }
-  .refund-amount strong { font-size: 48px; }
-  .checklist-card { grid-template-columns: 38px 48px 1fr; padding: 18px; }
-}
 
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; transition: none !important; }
@@ -414,17 +358,14 @@ button { -webkit-tap-highlight-color: transparent; }
 .gauge-track span { background: var(--teal); }
 .gauge-tip, .calculation-total { color: var(--teal-dark); background: var(--teal-pale); }
 
-@media (min-width: 640px) {
-  .home-hero { padding-left: 50px; }
-  .form-card { margin-left: 38px; margin-right: 38px; padding: 36px; }
-}
 
-@media (min-width: 1024px) {
-  .home-hero { min-height: 390px; margin: 0 20px; padding: 66px 62px; }
-  .hero-art { width: 285px; height: 205px; right: 8px; bottom: 10px; }
-  .form-card { margin-top: 24px; }
-  .sticky-action .button { min-height: 52px; }
-  .featured-card { grid-template-columns: 46% 54%; }
-  .photo-collage { min-height: 400px; }
-  .featured-body { padding: 32px; }
+
+/* Phone frame: wider screens show the mobile layout in a centered 412px column. */
+@media (min-width: 500px) {
+  html { background: #dfe6e3; }
+  body { background: transparent; }
+  #root { width: 412px; margin: 0 auto; min-height: 100vh; background: var(--ivory); box-shadow: 0 0 0 1px rgba(17,47,59,.06), 0 24px 70px rgba(17,47,59,.18); }
+  .sticky-action { left: 50%; right: auto; width: 412px; transform: translateX(-50%); }
+  .mobile-progress { max-width: 412px; }
+  .dart-home-shell .review-preview-notice { left: calc(50% - 188px); max-width: 376px; }
 }

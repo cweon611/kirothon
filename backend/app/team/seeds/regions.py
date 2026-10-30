@@ -1,4 +1,6 @@
-{
+"""Sigungu seed: Gwangju 5 gu + Jeonnam 22 sigun with internal 5-digit codes."""
+
+DATA = {
   "_note": "내부 지역 키는 2026-07-01 통합특별시 출범 이전의 5자리 시군구 코드다. 중심·연관 관광지 API(제공 기간 2024-05~2025-04)의 areaCd·signguCd에 그대로 쓰고, KorService2 법정동 코드는 sync_tourism의 ldongCode2 응답으로 이름 대조해 다시 확인한다(tourism-codes.json).",
   "sido": [
     {"area_cd": "29", "name": "광주광역시"},

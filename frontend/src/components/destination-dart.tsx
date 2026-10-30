@@ -1,16 +1,18 @@
 import { useEffect, useRef, useState, type PointerEvent, type KeyboardEvent } from 'react'
-import { ArrowRight, ChevronDown, Compass, MapPin, RotateCcw, Sparkles, ExternalLink, MoveDown } from 'lucide-react'
-import map from '@/data/korea-map.json'
+import { ArrowRight, ChevronDown, Compass, MapPin, RotateCcw, Sparkles, ExternalLink } from 'lucide-react'
+import map from '@/datasets/korea-map.json'
 import { mapPoint, clampPull, randomLanding, nearestDestination, flightPoint, SLING, MIN_PULL, type Point, type Destination } from '@/lib/destination'
 import { isOpen, isStale, type Benefit } from '@/lib/benefits'
+import { regionDirectionsUrl } from '@/lib/directions'
+import { DirectionsLink } from '@/components/directions-link'
 import './destination-dart.css'
 
 const palette = ['#82b3aa', '#9caac9', '#c9b68c', '#aabda0', '#c69ca8', '#a0b5c5']
 const anchors = map.regions.map(region => ({ ...region, ...mapPoint(region) }))
 const labelOffsets: Record<string, Point> = {강진군:{x:-24,y:-10},장흥군:{x:25,y:-12},해남군:{x:-22,y:20},완도군:{x:0,y:24},영암군:{x:0,y:-16},고흥군:{x:0,y:-16},영광군:{x:0,y:-16}}
 
-export function DestinationDart({ data, loading, error, onRetry, onChoose, onBrowse }: {
-  data: Benefit[]; loading: boolean; error: string; onRetry: () => void;
+export function DestinationDart({ data, loading, error, origin, onRetry, onChoose, onBrowse }: {
+  data: Benefit[]; loading: boolean; error: string; origin: string; onRetry: () => void;
   onChoose: (row: Destination) => void; onBrowse: () => void;
 }) {
   const [result, setResult] = useState<Destination | null>(null)
@@ -90,17 +92,18 @@ export function DestinationDart({ data, loading, error, onRetry, onChoose, onBro
   }
   function select(row: Destination) { if(busy.current)return;setResult(row);setBall(null);setLanding(null);setDirectOpen(false);setAim({x:0,y:0});setMessage(`${row.region_name}을 직접 선택했어요.`) }
   return <section className="dart-experience sling-experience" aria-labelledby="dart-title">
-    <div className="dart-copy"><span className="dart-eyebrow"><span/> 방향은 내가, 도착은 뜻밖으로</span><h1 id="dart-title">이번 여행은,<br/><em>당겨서 떠나요.</em></h1><p className="dart-description">새총을 당기고, 손을 놓으면.<br/>어디까지 날아갈지는, 작은 우연에 맡겨요.</p><div className="dart-instructions"><span>01 당기고</span><i/><span>02 놓으면</span><i/><span>03 여행 시작</span></div>
-      <div className="dart-controls"><div className="sling-guide"><span className="sling-guide-icon"><MoveDown size={25}/></span><div><strong>{flying?'어디에 도착할까요?':result?'이번 여행지는 정해졌어요':'지도 아래 노란 탄환을 당겨보세요'}</strong><small>방향만 골라요 · 날아가는 거리는 랜덤</small></div></div>{result && <button className="sling-reset" onClick={reset}><RotateCcw size={17}/> 다시 당기기</button>}<div className="dart-secondary-actions"><button disabled={!available||flying} aria-expanded={directOpen} aria-controls="direct-destinations" onClick={()=>setDirectOpen(value=>!value)}><MapPin size={15}/> 직접 고를래요 <ChevronDown size={14}/></button><button onClick={onBrowse}>혜택 목록 보기 <ArrowRight size={14}/></button></div>{directOpen && <div id="direct-destinations" className="dart-direct-list" aria-label="직접 여행지 선택">{['광주','전라남도'].map(province=><div className="destination-group" key={province}><h2>{province} <span>{province==='광주'?'5개 구':'22개 시군'}</span></h2><div>{candidates.filter(row=>row.province===province).map(row=><button key={row.id} onClick={()=>select(row)}>{row.region_name.replace('광주 ','')}<ArrowRight size={13}/></button>)}</div></div>)}</div>}
-        <p className="dart-scope"><Compass size={14}/>광주 5개 구 · 전남 22개 시군 전체<br/><span>착지한 곳에서 가장 가까운 여행지를 골라요.</span></p>{error&&<div className="dart-error" role="status"><p>혜택 연결이 지연 중이에요. 여행지는 모두 고를 수 있어요.</p><button onClick={onRetry}>혜택 다시 불러오기</button></div>}
-
-      </div>
+    <h1 id="dart-title" className="sr-only">광주·전남 여행지도</h1>
+    <div className="map-region-summary"><Compass size={15}/><span>광주 · 전남</span><small>27개 여행지</small></div>
+    <div className="dart-controls">
+      <div className="dart-secondary-actions"><button disabled={!available||flying} aria-expanded={directOpen} aria-controls="direct-destinations" onClick={()=>setDirectOpen(value=>!value)}><MapPin size={16}/> 지역 선택 <ChevronDown size={14}/></button><button onClick={onBrowse}>혜택 목록 <ArrowRight size={15}/></button></div>
+      {directOpen && <div id="direct-destinations" className="dart-direct-list" aria-label="직접 여행지 선택">{['광주','전라남도'].map(province=><div className="destination-group" key={province}><h2>{province} <span>{province==='광주'?'5개 구':'22개 시군'}</span></h2><div>{candidates.filter(row=>row.province===province).map(row=><button key={row.id} onClick={()=>select(row)}>{row.region_name.replace('광주 ','')}<ArrowRight size={13}/></button>)}</div></div>)}</div>}
+      {error&&<div className="dart-error" role="status"><p>여행지는 모두 선택할 수 있어요.</p><button onClick={onRetry}>혜택 다시 불러오기</button></div>}
     </div>
     <div className={`dart-stage sling-stage ${dragging?'is-aiming':''} ${flying?'is-flying':''} ${result?'has-result':''}`}>
-      <div className="map-toolbar"><span><span className="map-live-dot"/> TRAVEL SLING</span><span>광주 <i> & </i> 전남</span></div><div className="map-compass" aria-hidden="true">N<span>✦</span></div>
+      <div className="map-compass" aria-hidden="true">N<span>✦</span></div>
       <svg ref={svg} className="destination-map sling-map" viewBox="0 0 520 650" role="group" aria-label="광주 전남 여행지도와 직접 당기는 새총">
         <defs><radialGradient id="map-ocean"><stop stopColor="#244e66"/><stop offset="1" stopColor="#132e45"/></radialGradient><pattern id="map-grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#aecacb" strokeOpacity=".07" strokeWidth=".7"/></pattern><linearGradient id="sling-wood" x1="0" y1="0" x2="1" y2="0"><stop stopColor="#925a34"/><stop offset=".5" stopColor="#d7a46d"/><stop offset="1" stopColor="#b47741"/></linearGradient><radialGradient id="sling-ball" cx=".3" cy=".25"><stop stopColor="#fff0b2"/><stop offset=".6" stopColor="#edbd66"/><stop offset="1" stopColor="#b77b36"/></radialGradient></defs>
-        <rect width="520" height="650" fill="url(#map-ocean)"/><rect width="520" height="650" fill="url(#map-grid)"/>
+
         <g transform="translate(-300 -1070) scale(3)" aria-hidden="true">{map.provinces.map(province=><path key={province.name} d={province.path} fill={province.name==='Gwangju'?'#bd9fb8':'#94b4a4'} stroke="#e1ead8" strokeWidth=".5"/>)}{map.counties.map((county,i)=><path key={`${county.name}-${i}`} className={destination?.shape===county.name?'county selected-county':'county'} d={county.path} fill={palette[i%palette.length]} fillOpacity=".82" stroke="#dfe9dc" strokeWidth=".7" vectorEffect="non-scaling-stroke"/>)}</g>
         <text className="gwangju-label" x="262" y="113" textAnchor="middle">광주</text><text className="sea-label" x="45" y="325">서 해</text><text className="sea-label" x="398" y="469">남 해</text>
         {anchors.map(region=>{const offset=labelOffsets[region.name] || {x:0,y:-15};return <g key={region.name} transform={`translate(${region.x},${region.y})`} className={`sling-destination ${result?.region_name===region.name?'picked':''}`} role="button" tabIndex={flying?-1:0} aria-label={`${region.name} 선택`} onClick={()=>select(region)} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();select(region)}}}><circle className="region-pin-halo" r="12"/><circle r="5" fill={result?.region_name===region.name?'#fff1c8':'#efc77f'} stroke="#184255" strokeWidth="2"/><text x={offset.x} y={offset.y} textAnchor="middle">{region.name}</text>{result?.region_name===region.name&&<circle className="landing-ring" r="20"/>}</g>})}
@@ -113,8 +116,8 @@ export function DestinationDart({ data, loading, error, onRetry, onChoose, onBro
         {!dragging&&!flying&&!result&&!aiming&&<g className="pull-hint" aria-hidden="true"><path d="M315 530v39m-5-5l5 5 5-5" fill="none" stroke="#d9c293" strokeWidth="1.5" strokeDasharray="3 3"/><text x="330" y="550">당겨요</text></g>}
       </svg>
       <div className="sling-status" role="status" aria-live="polite">{aiming?<><span>{directionLabel}</span><span>거리는 랜덤 · 손을 놓으면 출발!</span></>:<span>{message}</span>}</div>
-      {result&&<div className="dart-result sling-result"><div className="result-stamp"><Sparkles size={15}/>{landing?'내가 쏜 곳에서 시작하는 여행':'직접 고른 여행지'}</div><div className="dart-result-title"><div><span>{result.province} · {landing?'착지 지점 근처':'여행 목적지'}</span><h2 tabIndex={-1} ref={resultHeading}>{result.region_name}</h2></div><span className="destination-seal"><MapPin size={24}/></span></div><p>{loading?'혜택 목록을 확인하고 있어요.':error?'혜택 목록 연결이 지연 중이에요. 다음 화면에서 기간별로 다시 확인해요.':!benefit?'다음 화면에서 여행 기간의 축제와 지원제도를 확인해요.':isStale(benefit)?'수집된 혜택 정보가 오래됐어요. 다음 화면에서 기간별로 확인해요.':isOpen(benefit)?'접수중으로 게시된 차수가 있어요. 여행 기간과 맞는지는 다음 화면에서 확인해요.':`수집된 혜택 상태: ${benefit.source_status||'확인 필요'} · 기간별 판정은 다음 화면에서`}</p><button className="dart-result-cta" onClick={()=>onChoose(result)}>축제·혜택 둘러보기 <ArrowRight size={18}/></button><button className="sling-result-reset" onClick={reset}><RotateCcw size={14}/> 다시 당겨볼래요</button></div>}
+      {result&&<div className="dart-result sling-result"><div className="result-stamp"><Sparkles size={15}/>{landing?'내가 쏜 곳에서 시작하는 여행':'직접 고른 여행지'}</div><div className="dart-result-title"><div><span>{result.province} · {landing?'착지 지점 근처':'여행 목적지'}</span><h2 tabIndex={-1} ref={resultHeading}>{result.region_name}</h2></div><span className="destination-seal"><MapPin size={24}/></span></div><p>{loading?'혜택 정보를 확인하고 있어요.':error?'혜택 연결이 지연 중이에요. 축제는 따로 살펴볼 수 있어요.':!benefit?'지역 축제를 살펴보세요. 연결된 환급 혜택은 아직 없어요.':isStale(benefit)?'혜택 접수 상태를 다시 확인해 주세요.':isOpen(benefit)?'공식 안내에 접수중으로 표시된 여행 혜택이 있어요.':`수집된 혜택 상태: ${benefit.source_status||'확인 필요'}`}</p><button className="dart-result-cta" onClick={()=>onChoose(result)}>이 지역 일정 추천받기 <ArrowRight size={18}/></button>{!loading&&!benefit&&<DirectionsLink url={regionDirectionsUrl(origin,result.region_name)}>혜택 없이 바로 길찾기</DirectionsLink>}<button className="sling-result-reset" onClick={reset}><RotateCcw size={14}/> 다시 당겨볼래요</button></div>}
     </div>
-    <div className="dart-footer"><span>방향은 내가 정하고, 여행은 가볍게.</span><a href="https://www.geoboundaries.org/" target="_blank" rel="noopener noreferrer">지도: geoBoundaries · 가공한 여행 약도 <ExternalLink size={10}/></a></div>
+    <div className="dart-footer"><a href="https://www.geoboundaries.org/" target="_blank" rel="noopener noreferrer">지도: geoBoundaries · 가공한 여행 약도 <ExternalLink size={10}/></a></div>
   </section>
 }

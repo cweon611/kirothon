@@ -1,7 +1,9 @@
 """Static seeds (sigungu, origins, interests) and codes resolved by sync_tourism."""
+import copy
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from functools import lru_cache
+from importlib import import_module
 import json
 import os
 from pathlib import Path
@@ -10,7 +12,6 @@ import re
 from ..database import DB_PATH
 
 KST = timezone(timedelta(hours=9))
-SEEDS = Path(__file__).with_name("seeds")
 CONTENT_TYPES = {"12": "관광지", "14": "문화시설", "15": "축제공연행사", "25": "여행코스",
                  "28": "레포츠", "32": "숙박", "38": "쇼핑", "39": "음식점"}
 SPOT_TYPES = ("12", "14", "28")
@@ -54,34 +55,35 @@ class Interest:
 
 
 def _seed(name: str) -> dict:
-    return json.loads((SEEDS / name).read_text(encoding="utf-8"))
+    # Seeds are modules (seeds/<name>.py), since the deploy tool ships only .py under backend/app.
+    return copy.deepcopy(import_module(f"{__package__}.seeds.{name}").DATA)
 
 
 @lru_cache
 def sigungu_map() -> dict[str, Sigungu]:
     return {row["code"]: Sigungu(row["code"], row["name"], row["sido"])
-            for row in _seed("regions.json")["sigungu"]}
+            for row in _seed("regions")["sigungu"]}
 
 
 @lru_cache
 def origins() -> dict[str, Origin]:
     return {row["key"]: Origin(row["key"], row["name"], row["sigungu_code"], row["lat"], row["lng"])
-            for row in _seed("origins.json")["origins"]}
+            for row in _seed("origins")["origins"]}
 
 
 @lru_cache
 def interests() -> dict[str, Interest]:
     return {row["key"]: Interest(row["key"], row["label"], row["level"], tuple(row["keywords"]),
                                  tuple(row["content_types"]))
-            for row in _seed("interest_map.json")["interests"]}
+            for row in _seed("interest_map")["interests"]}
 
 
 def place_overrides() -> dict[str, str]:
-    return dict(_seed("place_overrides.json").get("overrides") or {})
+    return dict(_seed("place_overrides").get("overrides") or {})
 
 
 def demo_places() -> list[dict]:
-    return list(_seed("demo_places.json").get("places") or [])
+    return list(_seed("demo_places").get("places") or [])
 
 
 def today_kst() -> tuple[date, bool]:

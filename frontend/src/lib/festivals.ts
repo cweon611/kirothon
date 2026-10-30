@@ -1,6 +1,8 @@
 export type Festival = {
   id:string; region_name:string; title:string; start_date:string|null; end_date:string|null;
   period_note:string; location:string; source_url:string; source_status:string; collected_at:string;
+  /** Data provider label when known (e.g. 한국관광공사 TourAPI). */
+  source?:string;
 }
 export function festivalState(row:Festival, start:string, end:string, today:string) {
   if (/취소|연기|미정/.test(row.source_status)) return 'unconfirmed'

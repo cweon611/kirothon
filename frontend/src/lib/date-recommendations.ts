@@ -1,4 +1,6 @@
 // Client for POST /api/team/date-recommendations (backend/app/team/date_recommend.py).
+import type { Festival } from './festivals.ts'
+
 export type Judgment = 'potentially_eligible' | 'needs_verification' | 'ineligible'
 export type Period = { start: string | null; end: string | null } | null
 export type FestivalItem = {
@@ -80,6 +82,31 @@ export function regionRequest(code: string, start: string, end: string,
   return { start_date: start, end_date: end, sigungu_code: code,
     residence: user.residence && /^\d{5}$/.test(user.residence) ? user.residence : undefined,
     party_size: typeof party === 'number' && Number.isInteger(party) && party >= 1 ? party : undefined }
+}
+
+export type FestivalOutcome = {
+  rows: Festival[];
+  /** found / none_in_period / unavailable (collection failed or never collected: not "no festivals"). */
+  state: 'found' | 'none_in_period' | 'unavailable';
+  /** Last collection attempt failed; rows come from the previous successful collection. */
+  usingPrevious: boolean;
+  lastSuccessAt: string | null;
+}
+
+/** Map the selected destination's festivals onto the existing festival card shape. Nothing is invented. */
+export function festivalsFromSelected(data: DateRecommendResponse, region: string): FestivalOutcome {
+  const sel = data.selected_region
+  const src = data.data_status.festivals
+  const toRow = (f: FestivalItem): Festival => ({
+    id: f.content_id, region_name: region, title: f.title, start_date: f.start_date, end_date: f.end_date,
+    period_note: `${f.start_date || '날짜 미확인'} ~ ${f.end_date || '날짜 미확인'}`,
+    location: f.place || '장소 미확인', source_url: f.source_url || '', source_status: '',
+    collected_at: f.fetched_at || '', source: f.source,
+  })
+  const rows = sel ? [...sel.festivals, ...sel.festivals_undated].map(toRow) : []
+  const state = sel?.states.festivals ?? 'unavailable'
+  return { rows, state, usingPrevious: state !== 'unavailable' && src.status !== 'ok',
+           lastSuccessAt: src.last_success_at }
 }
 
 export function validateDates(start: string, end: string, today: string): string | null {

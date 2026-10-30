@@ -1,5 +1,102 @@
 # 전남대학교 Kirothon 공통 스타터 r2
 
+## 갈랑가? 프론트
+
+첫 화면은 **광주·전남 새총 여행지도**다. 지도 아래 노란 탄환을 뒤로 당겼다 놓으면,
+당긴 반대 방향으로 발사되고 거리는 무작위로 정해진다. 착지점에서 가장 가까운 연결 지역을 고른다. 기존 취향 입력
+폼은 제거했다. 광주 5개 구와 전남 22개 시군 전체가 선택 대상이다. 혜택이 없는 지역이나 API 장애 중에도 여행지를 고를 수 있다.
+
+짧은 방향 안내, 다시 당기기, 직접 지역 선택, 키보드 방향키+Enter 발사를 지원한다.
+당긴 길이는 비행 거리를 정하지 않는다. 놓을 때 거리와 소폭의 좌우 편차를 무작위로 정하므로 같은 방향도 다른 결과가 나올 수 있다. 지도는 geoBoundaries
+공개 경계를 가공한 로컬 SVG로, 출처·라이선스는 `frontend/src/datasets/MAP-SOURCES.md`에 기록했다.
+지역 선택 후 여행 정보 수정에서 날짜·여행 유형·인원을 바꿀 수 있다. 혜택 목록·비교,
+일정 추천·혜택 상세·증빙 체크리스트는 기존 흐름과 연결된다.
+입력과 체크 상태는 탭의 sessionStorage에 보관한다. 여행지 목록은 독립된 27개 지역 카탈로그이며, 혜택 카드만 `/api/team/benefits`를 사용한다.
+환급 자격·금액은 미검증 상태를 표시한다. 여행지를 고르면 **일정 추천** 화면에서 여행 조건을 바로 고치고, `POST /api/team/courses`로 만든 지역 내 코스(최대 3개)와 상세 일정·장소 정보를 확인한다. 관광 데이터가 수집되지 않았으면 안내와 기본 시간표를 보여준다.
+
+준비 체크리스트의 **사진·영수증으로 증빙 정리하기**에서 방문 사진·결제 영수증·숙박 증빙을
+추가하고 장소·사용일·금액·메모를 작성할 수 있다. 미리보기 후 원본 이미지가 포함된 HTML
+정리본을 다운로드한다. 파일을 브라우저에서 열어 인쇄할 수 있다. OCR·공식 신청서 생성·실제
+지자체 제출은 연결하지 않았다. 입력한 지출 합계는 환급 예상액이 아니다.
+
+첨부 파일은 서버나 sessionStorage에 저장하지 않고 현재 탭의 메모리에만 보관한다.
+단계 이동 시 유지되지만 새로고침·탭 종료 시 사라지므로 정리본을 먼저 다운로드해야 한다.
+지역·여행일·여행 유형별로 자료를 분리한다. JPG/PNG/WebP, 파일당 8MB, 최대 12개·총 32MB를 지원한다.
+
+기본 실행은 아래 Windows 스크립트를 사용한다. 다른 앱이 5173/8000을 쓰는 경우:
+
+```powershell
+# 백엔드: 프로젝트 루트에서 실행
+$env:KIROTHON_DB_PATH = (Resolve-Path .local-data/records.sqlite3).Path
+$env:KIROTHON_AI_MODE = 'mock'
+Push-Location backend
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8001
+Pop-Location
+
+# 프론트: 별도 창에서 실행
+$env:KIROTHON_API_TARGET = 'http://127.0.0.1:8001'
+Push-Location frontend
+npm run dev -- --port 5174
+Pop-Location
+```
+
+프론트 검증: `npm run build` (frontend에서), `node --test frontend/tests/*.test.mjs` (루트에서 Node 24 사용).
+Figma 참고: https://www.figma.com/make/iuBglwT6bihXejhQULFX1k/
+
+## 팀 확인용 Vercel 미리보기
+
+https://kirothon-team-review-20261030.vercel.app
+
+본 서버와 분리된 정적 UI 미리보기다. 로그인 없이 열리며, 2026-10-30에 수집한 공개 혜택 7건과
+축제 54건의 스냅샷을 사용한다. 새총·전체 27개 지역·날짜별 축제·사진/영수증 정리 흐름을 확인할 수 있다.
+실제 신청·서버 업로드·실시간 갱신은 연결하지 않았다. 사진은 브라우저 메모리에만 머문다.
+Git 자동 배포는 연결하지 않았고 실제 백엔드·운영 DB·환경변수는 배포하지 않았다.
+
+재생성: `VITE_REVIEW_PREVIEW=true` 환경변수로 frontend를 빌드한 뒤
+`python ops/prepare_review_preview.py .local-data/<새 폴더>`를 실행하고 해당 정적 폴더만 Vercel에 배포한다.
+일반 빌드는 기존 로컬 API를 사용한다. Vercel의 신규 프로젝트 첫 배포는 플랫폼상 production으로
+분류되지만, 이 프로젝트 자체는 팀 UI 확인용이며 기존 공식 서비스와 연결되지 않는다.
+
+## 지역별 축제 추천
+
+여행지 선택 후 **축제·여행 혜택** 화면에서 해당 지역의 축제를 확인한다.
+여행일과 겹치는 축제 우선, 다른 일정·종료 행사·일정 미상을 구분한다. 확인된 행사가 없는
+지역은 빈 상태와 공식 목록 링크를 제공한다. 7일 지난 수집은 재확인 필요로 표시한다.
+
+- 공식 출처: https://www.mcst.go.kr/site/s_culture/festival/festivalList.jsp
+- 2026-10-30 수집: 54건 / 24개 지역. 모든 27개 지역에서 추천 영역을 제공하며 전체 축제의 완전한 목록을 보장하지 않는다.
+- DB: `.local-data/records.sqlite3`의 `regional_festival` 신규 테이블.
+- API: `GET /api/team/festivals?region=화순군` (광주는 `광주 북구`처럼 정확한 이름).
+- 수집: backend에서 `.\.venv\Scripts\python.exe -m app.team.festival_collector --year 2026`.
+- 공개 목록의 일정·지역·제목만 수집하며 사진/소개문을 복제하지 않는다. robots 확인, 0.5초 간격, 최대 30페이지/목록, 원본/해시 보관.
+- 자동 주기 수집은 설정하지 않았다. 재수집은 기존 ID를 갱신하고 실패 시 캐시를 덮어쓰지 않는다. 과거 기록은 삭제하지 않으며 취소/변경 여부는 방문 전 공식 안내에서 확인한다.
+- `/api/team/benefits`는 기존 `refund_program` 표의 읽기 전용 화면 호환 API다. 새 `/api/benefits` 자격 판정 엔진과 별개이며 금액/자격을 추정하지 않는다.
+
+## 여행 혜택 수집 (팀 확장)
+
+대한민국 구석구석 반값여행 공식 HTML에서 광주·전남 지역 카드를 수집한다.
+프로젝트 루트에서 다음을 실행한다. Python 3.12 가상환경과 기존 잠금 파일 의존성이 필요하다.
+
+```powershell
+Push-Location backend
+.\.venv\Scripts\python.exe -m app.team.benefit_collector
+Pop-Location
+```
+
+- 로컬 DB: `.local-data/records.sqlite3`의 `refund_program`, `benefit_collection` 테이블.
+- 확인용 내보내기: `.local-data/refund-programs.json`. 수집 원본·robots.txt·해시는 `.local-data/crawl/`.
+- 기존 로컬 백엔드 실행 후 `GET /api/team/benefits`, `GET /api/team/benefits/{id}`로 조회한다.
+- 목록은 `region=장흥군`, `limit=50`, `offset=0` 필터·페이지 처리를 지원한다.
+- `source_status`는 공식 페이지의 표기다. `status=확인 필요`, `verified_at=null`은 지자체 개별 공고의 조건 검증이 아직 안 됐다는 뜻이다.
+- 환급률·한도·자격조건은 임의 추정하지 않는다. 검증 전에는 null이고 자동 환급 계산에 사용할 수 없다.
+- 수집 시각과 공고 검증 시각은 별개다. 검증되지 않았거나 검증 후 7일이 지나면 API의 `needs_review=true`가 된다.
+- 사이트 지역 코드는 법정동 코드가 아니다. `source_region_code_system`을 확인한다.
+- 재실행은 중복 추가하지 않는다. 사실 변경·원문에서 누락 시 검증을 해제하며 기존 기록은 삭제하지 않는다.
+- 원본 HTML, DB, JSON은 Git 제외 대상이다. 서버 배포·자동 주기 수집은 별도 작업이다.
+
+현재 범위는 해당 페이지의 지역사랑 휴가지원이다. 무안 별도 사업·섬 반값여행·관광주민증 가맹점 할인 및 공공 API 관광 캐시는 아직 포함하지 않는다.
+출처: https://korean.visitkorea.or.kr/dgtourcard/tour50.do
+
 운영진 검증용 후보 버전이다. 학생 공지문이나 완성된 주제 서비스가 아니다.
 원본 r1과 1조 운영 서버는 이 패키지를 만들면서 변경하지 않았다.
 

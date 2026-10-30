@@ -1,6 +1,27 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { emptyStateKind, errorMessage, fieldLabels, originLabel, periodText, regionRequest, requestBody, validateDates } from '../src/lib/date-recommendations.ts'
+import { emptyStateKind, errorMessage, festivalsFromSelected, fieldLabels, originLabel, periodText, regionRequest, requestBody, validateDates } from '../src/lib/date-recommendations.ts'
+import { festivalState } from '../src/lib/festivals.ts'
+
+const fest = (id, start, end) => ({content_id:id,title:`축제${id}`,start_date:start,end_date:end,place:null,overview:null,
+  source:'한국관광공사 TourAPI',source_url:null,fetched_at:'2026-10-30T14:09:13+00:00'})
+const response = (states, festivals = [], undated = [], status = 'ok') => ({
+  selected_region: {sigungu_code:'46840',name:'무안군',festivals,festivals_undated:undated,states},
+  data_status: {festivals:{status,last_success_at:'2026-10-30T14:09:13+00:00'}}})
+
+test('festival adapter keeps the destination, never invents links, and separates failure from none',()=>{
+  const ok = festivalsFromSelected(response({festivals:'found'},[fest('a','2026-10-23','2026-11-21')],[fest('b',null,null)]),'무안군')
+  assert.equal(ok.state,'found')
+  assert.deepEqual(ok.rows.map(r=>[r.id,r.region_name,r.source_url,r.location]),[['a','무안군','','장소 미확인'],['b','무안군','','장소 미확인']])
+  assert.equal(festivalState(ok.rows[0],'2026-11-20','2026-11-22','2026-10-30'),'match')   // started before the trip, still running
+  assert.equal(festivalState(ok.rows[1],'2026-11-20','2026-11-22','2026-10-30'),'unknown')
+  assert.equal(ok.usingPrevious,false)
+  assert.equal(festivalsFromSelected(response({festivals:'none_in_period'},[],[],'partial'),'무안군').usingPrevious,true)
+  const failed = festivalsFromSelected(response({festivals:'unavailable'},[],[],'error'),'무안군')
+  assert.equal(failed.state,'unavailable')
+  assert.equal(failed.usingPrevious,false)
+  assert.equal(festivalsFromSelected({selected_region:null,data_status:{festivals:{status:'ok',last_success_at:null}}},'무안군').state,'unavailable')
+})
 import { benefitsFromPrograms, inPeriod, tripEnd } from '../src/lib/benefits.ts'
 
 test('slingshot region request carries code and dates, omits missing dialog fields and never sends birth date',()=>{
