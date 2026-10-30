@@ -206,6 +206,34 @@ def test_required_place_is_pinned_and_not_swappable():
     assert any(w["code"] == "required_place_unmatched" for w in body["warnings"])
 
 
+def test_any_of_places_rule_pins_one_target_or_warns():
+    body = course(trip("1N2D", start=TUE), program(any_of_place_names=("없는 테스트섬", "테스트연꽃방죽"), min_any_of=1))
+    pinned = [i for i in items(body, "spot") if i["place"]["content_id"] == "m2"]
+    assert pinned and pinned[0]["required"]
+    missing = course(trip("1N2D", start=TUE), program(any_of_place_names=("없는 테스트섬",), min_any_of=1))
+    assert any(w["code"] == "required_any_unmatched" for w in missing["warnings"])
+
+
+def test_spend_items_carry_benefit_categories():
+    body = course(trip("1N2D", start=TUE))
+    categories = {i["category"] for i in body["spend_breakdown"]["items"]}
+    assert {"food", "lodging"} <= categories <= {"food", "lodging", "admission"}
+
+
+def test_name_variants_and_address_resolution():
+    from app.team.regions import name_variants, sigungu_from_address
+    assert "식영정" in name_variants("무안식영정", MUAN)
+    assert name_variants("톱머리해변", MUAN) & name_variants("톱머리 해수욕장", MUAN)
+    assert name_variants("홀통해변", MUAN) <= name_variants("홀통유원지·홀통해변", MUAN)
+    assert "롯데아울렛" in name_variants("롯데아울렛/남악점", MUAN)
+    assert "구" not in name_variants("동구청", DONGGU) and "동구청" in name_variants("동구청", DONGGU)
+    assert sigungu_from_address("전라남도 무안군 망운면 1") == MUAN
+    assert sigungu_from_address("전남광주통합특별시 무안군 현경면") == MUAN
+    assert sigungu_from_address("광주광역시 동구 문화전당로 38") == DONGGU
+    assert sigungu_from_address("부산광역시 동구 중앙대로") is None
+    assert sigungu_from_address("전라북도 무안군") is None
+
+
 def test_stay_weekday_rule_warns_and_suggests_date():
     prog = program(stay_checkin_weekdays=(0, 1, 2, 3, 4))
     body = course(trip("1N2D", start=SAT), prog)

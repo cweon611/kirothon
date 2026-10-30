@@ -30,6 +30,8 @@ class CourseConstraints:
     min_nights: int | None = None
     stay_checkin_weekdays: tuple[int, ...] | None = None  # 0=Mon ... 6=Sun
     merchant_region_only: bool | None = None
+    any_of_place_names: tuple[str, ...] | None = None  # e.g. target islands: visit at least min_any_of
+    min_any_of: int | None = None
 
 
 @dataclass(frozen=True)
@@ -49,6 +51,9 @@ class ProgramSummary:
     apply_url: str | None = None
     reasons: tuple[str, ...] = ()
     unmet_codes: tuple[str, ...] = ()  # codes of unmet conditions, e.g. ("stay",)
+    # A manual entry whose related official round is evaluated for the same region; F1 groups
+    # by that round instead (records are never merged).
+    superseded_by: tuple[str, ...] = ()
     constraints: CourseConstraints = field(default_factory=CourseConstraints)
     # Extra facts copied from the benefits engine (trip/application periods, support text,
     # missing user inputs, freshness). Empty when the port does not provide them.

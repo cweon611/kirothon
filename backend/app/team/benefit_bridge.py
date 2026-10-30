@@ -5,6 +5,7 @@ nights, check-in date, party size, residence) and runs the same stored-data
 evaluation as POST /api/benefits/check. No external calls are made, and the
 engine's verdicts are passed through unchanged; F1/F2 only read them.
 """
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 
 from pydantic import ValidationError
@@ -79,6 +80,8 @@ def summarize(ev: ProgramEvaluation, program: BenefitProgram, code: str, query: 
         unmet_codes=tuple(r.code for r in ev.unmet_conditions),
         constraints=CourseConstraints(
             required_place_names=tuple(visit.must_include) if visit and visit.must_include else None,
+            any_of_place_names=tuple(visit.any_of) if visit and visit.any_of and visit.min_any_of else None,
+            min_any_of=visit.min_any_of if visit and visit.any_of and visit.min_any_of else None,
             min_spots=visit.min_total_places if visit else None,
             min_nights=stay.min_nights if stay else None,
             stay_checkin_weekdays=tuple(stay.checkin_weekdays) if stay and stay.checkin_weekdays is not None
@@ -130,10 +133,16 @@ def program_details(ev: ProgramEvaluation, program: BenefitProgram) -> dict:
         "pre_apply_deadline": _iso(t.pre_apply_deadline),
         "budget_remaining": t.budget_remaining,
         "support": support_text(program),
+        "payout_method": program.payout.method if program.payout else None,
+        "match_basis": ev.matched_visits[0].match_basis if ev.matched_visits else None,
+        # Original condition text from the source (not interpreted): tour50 특이사항, gov24 지원대상/선정기준.
+        "conditions_text": program.raw_text.get("특이사항") or program.raw_text.get("지원대상")
+        or program.raw_text.get("선정기준"),
         "estimated_amount": ev.estimate.amount,
         "estimate_unavailable_reasons": list(ev.estimate.unavailable_reasons),
         "missing_user_fields": list(ev.missing_user_fields),
-        "unmet": [{"code": r.code, "label": r.label, "confirmed": r.rule_confirmed} for r in ev.unmet_conditions],
+        "unmet": [{"code": r.code, "label": r.label, "confirmed": r.rule_confirmed, "detail": r.detail}
+                  for r in ev.unmet_conditions],
         "unresolved": unresolved[:8],
         "data_origin": ev.data_origin,
         "source_type": ev.source_type,
@@ -174,8 +183,16 @@ class BenefitsEnginePort:
         manual_count = 0
         for code, request in requests.items():
             programs, manual_count = collect_stored(stored, rules.visit_regions(request))
-            found = [summarize(ev, program, code, query) for program, origin in programs
+            pairs = [(ev, program) for program, origin in programs
                      if (ev := rules.evaluate(program, origin, request, query.today))]
+            official = {ev.program_id for ev, _ in pairs if ev.data_origin != "manual_registry"}
+            found = []
+            for ev, program in pairs:
+                summary = summarize(ev, program, code, query)
+                linked = tuple(i for i in program.related_program_ids if i in official)
+                if ev.data_origin == "manual_registry" and linked:
+                    summary = replace(summary, superseded_by=linked)
+                found.append(summary)
             if found:
                 by_region[code] = tuple(found)
         return BenefitLookup(

@@ -12,7 +12,7 @@ from .benefit_port import CourseConstraints, ProgramSummary
 from .geo import haversine_km, move_minutes
 from .reasons import rule_sentence
 from .recommend import TripQuery, program_view
-from .regions import KST, Origin, name_key, sigungu_map
+from .regions import KST, SPOT_TYPES, Origin, name_key, name_variants, sigungu_map
 from .tourism_data import Candidate, PlaceLite, Snapshot
 
 DWELL_MIN = {"12": 90, "14": 60, "28": 120}
@@ -168,17 +168,32 @@ def resolve_required(ctx: Ctx) -> list[PlaceLite]:
         place = ctx.snapshot.places.get(content_id)
         if place and place.coord:
             found.append(place)
+    def find(name: str) -> PlaceLite | None:
+        spots = [p for p in region_places if p.coord and p.content_type_id in SPOT_TYPES]
+        exact = [p for p in spots if name_key(p.title) == name_key(name)]
+        if len(exact) == 1:
+            return exact[0]
+        loose = [p for p in spots if name_variants(name, ctx.region) & name_variants(p.title, ctx.region)]
+        return loose[0] if not exact and len(loose) == 1 else None
+
     missing = []
     for name in c.required_place_names or ():
-        hits = [p for p in region_places if name_key(p.title) == name_key(name) and p.coord]
-        if len(hits) == 1:
-            if hits[0] not in found:
-                found.append(hits[0])
-        else:
+        hit = find(name)
+        if hit is None:
             missing.append(name)
+        elif hit not in found:
+            found.append(hit)
     if missing:
         ctx.warn("required_place_unmatched", "환급 조건의 필수 방문지를 관광 데이터에서 찾지 못해 일정에 넣지 못했어요: "
                  + ", ".join(missing), places=missing)
+    if c.any_of_place_names and c.min_any_of:
+        options = [hit for name in c.any_of_place_names if (hit := find(name)) and hit not in found]
+        found.extend(options[:c.min_any_of])
+        if len(options) < c.min_any_of:
+            ctx.warn("required_any_unmatched",
+                     f"환급 조건의 대상 장소({', '.join(c.any_of_place_names)}) 중 {c.min_any_of}곳 이상을 넣어야 하는데 "
+                     f"이 지역 관광 데이터에서 {len(options)}곳만 찾았어요.",
+                     places=list(c.any_of_place_names))
     return found
 
 
@@ -440,7 +455,8 @@ def spend(ctx: Ctx, days: list[dict]) -> dict:
             if item["kind"] == "meal":
                 items.append({"label": f"{day['day']}일차 {'점심' if item['meal'] == 'lunch' else '저녁'} "
                                        f"{party}명 × {meal_cost:,}원", "krw": party * meal_cost,
-                              "sigungu_code": code, "basis": "user" if ctx.query.meal_cost_krw else "default"})
+                              "sigungu_code": code, "category": "food",
+                              "basis": "user" if ctx.query.meal_cost_krw else "default"})
             elif item["kind"] == "stay":
                 if ctx.query.room_price_krw:
                     price, basis = ctx.query.room_price_krw, "user"
@@ -448,12 +464,13 @@ def spend(ctx: Ctx, days: list[dict]) -> dict:
                     price, basis = place.room_price_krw, "tourapi_room_fee"
                 else:
                     price, basis = DEFAULT_ROOM_PRICE, "default"
-                items.append({"label": "숙박 1박(객실 1개 기준)", "krw": price, "sigungu_code": code, "basis": basis})
+                items.append({"label": "숙박 1박(객실 1개 기준)", "krw": price, "sigungu_code": code,
+                              "category": "lodging", "basis": basis})
             elif item["kind"] == "spot" and place:
                 fee = fee_krw(place)
                 if fee:
                     items.append({"label": f"{place.title} 이용요금 {party}명", "krw": fee * party,
-                                  "sigungu_code": code, "basis": "tourapi_usefee"})
+                                  "sigungu_code": code, "category": "admission", "basis": "tourapi_usefee"})
                 elif fee is None and (place.intro.get("usefee") or place.intro.get("usefeeleports")):
                     unknown.append(place.title)
     by_code: dict[str, int] = {}

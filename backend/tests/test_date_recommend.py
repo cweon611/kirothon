@@ -236,6 +236,24 @@ def test_engine_date_only_needs_verification_then_eligible(client, monkeypatch):
     assert "29170" not in json.dumps(data) and "1990-05-05" not in json.dumps(data)
 
 
+def test_festival_with_needs_verification_benefit_is_not_festival_only(client, monkeypatch):
+    """무안 case: a festival plus a '추가 확인 필요' program must keep both facts, without
+    promoting the program to 'applicable'."""
+    engine_client(monkeypatch, verified_program())
+    seed(festival_run(), festival("m1", MUAN, "2026-11-06", "2026-11-08"))
+    data = post(client, sigungu_code=MUAN)
+    for muan in (by_code(data)[MUAN], data["selected_region"]):
+        assert muan["category"] == "festival_and_benefit_needs_verification" and muan["group"] == 2
+        assert muan["benefits"]["applicable"] == []
+        assert [p["judgment"] for p in muan["benefits"]["needs_verification"]] == ["needs_verification"]
+        assert "확인이 필요한" in muan["reason"] and len(muan["festivals"]) == 1
+    assert data["selected_region"]["states"]["benefits"] == "found"
+    confirmed = post(client, sigungu_code=MUAN, residence="29170", party_size=2, birth_date="1990-05-05")
+    muan = confirmed["selected_region"]
+    assert muan["category"] == "festival_and_benefit" and muan["group"] == 1
+    assert muan["benefits"]["needs_verification"] == [] and len(muan["benefits"]["applicable"]) == 1
+
+
 def test_engine_excluded_residence_and_closed_application(client, monkeypatch):
     seed(festival_run())
     engine_client(monkeypatch, verified_program())
@@ -306,3 +324,64 @@ def test_long_trip_allowed(client):
     seed(festival("d1", DAMYANG, "2026-11-20", "2026-11-22"), festival_run())
     data = post(client, start_date="2026-11-07", end_date="2026-11-25")
     assert data["query"]["days"] == 19 and DAMYANG in by_code(data)
+
+
+# ------------------------------------------------------------------ selected region (slingshot flow)
+def test_selected_region_always_returned_with_states(client):
+    seed(festival("d1", DAMYANG, "2026-10-20", "2026-11-10", title="테스트진행중축제"),  # opened before trip
+         festival("dx", DAMYANG, None, None, title="테스트일정미정"),
+         festival_run())
+    port = Port({MUAN: [summary("muan", "needs_verification", MUAN, details={"missing_user_fields": ["residence"]})],
+                 HAMPYEONG: [summary("closed", "needs_verification", HAMPYEONG, open_=False)]})
+    benefit_port.set_benefit_port(port)
+    fest_only = post(client, sigungu_code=DAMYANG)["selected_region"]
+    assert port.queries[-1].sigungu_codes == (DAMYANG,)
+    assert [f["title"] for f in fest_only["festivals"]] == ["테스트진행중축제"]
+    assert [f["title"] for f in fest_only["festivals_undated"]] == ["테스트일정미정"]
+    assert fest_only["states"]["festivals"] == "found" and fest_only["states"]["benefits"] == "none_in_scope"
+    ben_only = post(client, sigungu_code=MUAN)["selected_region"]
+    assert ben_only["states"] == {"festivals": "none_in_period", "festivals_stale": False, "benefits": "found",
+                                  "benefits_partial": False, "needs_user_info": True}
+    closed = post(client, sigungu_code=HAMPYEONG)["selected_region"]
+    assert closed["category"] == "none" and closed["states"]["benefits"] == "excluded_only"
+    none = post(client, sigungu_code=GOKSEONG)["selected_region"]
+    assert none["name"] == "곡성군" and none["festivals"] == [] and none["states"]["benefits"] == "none_in_scope"
+
+
+def test_selected_region_failure_states(client):
+    benefit_port.set_benefit_port(Port(fail=True))
+    sel = post(client, sigungu_code=DAMYANG)["selected_region"]
+    assert sel["states"]["festivals"] == "unavailable" and sel["states"]["benefits"] == "unavailable"
+    assert client.post(URL, json={**TRIP, "sigungu_code": "11110"}).status_code == 422
+
+
+# ------------------------------------------------------------------ gov24 audience (영광 수학여행비 오추천)
+def test_gov24_restricted_audience_is_not_recommended(client):
+    YG = "46870"
+    rows = [
+        {**t50._row("SCHOOL1", "기초생활수급자 수학여행비 및 체험학습비 지원", provider="전라남도 영광군"),
+         "지원대상": "기초생활보장수급자(생계,의료,주거,교육) 중 수학여행에 실제 참여하는 학생"},
+        {**t50._row("VISIT1", "영광 여행 숙박비 지원", provider="전라남도 영광군"), "지원대상": "관외 거주 관광객"},
+        {**t50._row("PLAIN1", "영광 여행 프로그램 운영", provider="전라남도 영광군"), "지원대상": "신청자"},
+    ]
+    bsync.run_sync("gov24_api", "manual", t50.factory, gov24_client=t50.gov_client(t50.FakeGov24(rows=rows)))
+    seed(festival_run())
+    benefit_port.set_benefit_port(BenefitsEnginePort())
+    sel = post(client, sigungu_code=YG)["selected_region"]
+    shown = {p["program_id"]: p for p in sel["benefits"]["applicable"] + sel["benefits"]["needs_verification"]}
+    excluded = {p["program_id"]: p for p in sel["benefits"]["excluded"]}
+    assert "gov24:SCHOOL1" in excluded and "gov24:PLAIN1" in excluded
+    assert "수급자" in excluded["gov24:SCHOOL1"]["excluded_reason"]
+    assert "근거가 원문에 없음" in excluded["gov24:PLAIN1"]["excluded_reason"]
+    assert shown["gov24:VISIT1"]["judgment"] == "needs_verification"
+    assert shown["gov24:VISIT1"]["match_basis"] == "text_hint"
+
+
+def test_match_basis_for_official_page_rounds(client):
+    benefit_port.set_benefit_port(BenefitsEnginePort())
+    seed(festival_run())
+    t50.sync_tour50(t50.page(t50.gangjin()))
+    sel = post(client, sigungu_code=GANGJIN)["selected_region"]
+    prog = sel["benefits"]["needs_verification"][0]
+    assert prog["program_id"] == "kto50:12780-2026-3" and prog["match_basis"] == "target_region"
+    assert prog["payout_method"] and prog["conditions_text"].startswith("관광지 2개소")

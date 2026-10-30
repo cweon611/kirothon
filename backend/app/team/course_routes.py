@@ -10,13 +10,15 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 from sqlmodel import Session, delete, select
 
 from ..database import get_session
 from . import benefit_port
 from .benefit_port import ProgramSummary, RegionBenefitQuery
+from .course_refund import check_course
 from .geo import move_minutes
+from .program_list import list_programs
 from .planner import build_course, closed_on, fee_krw, opening_window, rest_text
 from .reasons import MAX_CALLS_PER_COURSE, apply_state, generate_for_day
 from .recommend import DISPLAYABLE_PHOTO, TRAVEL_CAP_MIN, TripQuery, recommend
@@ -94,6 +96,12 @@ class CourseIn(BenefitContextIn):
         return value
 
 
+class RefundIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    residence_code: str | None = Field(default=None, pattern=r"^\d{5}$")
+    benefit_conditions: dict | None = None
+
+
 class ReasonsIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
     day: int = Field(ge=1, le=2)
@@ -161,7 +169,13 @@ def meta(session: SessionDep):
         "ai_calls_per_course": MAX_CALLS_PER_COURSE,
         "tourism_data": cache_stats(session),
         "benefit_port": {"connected": benefit_port.is_connected(), "check_api": "/api/benefits/check"},
+        "programs_open": list_programs(session, today)["counts"]["open_now"],
     }
+
+
+@router.get("/programs")
+def programs(session: SessionDep):
+    return list_programs(session, today_kst()[0])
 
 
 @router.post("/recommend")
@@ -253,6 +267,23 @@ def course_reasons(course_id: str, body: ReasonsIn, session: SessionDep):
     return {"day": body.day, "status": status, "ai_calls": calls,
             "items": [{"order": i["order"], "content_id": i["place"]["content_id"], "reason_text": i["reason_text"],
                        "reason_by": i["reason_by"]} for i in day["items"] if i["kind"] == "spot" and i.get("place")]}
+
+
+@router.post("/courses/{course_id}/refund")
+def course_refund(course_id: str, body: RefundIn, session: SessionDep):
+    """F3: verdict, estimate and dated steps for this course. Conditions are used once, never stored."""
+    course = session.get(Course, course_id)
+    if course is None:
+        return error(404, "course_not_found", "코스를 찾을 수 없어요.")
+    course_body = json.loads(course.body_json)
+    try:
+        result = check_course(session, course_body, course.program_id, body.residence_code,
+                              body.benefit_conditions, today_kst()[0])
+    except ValidationError as exc:
+        fields = sorted({".".join(str(p) for p in e["loc"]) for e in exc.errors()})
+        return error(422, "invalid_benefit_conditions",
+                     "benefit_conditions가 지원제도 API 입력 형식과 맞지 않아요: " + ", ".join(fields))
+    return {"course_id": course.id, "today": today_kst()[0].isoformat(), **result}
 
 
 def find_item(course_body: dict, day_no: int, order: int) -> tuple[dict | None, dict | None]:
@@ -351,7 +382,7 @@ def place_detail(content_id: str, session: SessionDep,
         return {"content_id": demo.content_id, "title": demo.title, "category": demo.category,
                 "sigungu_code": demo.sigungu_code, "addr": demo.addr, "lat": demo.lat, "lng": demo.lng,
                 "overview": demo.overview, "source": "demo", "detail_status": "demo_data", "evidence": []}
-    detail_status = "cached" if row.detail_fetched_at else "not_fetched"
+    detail_status = "cached" if row.detail_fetched_at else ("standard_data" if row.source == "std" else "not_fetched")
     if not row.detail_fetched_at and row.source == "kor" and has_service_key():
         try:
             with TourApiClient(timeout=5.0, retries=0, min_interval=0) as client:

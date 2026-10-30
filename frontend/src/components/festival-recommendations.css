@@ -1,0 +1,17 @@
+.festival-section{margin:24px 0 32px;padding:28px;border:1px solid #e2dfd2;border-radius:24px;background:linear-gradient(130deg,#f8f4e8,#f1f6ef);color:#233f40}
+.festival-eyebrow{display:flex;gap:6px;align-items:center;font-size:12px;font-weight:650;color:#6c7356;letter-spacing:.03em}
+.festival-intro h2{font-size:clamp(21px,4vw,27px);letter-spacing:-.04em;margin:10px 0 7px;font-weight:750;line-height:1.4}
+.festival-intro p,.festival-hint{font-size:14px;line-height:1.75;color:#61706a;margin:0}
+.festival-trip{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12px;border-top:1px solid #dcded0;margin:21px 0 16px;padding-top:15px}
+.festival-trip strong{margin-left:auto;color:#1e6c61;font-weight:600}
+.festival-hint{margin:12px 0 18px}.festival-list{display:grid;gap:12px}
+.festival-card{display:flex;gap:17px;align-items:flex-start;padding:20px 18px;background:#fffefb;border:1px solid #e5e7de;border-radius:16px;box-shadow:0 3px 12px #263e3410}
+.festival-match{border-color:#b4cebf}.festival-calendar{display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;width:64px;min-height:85px;border:1px solid #d4dfd2;border-radius:11px;background:#edf3e8;color:#47705d;gap:3px}
+.festival-calendar span{font-size:11px}.festival-calendar span:last-child{font-size:7px;letter-spacing:.12em}.festival-calendar strong{font-size:29px;line-height:1.1;font-weight:650}
+.festival-ended .festival-calendar{background:#f0efeb;color:#747770;border-color:#e1e1db}.festival-content{flex:1;min-width:0}
+.festival-state{font-size:11px;color:#47705d;font-weight:650}.festival-ended .festival-state{color:#777}.festival-content h3{font-size:17px;line-height:1.5;letter-spacing:-.025em;margin:4px 0 9px;font-weight:700;word-break:keep-all;overflow-wrap:anywhere}
+.festival-content p{display:flex;align-items:baseline;gap:6px;color:#63716b;font-size:12px;line-height:1.7;margin:4px 0}.festival-content p svg{flex-shrink:0;align-self:center}
+.festival-source{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px}.festival-source small{font-size:10px;color:#768077}.festival-source a{margin-left:auto;min-height:32px;display:inline-flex;align-items:center;gap:5px;color:#236c61;font-size:12px;font-weight:650}
+.festival-more{width:100%;min-height:44px;margin-top:14px;color:#42635b;background:#fff9;border:1px solid #d8dfd3;border-radius:10px;font-size:13px;cursor:pointer}
+.festival-footnote{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-top:20px;font-size:11px;line-height:1.7;color:#738078}.festival-footnote a{display:inline-flex;align-items:center;gap:4px;color:#42665b}.festival-empty{padding:22px 0;text-align:center;font-size:14px}.festival-empty svg{margin:auto}.festival-section a:focus-visible,.festival-section button:focus-visible{outline:3px solid #248a78;outline-offset:3px}
+@media(max-width:600px){.festival-section{padding:20px 16px;border-radius:18px}.festival-card{padding:16px 12px;gap:12px}.festival-calendar{width:51px;min-height:75px}.festival-content h3{font-size:16px}.festival-trip strong{width:100%;margin-left:25px}.festival-source a{margin-left:0}.festival-footnote{font-size:11px}}

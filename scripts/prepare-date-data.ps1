@@ -11,10 +11,13 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $python = Join-Path $root 'backend\.venv\Scripts\python.exe'
 if (-not (Test-Path -LiteralPath $python -PathType Leaf)) { throw 'Run setup-local.ps1 first.' }
+. (Join-Path $PSScriptRoot 'local-env.ps1')
 $data = Join-Path $root '.local-data'
 $null = New-Item -ItemType Directory -Path $data -Force
 $oldMode = $env:KIROTHON_AI_MODE
 $oldDatabase = $env:KIROTHON_DB_PATH
+# Same key source as dev-backend.ps1: backend/.env (git-ignored), values never printed.
+$localEnv = Import-LocalEnv (Join-Path $root 'backend\.env')
 Push-Location (Join-Path $root 'backend')
 $failed = @()
 try {
@@ -36,6 +39,7 @@ try {
 } finally {
     $env:KIROTHON_AI_MODE = $oldMode
     $env:KIROTHON_DB_PATH = $oldDatabase
+    Restore-LocalEnv $localEnv
     Pop-Location
 }
 if ($failed) { Write-Warning ("Some sources failed or are not configured: " + ($failed -join ', ') + ". The API reports this in data_status.") }

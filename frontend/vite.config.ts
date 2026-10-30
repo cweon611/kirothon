@@ -16,7 +16,7 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     proxy: {
-      '/api': { target: 'http://127.0.0.1:8000' },
+      '/api': { target: process.env.KIROTHON_API_TARGET || 'http://127.0.0.1:8000' },
     },
   },
 })

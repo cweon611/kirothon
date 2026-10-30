@@ -1,0 +1,245 @@
+[
+  {
+    "id": "광주 동구",
+    "name": "광주 동구",
+    "region_name": "광주 동구",
+    "province": "광주",
+    "x": 191.7,
+    "y": 405.6,
+    "shape": "Dong-gu [East District]"
+  },
+  {
+    "id": "광주 서구",
+    "name": "광주 서구",
+    "region_name": "광주 서구",
+    "province": "광주",
+    "x": 183.0,
+    "y": 403.4,
+    "shape": "Seo-gu [West District]"
+  },
+  {
+    "id": "광주 남구",
+    "name": "광주 남구",
+    "region_name": "광주 남구",
+    "province": "광주",
+    "x": 183.8,
+    "y": 408.0,
+    "shape": "Nam-gu [South District]"
+  },
+  {
+    "id": "광주 북구",
+    "name": "광주 북구",
+    "region_name": "광주 북구",
+    "province": "광주",
+    "x": 189.7,
+    "y": 397.3,
+    "shape": "Buk-gu"
+  },
+  {
+    "id": "광주 광산구",
+    "name": "광주 광산구",
+    "region_name": "광주 광산구",
+    "province": "광주",
+    "x": 174.1,
+    "y": 400.7,
+    "shape": "Gwangsan-gu"
+  },
+  {
+    "id": "목포시",
+    "name": "목포시",
+    "region_name": "목포시",
+    "province": "전라남도",
+    "x": 143.3,
+    "y": 438.7,
+    "shape": "Mokpo-si"
+  },
+  {
+    "id": "여수시",
+    "name": "여수시",
+    "region_name": "여수시",
+    "province": "전라남도",
+    "x": 253.2,
+    "y": 442.4,
+    "shape": "Yeosu-si"
+  },
+  {
+    "id": "순천시",
+    "name": "순천시",
+    "region_name": "순천시",
+    "province": "전라남도",
+    "x": 230.8,
+    "y": 419.1,
+    "shape": "Suncheon-si"
+  },
+  {
+    "id": "나주시",
+    "name": "나주시",
+    "region_name": "나주시",
+    "province": "전라남도",
+    "x": 171.4,
+    "y": 419.9,
+    "shape": "Naju-si"
+  },
+  {
+    "id": "광양시",
+    "name": "광양시",
+    "region_name": "광양시",
+    "province": "전라남도",
+    "x": 253.9,
+    "y": 415.1,
+    "shape": "Gwangyang-si"
+  },
+  {
+    "id": "담양군",
+    "name": "담양군",
+    "region_name": "담양군",
+    "province": "전라남도",
+    "x": 195.7,
+    "y": 386.4,
+    "shape": "Damyang-gun"
+  },
+  {
+    "id": "곡성군",
+    "name": "곡성군",
+    "region_name": "곡성군",
+    "province": "전라남도",
+    "x": 219.7,
+    "y": 394.6,
+    "shape": "Gokseong-gun"
+  },
+  {
+    "id": "구례군",
+    "name": "구례군",
+    "region_name": "구례군",
+    "province": "전라남도",
+    "x": 240.9,
+    "y": 392.5,
+    "shape": "Gurye-gun"
+  },
+  {
+    "id": "고흥군",
+    "name": "고흥군",
+    "region_name": "고흥군",
+    "province": "전라남도",
+    "x": 224.4,
+    "y": 459.3,
+    "shape": "Goheung-gun"
+  },
+  {
+    "id": "보성군",
+    "name": "보성군",
+    "region_name": "보성군",
+    "province": "전라남도",
+    "x": 209.7,
+    "y": 438.5,
+    "shape": "Boseong-gun"
+  },
+  {
+    "id": "화순군",
+    "name": "화순군",
+    "region_name": "화순군",
+    "province": "전라남도",
+    "x": 199.2,
+    "y": 417.3,
+    "shape": "Hwasun-gun"
+  },
+  {
+    "id": "장흥군",
+    "name": "장흥군",
+    "region_name": "장흥군",
+    "province": "전라남도",
+    "x": 189.1,
+    "y": 453.4,
+    "shape": "Jangheung-gun"
+  },
+  {
+    "id": "강진군",
+    "name": "강진군",
+    "region_name": "강진군",
+    "province": "전라남도",
+    "x": 176.1,
+    "y": 459.8,
+    "shape": "Gangjin-gun"
+  },
+  {
+    "id": "해남군",
+    "name": "해남군",
+    "region_name": "해남군",
+    "province": "전라남도",
+    "x": 153.1,
+    "y": 467.2,
+    "shape": "Haenam-gun"
+  },
+  {
+    "id": "영암군",
+    "name": "영암군",
+    "region_name": "영암군",
+    "province": "전라남도",
+    "x": 163.0,
+    "y": 440.6,
+    "shape": "Yeongam-gun"
+  },
+  {
+    "id": "무안군",
+    "name": "무안군",
+    "region_name": "무안군",
+    "province": "전라남도",
+    "x": 145.1,
+    "y": 423.4,
+    "shape": "Muan-gun"
+  },
+  {
+    "id": "함평군",
+    "name": "함평군",
+    "region_name": "함평군",
+    "province": "전라남도",
+    "x": 155.1,
+    "y": 406.1,
+    "shape": "Hampyeong-gun"
+  },
+  {
+    "id": "영광군",
+    "name": "영광군",
+    "region_name": "영광군",
+    "province": "전라남도",
+    "x": 152.2,
+    "y": 388.3,
+    "shape": ""
+  },
+  {
+    "id": "장성군",
+    "name": "장성군",
+    "region_name": "장성군",
+    "province": "전라남도",
+    "x": 175.6,
+    "y": 382.1,
+    "shape": "Jangseong-gun"
+  },
+  {
+    "id": "완도군",
+    "name": "완도군",
+    "region_name": "완도군",
+    "province": "전라남도",
+    "x": 169.0,
+    "y": 490.0,
+    "shape": "Wando-gun"
+  },
+  {
+    "id": "진도군",
+    "name": "진도군",
+    "region_name": "진도군",
+    "province": "전라남도",
+    "x": 129.0,
+    "y": 478.5,
+    "shape": "Jindo-gun"
+  },
+  {
+    "id": "신안군",
+    "name": "신안군",
+    "region_name": "신안군",
+    "province": "전라남도",
+    "x": 118.5,
+    "y": 448.3,
+    "shape": "Sinan-gun"
+  }
+]

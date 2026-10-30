@@ -42,9 +42,13 @@ class DateRecommendIn(BaseModel):
         default=None, description="주민등록상 거주지: 5자리 시군구 코드(meta) 또는 {sido, sigungu}")
     party_size: int | None = Field(default=None, ge=1, le=20)
     birth_date: date | None = None
+    sigungu_code: str | None = Field(
+        default=None, description="선택 지역(5자리 시군구 코드). 주면 그 지역 결과를 selected_region으로 항상 반환")
 
     @model_validator(mode="after")
     def _dates(self):
+        if self.sigungu_code is not None and self.sigungu_code not in sigungu_map():
+            raise ValueError("sigungu_code는 광주·전남 27개 시군구 코드여야 해요")
         if self.end_date < self.start_date:
             raise ValueError("end_date는 start_date 이후여야 해요")
         if (self.end_date - self.start_date).days >= MAX_DAYS:
@@ -131,8 +135,16 @@ def _ok(src: dict) -> bool:
 # ------------------------------------------------------------------ per region
 def festival_view(event, fetched: dict) -> dict:
     return {"content_id": event.content_id, "title": event.title, "start_date": event.event_start,
-            "end_date": event.event_end, "place": event.addr,
-            "source": "한국관광공사 KorService2(searchFestival2)", "fetched_at": fetched.get(event.content_id)}
+            "end_date": event.event_end, "place": event.addr, "overview": event.overview,
+            "source": "한국관광공사 KorService2(searchFestival2)",
+            # The festival list API returns no homepage URL and details are not collected for festivals.
+            "source_url": None, "fetched_at": fetched.get(event.content_id)}
+
+
+def undated_festivals(snapshot, code: str, fetched: dict) -> list[dict]:
+    """Festivals of the region whose period is unknown: never mixed into the confirmed list."""
+    return [festival_view(e, fetched) for e in snapshot.festivals.get(code, [])
+            if not e.event_start or not e.event_end]
 
 
 def program_view(p: ProgramSummary, excluded_reason: str | None = None) -> dict:
@@ -142,7 +154,8 @@ def program_view(p: ProgramSummary, excluded_reason: str | None = None) -> dict:
         "posted_status": p.posted_status, "application_open": p.application_open,
         "trip_period": d.get("trip_period"), "application_period": d.get("application_period"),
         "application_start_at": d.get("application_start_at"), "application_end_at": d.get("application_end_at"),
-        "support": d.get("support"), "estimated_amount": d.get("estimated_amount"),
+        "support": d.get("support"), "payout_method": d.get("payout_method"), "match_basis": d.get("match_basis"),
+        "conditions_text": d.get("conditions_text"), "estimated_amount": d.get("estimated_amount"),
         "budget_remaining": d.get("budget_remaining"),
         "apply_url": p.apply_url, "official_url": p.source_url,
         "missing_user_fields": d.get("missing_user_fields", []),
@@ -169,6 +182,10 @@ def split_programs(programs: tuple[ProgramSummary, ...]):
             excluded.append(program_view(p, "같은 사업의 공식 페이지 수집 자료(" + ", ".join(sorted(related))
                                          + ")가 있어 그 차수별 판정을 따름"))
             continue
+        audience = next((x for x in (p.details or {}).get("unmet", []) if x["code"] == "audience"), None)
+        if audience:
+            excluded.append(program_view(p, f"일반 관광객 대상 여행지원 제도로 확인되지 않음 — {audience.get('detail', '')}"))
+            continue
         if p.judgment == "ineligible":
             labels = ", ".join(x["label"] for x in (p.details or {}).get("unmet", [])) or "조건 미상"
             excluded.append(program_view(p, f"확인된 필수 조건 불충족: {labels}"))
@@ -193,15 +210,24 @@ CATEGORY = {
 
 
 def classify(fests: list, applicable: list, needs_check: list) -> tuple[int, str, str] | None:
+    """Category keeps 'applicable' (조건 확인됨) and 'needs_verification' (추가 확인 필요) apart.
+
+    A festival region that also has needs-verification candidates is not 'festival_only'
+    and is not upgraded to 'festival_and_benefit' either.
+    """
     if fests and applicable:
         return (1, *CATEGORY[1])
+    if fests and needs_check:
+        return (2, "festival_and_benefit_needs_verification",
+                f"여행 기간에 진행되는 축제·행사 {len(fests)}건과, 사용자 정보나 공식 조건 확인이 필요한 "
+                f"혜택 후보 {len(needs_check)}건이 있어요.")
     if fests or applicable:
         if fests:
             reason = f"여행 기간에 진행되는 축제·행사 {len(fests)}건이 있어요."
-            if needs_check:
-                reason += f" 확인이 필요한 혜택 후보 {len(needs_check)}건도 있어요."
         else:
             reason = f"신청 가능 예상 혜택 {len(applicable)}건이 있어요."
+            if needs_check:
+                reason += f" 확인이 필요한 혜택 후보 {len(needs_check)}건도 있어요."
         return 2, "festival_only" if fests else "benefit_only", reason
     if needs_check:
         return (3, *CATEGORY[3])
@@ -212,7 +238,7 @@ def classify(fests: list, applicable: list, needs_check: list) -> tuple[int, str
 @router.post("/date-recommendations")
 def date_recommendations(body: DateRecommendIn, session: SessionDep):
     today = today_kst()[0]
-    codes = tuple(sigungu_map())
+    codes = (body.sigungu_code,) if body.sigungu_code else tuple(sigungu_map())
     conditions = {}
     residence_code = None
     if isinstance(body.residence, Region):
@@ -236,29 +262,49 @@ def date_recommendations(body: DateRecommendIn, session: SessionDep):
 
     missing_inputs = [f for f, v in (("residence", body.residence), ("party_size", body.party_size),
                                      ("birth_date", body.birth_date)) if v is None]
-    regions, unmatched = [], []
-    for code, region in sigungu_map().items():
+    warnings = [w for w in (
+        None if festival_ok else "축제 데이터가 최신이 아니거나 수집되지 않았어요.",
+        None if benefit_ok else "일부 지원제도 출처를 확인하지 못했거나 정보가 오래됐어요.",
+    ) if w]
+
+    def entry(code: str) -> dict:
+        region = sigungu_map()[code]
         fests = [festival_view(e, fetched) for e in sorted(
             snapshot.festivals_during(code, body.start_date, body.end_date),
             key=lambda e: (e.event_start or "", e.title))]
         applicable, needs_check, excluded = split_programs(lookup.by_region.get(code, ()))
         cls = classify(fests, applicable, needs_check)
-        if cls is None:
-            unmatched.append(region.label)
-            continue
-        group, category, reason = cls
-        need = sorted({f for p in applicable + needs_check for f in p["missing_user_fields"]})
-        regions.append({
+        group, category, reason = cls if cls else (None, "none", None)
+        return {
             "sigungu_code": code, "name": region.label, "sido": region.sido,
             "group": group, "category": category, "reason": reason,
-            "festivals": fests,
+            "festivals": fests, "festivals_undated": undated_festivals(snapshot, code, fetched),
             "benefits": {"applicable": applicable, "needs_verification": needs_check, "excluded": excluded},
-            "missing_user_fields": need,
-            "data_warnings": [w for w in (
-                None if festival_ok else "축제 데이터가 최신이 아니거나 수집되지 않았어요.",
-                None if benefit_ok else "일부 지원제도 출처를 확인하지 못했거나 정보가 오래됐어요.",
-            ) if w],
-        })
+            "missing_user_fields": sorted({f for p in applicable + needs_check for f in p["missing_user_fields"]}),
+            "data_warnings": warnings,
+        }
+
+    regions, unmatched = [], []
+    for code in codes:
+        item = entry(code)
+        if item["group"] is None:
+            unmatched.append(item["name"])
+        else:
+            regions.append(item)
+    selected = None
+    if body.sigungu_code:
+        selected = entry(body.sigungu_code)
+        selected["states"] = {
+            "festivals": ("found" if selected["festivals"] else
+                          "unavailable" if not festival_ok and fest_src["status"] in {"never_synced", "error"}
+                          else "none_in_period"),
+            "festivals_stale": fest_src["stale"] and fest_src["status"] != "never_synced",
+            "benefits": ("unavailable" if lookup.status in {"error", "not_connected"} else
+                         "found" if selected["benefits"]["applicable"] or selected["benefits"]["needs_verification"]
+                         else "excluded_only" if selected["benefits"]["excluded"] else "none_in_scope"),
+            "benefits_partial": lookup.status == "partial",
+            "needs_user_info": bool(selected["missing_user_fields"]),
+        }
     regions.sort(key=lambda r: (r["group"], -len(r["benefits"]["applicable"]), -len(r["festivals"]),
                                 -len(r["benefits"]["needs_verification"]), r["name"]))
 
@@ -279,6 +325,7 @@ def date_recommendations(body: DateRecommendIn, session: SessionDep):
         "today": today.isoformat(), "today_fixed": today_kst()[1],
         "outcome": outcome, "message": message, "complete": complete,
         "regions": regions,
+        "selected_region": selected,
         "regions_not_matched": {
             "names": unmatched,
             "meaning": ("확인된 데이터 범위에서 기간에 맞는 축제·혜택 후보가 없음" if complete else
