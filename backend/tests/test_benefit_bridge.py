@@ -14,7 +14,7 @@ from app.team.benefit_bridge import BenefitsEnginePort, build_request, region_of
 from app.team.benefit_port import RegionBenefitQuery
 from app.team.benefits.store_models import (BenefitRecordVersion, BenefitSourceRecord, BenefitSyncRun,
                                             BenefitSyncState)
-from app.team.recommend import TripQuery, recommend
+from app.team.recommend import TripQuery, classify, recommend
 from app.team.regions import origins, sigungu_map
 
 from course_fixtures import MUAN, SINAN, snapshot
@@ -83,6 +83,20 @@ def test_recommend_grouping_with_engine_results():
     result = recommend(snap, day, origins()["gj-buk"], BenefitsEnginePort().lookup(query("day")), limit=27)
     muan = next(r for r in result["regions"] if r["sigungu_code"] == MUAN)
     assert muan["group"] == 2 and muan["refund"]["badge"] == "needs_stay"
+
+
+def test_manual_entry_is_superseded_by_its_official_round():
+    from test_benefit_sync import gangjin, jangheung, page, sync_tour50  # colleague's synthetic page
+    assert sync_tour50(page(jangheung(), gangjin())).status == "ok"
+    lookup = BenefitsEnginePort().lookup(query(codes=["46800", "46810"]))
+    jangheung_programs = {p.program_id: p for p in lookup.by_region["46800"]}
+    manual = jangheung_programs["manual:jangheung-vacation-2026h2"]
+    assert manual.superseded_by == ("kto50:12770:2026",)
+    # 2차 trip period 10.12~11.02 is over for an 11-10 trip; the vague manual entry no longer decides.
+    program, badge, group1 = classify(lookup.by_region["46800"], "1N2D")
+    assert not group1 and program.program_id.startswith("kto50:12770")
+    program, badge, group1 = classify(lookup.by_region["46810"], "1N2D")
+    assert group1 and program.program_id == "kto50:12780-2026-3"
 
 
 def test_program_lookup_is_region_scoped_and_invalid_conditions_are_errors():

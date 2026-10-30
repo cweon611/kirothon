@@ -1,7 +1,7 @@
-"""Collect the KTO tourism APIs into SQLite (S1). Run before the event, not per request.
+"""Collect the tourism APIs into SQLite (S1). Run before the event, not per request.
 
     python -m app.team.sync_tourism                      # all steps, all 27 sigungu
-    python -m app.team.sync_tourism --base-ym 202410     # fix the hub/related month
+    python -m app.team.sync_tourism --base-ym 202606     # fix the hub/related month
     python -m app.team.sync_tourism --steps places,match --sigungu 46840
 
 Key: TOURAPI_SERVICE_KEY (Decoding key) from the environment only.
@@ -9,6 +9,7 @@ A failed sigungu keeps its previous rows; nothing is deleted on error or empty p
 """
 import argparse
 from datetime import date, datetime, timedelta, timezone
+import hashlib
 import html
 import json
 import re
@@ -20,17 +21,20 @@ from sqlmodel import Session, delete, select
 from ..database import DB_PATH, engine, init_db
 from ..schema_check import check_registered_schema
 from .regions import (KST, SPOT_TYPES, codes_path, interests, internal_code, ldong_for, load_codes,
-                      name_key, place_overrides, sigungu_map)
+                      name_key, name_variants, place_overrides, sigungu_from_address, sigungu_map)
 from .geo import haversine_km
 from .tourapi import TourApiClient, TourApiError
 from .tourism_models import HubRank, Place, RelatedPlace, TourismSyncRun, utc_now
 
-STEPS = ("codes", "places", "festivals", "hubs", "related", "match", "details")
+STEPS = ("codes", "places", "std", "festivals", "hubs", "related", "match", "details")
 PLACE_TYPES = ("12", "14", "28", "39", "32")
 GWANGJU_JEONNAM = ("광주", "전라남", "전남")
 STALE_RUN = timedelta(hours=2)
-INTRO_KEYS = ("restdate", "usetime", "restdateculture", "usetimeculture", "usefee", "spendtime", "restdateleports", "usetimeleports", "usefeeleports", "restdatefood",
-              "opentimefood", "checkintime", "checkouttime", "parking", "infocenter")
+INTRO_KEYS = ("restdate", "usetime", "restdateculture", "usetimeculture", "usefee", "spendtime",
+              "restdateleports", "usetimeleports", "usefeeleports", "restdatefood", "opentimefood",
+              "checkintime", "checkouttime", "parking", "infocenter")
+STD_FIELDS = {"trrsrtSe": "std_category", "prkplceCo": "std_parking", "aceptncCo": "std_capacity",
+              "cnvnncFclty": "std_facilities", "referenceDate": "std_reference_date"}
 
 
 class StepLog:
@@ -202,14 +206,66 @@ def step_places(client, session, log, targets, codes, num_of_rows, max_pages) ->
         session.commit()
 
 
+def step_std(client, session, log, targets) -> None:
+    """전국관광지정보표준데이터: enrich a matching KorService2 place, otherwise add it as source='std'."""
+    entry = log.step("std")
+    try:
+        rows, total, truncated = client.fetch_standard_sites()
+    except TourApiError as exc:
+        log.fail("std", "tn_pubr_public_trrsrt_api", exc)
+        return
+    wanted = set(targets)
+    by_code: dict[str, list[Place]] = {}
+    for place in session.exec(select(Place).where(Place.content_type_id != "15")).all():
+        by_code.setdefault(place.sigungu_code or "", []).append(place)
+    region_rows = enriched = added = 0
+    for row in rows:
+        addr = clean(row.get("rdnmadr")) or clean(row.get("lnmadr"))
+        code = sigungu_from_address(addr) or sigungu_from_address(clean(row.get("lnmadr")))
+        name = clean(row.get("trrsrtNm"))
+        if not code or code not in wanted or not name:
+            continue
+        region_rows += 1
+        extra = {key: clean(row.get(src)) for src, key in STD_FIELDS.items() if clean(row.get(src))}
+        lat, lng = to_float(row.get("latitude")), to_float(row.get("longitude"))
+        content_id, _ = match_name(name, code, by_code, {}, (lat, lng) if lat and lng else None)
+        place = session.get(Place, content_id) if content_id else None
+        if place is None:
+            content_id = "std-" + hashlib.sha1(f"{code}:{name_key(name)}".encode()).hexdigest()[:12]
+            place = session.get(Place, content_id) or Place(content_id=content_id, content_type_id="12",
+                                                             title=name, source="std")
+            place.title, place.sigungu_code, place.addr = name, code, addr
+            place.lat, place.lng = lat, lng
+            place.overview = clean(row.get("trrsrtIntrcn"))
+            place.intro_json = json.dumps(extra, ensure_ascii=False)
+            place.source_modified = extra.get("std_reference_date")
+            place.fetched_at = utc_now()
+            by_code.setdefault(code, []).append(place)
+            added += 1
+        else:
+            intro = json.loads(place.intro_json) if place.intro_json else {}
+            intro.update(extra)
+            place.intro_json = json.dumps(intro, ensure_ascii=False)
+            place.overview = place.overview or clean(row.get("trrsrtIntrcn"))
+            if place.lat is None and lat:
+                place.lat, place.lng = lat, lng
+            enriched += 1
+        session.add(place)
+    session.commit()
+    entry["rows"] = enriched + added
+    entry["notes"].append({"total": total, "region_rows": region_rows, "enriched": enriched, "added": added,
+                           "truncated": truncated})
+
+
 def step_festivals(client, session, log, codes, today: date, num_of_rows, max_pages) -> None:
     entry = log.step("festivals")
     regns = sorted({ldong_for(code, codes)[0] for code in sigungu_map()})
     for regn in regns:
         try:
+            # Start a month back so events already running are included; trips are matched by overlap.
+            since = (today - timedelta(days=31)).strftime("%Y%m%d")
             rows, _, truncated = client.fetch_all("KorService2", "searchFestival2", num_of_rows=num_of_rows,
-                                                  max_pages=max_pages, eventStartDate=today.strftime("%Y%m%d"),
-                                                  lDongRegnCd=regn)
+                                                  max_pages=max_pages, eventStartDate=since, lDongRegnCd=regn)
         except TourApiError as exc:
             log.fail("festivals", regn, exc)
             continue
@@ -316,6 +372,16 @@ def match_name(name: str, code: str | None, places_by_code: dict[str, list[Place
             return near[0].content_id, "name+coord"
     if len(same) == 1:
         return same[0].content_id, "name"
+    if same:
+        return None, None  # several exact hits: do not guess
+    wanted = name_variants(name, code)
+    loose = [p for p in places_by_code.get(code or "", []) if wanted & name_variants(p.title, code)]
+    if point:
+        near = [p for p in loose if p.lat and p.lng and haversine_km(point, (p.lat, p.lng)) <= 0.5]
+        if len(near) == 1:
+            return near[0].content_id, "variant+coord"
+    if len(loose) == 1:
+        return loose[0].content_id, "variant"
     return None, None
 
 
@@ -402,7 +468,8 @@ def step_details(client, session, log, targets, top: int) -> None:
         ids = [h.content_id for h in hubs][:top]
         for content_id in ids:
             place = session.get(Place, content_id)
-            if not place or place.content_type_id not in SPOT_TYPES or place.detail_fetched_at:
+            if (not place or place.source != "kor" or place.content_type_id not in SPOT_TYPES
+                    or place.detail_fetched_at):
                 continue
             try:
                 fetch_detail(client, place)
@@ -449,6 +516,8 @@ def run(args, client: TourApiClient | None = None) -> TourismSyncRun:
             codes = step_codes(client, log) if "codes" in steps else load_codes()
             if "places" in steps:
                 step_places(client, session, log, targets, codes, args.num_of_rows, args.max_pages)
+            if "std" in steps:
+                step_std(client, session, log, targets)
             if "festivals" in steps:
                 step_festivals(client, session, log, codes, today, args.num_of_rows, args.max_pages)
             start_ym = (today.replace(day=1) - timedelta(days=1)).strftime("%Y%m")

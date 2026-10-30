@@ -222,6 +222,40 @@ def test_concurrent_run_marker_blocks_second_run(clean_tourism_tables):
     assert run(sync_args("--force"), client=FakeClient()).status == "success"
 
 
+def test_standard_data_envelope_without_response_wrapper():
+    text = json.dumps({"header": {"resultCode": "00", "resultMsg": "NORMAL SERVICE."},
+                       "body": {"items": {"item": [{"trrsrtNm": "테스트관광지"}]}, "totalCount": 1,
+                                "pageNo": 1, "numOfRows": 1000}})
+    page = parse_page(text, "tn_pubr_public_trrsrt_api")
+    assert page.items == [{"trrsrtNm": "테스트관광지"}] and page.total_count == 1
+
+
+class StdClient(FakeClient):
+    def fetch_standard_sites(self, num_of_rows=1000, max_pages=10):
+        self.calls += 1
+        return [
+            {"trrsrtNm": "테스트공원", "rdnmadr": "전남광주통합특별시 무안군 테스트로 1", "latitude": "35.0",
+             "longitude": "126.5", "prkplceCo": "120", "trrsrtIntrcn": "표준데이터 소개", "referenceDate": "2026-08-01"},
+            {"trrsrtNm": "테스트해수욕장", "rdnmadr": "", "lnmadr": "전라남도 무안군 해제면 1", "latitude": "35.1",
+             "longitude": "126.4", "aceptncCo": "500", "trrsrtIntrcn": "새 장소"},
+            {"trrsrtNm": "다른지역관광지", "rdnmadr": "강원특별자치도 양양군 1", "latitude": "38", "longitude": "128"},
+        ], 3, False
+
+
+def test_standard_data_enriches_or_adds_places(clean_tourism_tables):
+    record = run(build_parser().parse_args(["--steps", "places,std", "--sigungu", "46840"]), client=StdClient())
+    assert record.status == "success"
+    note = json.loads(record.steps_json)["std"]["notes"][0]
+    assert (note["region_rows"], note["enriched"], note["added"]) == (2, 1, 1)
+    with Session(engine) as session:
+        enriched = session.get(Place, "46840-1")
+        assert json.loads(enriched.intro_json)["std_parking"] == "120" and enriched.overview == "표준데이터 소개"
+        added = [p for p in session.exec(select(Place)).all() if p.source == "std"]
+        assert len(added) == 1 and added[0].sigungu_code == "46840" and added[0].title == "테스트해수욕장"
+    again = run(build_parser().parse_args(["--steps", "std", "--sigungu", "46840"]), client=StdClient())
+    assert json.loads(again.steps_json)["std"]["notes"][0]["added"] == 0  # second run enriches the std row
+
+
 def test_month_back_and_probe_stops_on_first_data():
     assert sync_tourism.month_back("202601", 1) == "202512"
     assert sync_tourism.month_back("202504", 12) == "202404"

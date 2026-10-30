@@ -132,6 +132,43 @@ def name_key(name: str | None) -> str:
     return re.sub(r"[^0-9A-Za-z가-힣]", "", text).lower()
 
 
+def name_variants(name: str | None, code: str | None = None) -> set[str]:
+    """Conservative aliases for matching navigation/standard-data names to KorService2 titles.
+
+    '/지점' suffix dropped, '·'/',' joined names split, 해수욕장≈해변, and a leading
+    sigungu name ('무안식영정' -> '식영정') removed. Callers still require a unique hit.
+    """
+    base = re.split(r"/", name or "")[0]
+    region = sigungu_map().get(code or "")
+    prefixes = []
+    if region:
+        short = region.name[:-1] if len(region.name) > 2 else region.name
+        prefixes = [name_key(region.name), name_key(short)] + (["광주"] if region.sido == "광주광역시" else [])
+    out = set()
+    for part in [base, *re.split(r"[·,]", base)]:
+        key = name_key(part).replace("해수욕장", "해변")
+        if len(key) < 2:
+            continue
+        out.add(key)
+        for prefix in prefixes:
+            if prefix and key.startswith(prefix) and len(key) - len(prefix) >= 2:
+                out.add(key[len(prefix):])
+    return out
+
+
+def sigungu_from_address(addr: str | None) -> str | None:
+    """Internal code from a road/lot address ('전라남도 무안군 …', '전남광주통합특별시 무안군 …')."""
+    tokens = (addr or "").split()
+    if len(tokens) < 2 or not any(k in tokens[0] for k in ("광주", "전라남", "전남")):
+        return None
+    hits = [s for s in sigungu_map().values() if s.name == tokens[1]]
+    if tokens[0] == "광주광역시":
+        hits = [s for s in hits if s.sido == "광주광역시"]
+    elif tokens[0] in ("전라남도", "전남"):
+        hits = [s for s in hits if s.sido == "전라남도"]
+    return hits[0].code if len(hits) == 1 else None
+
+
 def place_matches_interest(content_type_id: str | None, lcls1: str | None, lcls2: str | None,
                            interest: Interest, codes: dict) -> bool:
     resolved = ((codes.get("lcls") or {}).get(interest.key) or {})
