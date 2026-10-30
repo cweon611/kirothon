@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { type Benefit, type Trip, today, addDays, shortDate, observation, isStale, inPeriod, isOpen, safeUrl, readStored, writeStored } from '@/lib/benefits'
 import { EvidenceWorkspace } from '@/components/evidence-workspace'
 import { type Evidence } from '@/lib/evidence'
-import destinations from '@/data/destinations.json'
+import destinations from '@/datasets/destinations.json'
 import { FestivalRecommendations } from '@/components/festival-recommendations'
 import { CoursePlanner } from '@/components/course-planner'
 import { ORIGINS, cleanInterests } from '@/lib/course'

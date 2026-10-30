@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { destinationNames, mapPoint, clampPull, randomLanding, nearestDestination, flightPoint, SLING, MAX_PULL, MIN_PULL } from '../src/lib/destination.ts'
-const map=JSON.parse(readFileSync(new URL('../src/data/korea-map.json',import.meta.url),'utf8'))
+const map=JSON.parse(readFileSync(new URL('../src/datasets/korea-map.json',import.meta.url),'utf8'))
 const anchors=map.regions.map(region=>({...region,...mapPoint(region)}))
 function seeded(angle,distance){let i=0;return ()=>i++===0?angle:distance}
 test('direction is player controlled while pull length does not set distance',()=>{

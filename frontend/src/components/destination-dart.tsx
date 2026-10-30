@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent, type KeyboardEvent } from 'react'
 import { ArrowRight, ChevronDown, Compass, MapPin, RotateCcw, Sparkles, ExternalLink } from 'lucide-react'
-import map from '@/data/korea-map.json'
+import map from '@/datasets/korea-map.json'
 import { mapPoint, clampPull, randomLanding, nearestDestination, flightPoint, SLING, MIN_PULL, type Point, type Destination } from '@/lib/destination'
 import { isOpen, isStale, type Benefit } from '@/lib/benefits'
 import './destination-dart.css'
