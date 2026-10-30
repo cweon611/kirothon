@@ -1,4 +1,4 @@
-# 반값루트 프론트
+# 갈랑가? 프론트
 
 팀 확인용: https://kirothon-team-review-20261030.vercel.app
 
