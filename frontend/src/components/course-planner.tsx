@@ -3,6 +3,8 @@ import { ArrowLeft, ArrowRight, CalendarDays, Car, Check, ChevronRight, Clock, E
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { type Trip, today, addDays, shortDate, safeUrl } from '@/lib/benefits'
+import { directionsUrl } from '@/lib/directions'
+import { DirectionsLink } from '@/components/directions-link'
 import { type Course, type CourseItem, type PlaceDetail, type Theme, INTERESTS, ORIGINS, courseRequest, courseSummary, courseThemes, errorMessage, formatKrw, interestLabel, originName, sigunguCode, uniqueCourses } from '@/lib/course'
 import './course-planner.css'
 
@@ -189,7 +191,7 @@ function CourseDetail({row,trip,onBack,onNext}:{row:Row; trip:Trip; onBack:()=>v
     {course.spend_breakdown&&course.spend_breakdown.items.length>0&&<details className="course-spend"><summary><Wallet size={17}/> 예상 지출 {formatKrw(course.spend_breakdown.total_krw)} 내역 보기</summary><ul>{course.spend_breakdown.items.map(item=><li key={item.label}><span>{item.label}</span><strong>{formatKrw(item.krw)}</strong></li>)}</ul><p>식비·숙박비 기본값이 들어간 추정치예요. 실제 금액은 장소마다 달라요.</p></details>}
     {program&&<section className="course-program"><h3><CalendarDays size={17}/> 연결된 여행 지원제도</h3><p><strong>{program.name}</strong>{program.rate?` · 환급률 ${Math.round(program.rate*100)}%`:''}{program.cap_krw?` · 최대 ${formatKrw(program.cap_krw)}`:''}</p>{safeUrl(program.source_url??null)&&<a href={safeUrl(program.source_url??null)} target="_blank" rel="noopener noreferrer">공식 공고 <ExternalLink size={13}/></a>}</section>}
     <div className="sticky-action course-detail-actions"><button className="text-button" onClick={onBack}>다른 일정 보기</button><Button className="button" onClick={onNext}>이 일정의 혜택 확인하기 <ArrowRight size={18}/></Button></div>
-    <PlaceDialog contentId={placeId} date={placeDate} onClose={()=>setPlaceId(null)}/>
+    <PlaceDialog contentId={placeId} date={placeDate} origin={trip.origin} onClose={()=>setPlaceId(null)}/>
   </div>
 }
 
@@ -212,7 +214,7 @@ function CourseStop({item,onPlace}:{item:CourseItem; onPlace:(id:string)=>void})
   </li>
 }
 
-function PlaceDialog({contentId,date,onClose}:{contentId:string|null; date:string; onClose:()=>void}) {
+function PlaceDialog({contentId,date,origin,onClose}:{contentId:string|null; date:string; origin:string; onClose:()=>void}) {
   const [place,setPlace]=useState<PlaceDetail|null>(null)
   const [failed,setFailed]=useState(false)
   useEffect(()=>{
@@ -241,6 +243,7 @@ function PlaceDialog({contentId,date,onClose}:{contentId:string|null; date:strin
           {place.tel&&<div><dt><Phone size={14}/>문의</dt><dd>{place.tel}</dd></div>}
         </dl>
         {!!place.evidence?.length&&<div className="place-evidence"><span>추천 근거</span>{place.evidence.map(text=><em key={text}>{text}</em>)}</div>}
+        {typeof place.lat==='number'&&typeof place.lng==='number'&&<div className="no-benefit-actions"><DirectionsLink url={directionsUrl(origin,{name:place.title,lat:place.lat,lng:place.lng})}>{origin}에서 길찾기</DirectionsLink></div>}
         <p className="field-help">{place.source==='demo'?'시연용 데이터예요. 실제 정보와 다를 수 있어요.':place.detail_status==='not_fetched'||place.detail_status==='unavailable'?'상세 정보를 아직 받지 못해 목록 정보만 보여요.':'한국관광공사 관광정보 기준이에요.'} 방문 전 운영 여부를 확인해 주세요.</p>
       </div>}
     </DialogContent>
