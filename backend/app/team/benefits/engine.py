@@ -491,22 +491,25 @@ RESTRICTED_WORDS = ("수급자", "차상위", "저소득", "학생", "아동", "
                     "주민", "군민", "시민", "도민", "구민", "거주자", "기업")
 
 
-def _check_audience(c: _Ctx):
-    p = c.program
+def audience_check(p: BenefitProgram) -> tuple[str, str] | None:
+    """gov24 only: ("met" | "unmet", detail) from the official text; None for other sources."""
     if p.source_type != "gov24_api":
-        return
+        return None
     texts = [p.name] + [p.raw_text.get(k, "") for k in ("지원대상", "선정기준", "서비스목적요약", "서비스목적")]
     blob = " ".join(texts)
     target = (p.raw_text.get("지원대상") or "").strip()
     quote = f"원문 지원대상: {target[:80]}" if target else "원문 지원대상 없음"
-    label = "지원 대상(일반 관광객 여부)"
     if any(w in blob for w in VISITOR_WORDS):
-        c.add("audience", label, "met", f"원문에 방문객 대상 표현이 있음 — {quote}", program_fields=["raw_text"])
-        return
+        return "met", f"원문에 방문객 대상 표현이 있음 — {quote}"
     restricted = [w for w in RESTRICTED_WORDS if w in blob]
-    detail = (f"특정 대상({', '.join(restricted[:4])}) 전용으로 보임 — {quote}" if restricted
-              else f"방문객 대상이라는 근거가 원문에 없음 — {quote}")
-    c.add("audience", label, "unmet", detail, program_fields=["raw_text"])
+    return "unmet", (f"특정 대상({', '.join(restricted[:4])}) 전용으로 보임 — {quote}" if restricted
+                     else f"방문객 대상이라는 근거가 원문에 없음 — {quote}")
+
+
+def _check_audience(c: _Ctx):
+    result = audience_check(c.program)
+    if result:
+        c.add("audience", "지원 대상(일반 관광객 여부)", result[0], result[1], program_fields=["raw_text"])
 
 
 def _check_source(c: _Ctx):

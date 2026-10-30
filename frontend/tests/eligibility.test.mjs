@@ -10,6 +10,12 @@ test('unknown answers are left out instead of guessed',()=>{
   assert.deepEqual(userConditions(p),{residence:{sido:'전라남도',sigungu:'무안군'},birth_date:'1999-01-01',is_family:true,same_address:false,prior_participated_program_ids:[]})
   assert.equal('same_address' in userConditions({...p,family:'no'}),false)
   assert.equal('prior_participated_program_ids' in userConditions({...p,firstTime:'no'}),false)
+  assert.deepEqual(userConditions({...p,firstTime:'no',participated:['kto50:12780']}).prior_participated_program_ids,['kto50:12780'])
+  assert.equal('prior_participated_program_ids' in userConditions({...p,firstTime:'unknown',participated:['x']}),false)
+})
+test('a residence the user has not entered is sent as missing, never as a default',()=>{
+  assert.deepEqual(userConditions(emptyProfile('')),{})
+  assert.deepEqual(refundRequest(emptyProfile('')),{benefit_conditions:{}})
 })
 test('course check sends Gwangju·Jeonnam residence as a code, others by name',()=>{
   assert.deepEqual(refundRequest(emptyProfile('광주 북구')),{residence_code:'29170',benefit_conditions:{}})

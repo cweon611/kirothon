@@ -118,3 +118,5 @@
   .course-stop:not(:last-child):before{left:63px;top:28px}
   .course-dot{width:28px;height:28px}
 }
+.course-reason-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.course-reason-tags span{padding:2px 8px;border-radius:999px;background:var(--teal-pale);color:var(--teal-dark);font-size:11px;line-height:1.6}

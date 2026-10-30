@@ -237,6 +237,38 @@ def test_programs_list_filters_region_and_flags_superseded(client):
     assert client.get("/api/team/meta").json()["programs_open"] == data["counts"]["open_now"]
 
 
+def test_programs_list_carries_payment_conditions_and_contacts(client):
+    from test_benefit_sync import gangjin, page, sync_tour50
+    assert sync_tour50(page(gangjin())).status == "ok"
+    by_id = {p["program_id"]: p for p in client.get("/api/team/programs").json()["programs"]}
+    page_row = by_id["kto50:12780-2026-3"]
+    assert page_row["payment_methods"] == ["chak 앱"]
+    assert page_row["conditions_text"] == "관광지 2개소(사진) 방문"
+    assert page_row["contacts"] == ["061-000-0007"]
+    assert page_row["visit_rule"] is None and page_row["proof_items"] is None  # not stated: stays null
+    muan = by_id["manual:muan-halfprice-2026"]
+    assert muan["visit_rule"]["must_include"] == ["무안황토갯벌랜드"]
+    assert muan["proof_items"] and muan["payment_methods"] is None and muan["contacts"] is None
+    assert muan["settlement_days_after_trip"] == 7 and muan["pre_apply_required"] is True
+    assert muan["pre_apply_days_before_trip"] is None  # not stated: the screen keeps the generic reminder
+
+
+def test_programs_list_excludes_gov24_services_not_for_visitors(client):
+    from app.team.benefits import sync as bsync
+    from test_benefit_sync import FakeGov24, _row, factory, gov_client
+    rows = [
+        {**_row("SCHOOL1", "기초생활수급자 수학여행비 및 체험학습비 지원", provider="전라남도 영광군"),
+         "지원대상": "기초생활보장수급자 중 수학여행에 실제 참여하는 학생"},
+        {**_row("VISIT1", "영광 여행 숙박비 지원", provider="전라남도 영광군"), "지원대상": "관외 거주 관광객"},
+    ]
+    assert bsync.run_sync("gov24_api", "manual", factory, gov24_client=gov_client(FakeGov24(rows=rows))).status == "ok"
+    data = client.get("/api/team/programs").json()
+    ids = {p["program_id"] for p in data["programs"]}
+    assert "gov24:VISIT1" in ids and "gov24:SCHOOL1" not in ids
+    excluded = {e["program_id"]: e for e in data["excluded"]}
+    assert "수급자" in excluded["gov24:SCHOOL1"]["reason"]
+
+
 def test_empty_cache_is_explicit(client):
     with Session(engine) as session:
         for model in (Place, HubRank, RelatedPlace):

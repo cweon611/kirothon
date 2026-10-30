@@ -1,7 +1,7 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { CalendarClock, Check, ChevronDown, CircleCheck, CircleHelp, CircleX, ExternalLink, RefreshCw, ShieldCheck, UserRound } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { type Trip, addDays, shortDate, safeUrl } from '@/lib/benefits'
+import { type Benefit, type Trip, addDays, shortDate, safeUrl } from '@/lib/benefits'
 import { formatKrw } from '@/lib/course'
 import { type Answer, type CheckResponse, type CheckResult, type Profile, type RefundResponse, OTHER, SIDO, dDay, emptyProfile, refundRequest, refundResults, tripCheckRequest, uniqueLabels, verdictOf } from '@/lib/eligibility'
 import './eligibility-panel.css'
@@ -19,9 +19,11 @@ async function post<T>(url:string, body:object):Promise<T> {
   } finally { clearTimeout(timeout) }
 }
 
-export function EligibilityPanel({source,trip,residenceOptions}:{source:Source; trip:Trip; residenceOptions:string[]}) {
+/** `residence` is '' until the user has entered one: a default is never judged as their answer. */
+export function EligibilityPanel({source,trip,residence,programs=[],residenceOptions}:{source:Source; trip:Trip; residence:string; programs?:Benefit[]; residenceOptions:string[]}) {
   // Personal answers live only in this component: never stored or sent anywhere but the check request.
-  const [profile,setProfile]=useState<Profile>(()=>emptyProfile(trip.residence))
+  const [profile,setProfile]=useState<Profile>(()=>emptyProfile(residence))
+  const families=[...new Map(programs.map(row=>[row.family_id??row.id.split('@')[0],row.name])).entries()]
   const [state,setState]=useState<State>({status:'idle'})
   const end=addDays(trip.date,trip.type==='당일'?0:1)
   const set=(patch:Partial<Profile>)=>setProfile(current=>({...current,...patch}))
@@ -48,7 +50,7 @@ export function EligibilityPanel({source,trip,residenceOptions}:{source:Source; 
     <div className="eligibility-head"><span className="eligibility-icon"><UserRound size={20}/></span><div><h3 id="eligibility-title">내 조건으로 받을 수 있는지 확인</h3><p>{source.kind==='course'?'이 일정의 방문지·숙박·예상 지출로 판정해요.':`${shortDate(trip.date)} ${trip.type} · ${trip.people}명 일정으로 판정해요.`}</p></div></div>
     <form className="eligibility-form" onSubmit={run}>
       <label className="eligibility-field"><span>거주지 <small>주민등록 기준</small></span>
-        <select value={profile.residence} onChange={e=>set({residence:e.target.value})}>{[...residenceOptions.filter(v=>v!==OTHER),OTHER].map(v=><option key={v}>{v}</option>)}</select></label>
+        <select value={profile.residence} onChange={e=>set({residence:e.target.value})}><option value="">선택해 주세요</option>{[...residenceOptions.filter(v=>v!==OTHER),OTHER].map(v=><option key={v}>{v}</option>)}</select></label>
       {profile.residence===OTHER&&<div className="eligibility-pair">
         <label className="eligibility-field"><span>시·도</span><select value={profile.otherSido} onChange={e=>set({otherSido:e.target.value})}>{SIDO.map(v=><option key={v}>{v}</option>)}</select></label>
         <label className="eligibility-field"><span>시·군·구 <small>선택</small></span><input value={profile.otherSigungu} maxLength={20} placeholder="예: 강남구" onChange={e=>set({otherSigungu:e.target.value})}/></label>
@@ -57,6 +59,9 @@ export function EligibilityPanel({source,trip,residenceOptions}:{source:Source; 
       <AnswerField label="가족과 함께 가나요?" value={profile.family} onChange={family=>set({family})}/>
       {profile.family==='yes'&&<AnswerField label="모두 같은 주소에 살아요?" value={profile.sameAddress} onChange={sameAddress=>set({sameAddress})}/>}
       <AnswerField label="이런 지원 사업은 처음이에요?" value={profile.firstTime} onChange={firstTime=>set({firstTime})} yes="처음이에요" no="참여한 적 있어요"/>
+      {profile.firstTime==='no'&&<fieldset className="eligibility-participation"><legend>참여했던 사업을 골라 주세요</legend>
+        {families.map(([id,name])=><label key={id}><input type="checkbox" checked={profile.participated.includes(id)} onChange={()=>set({participated:profile.participated.includes(id)?profile.participated.filter(v=>v!==id):[...profile.participated,id]})}/>{name}</label>)}
+        <p>{families.length?'고르지 않으면 참여 이력은 ‘확인 필요’로 남아요.':'이 지역에 연결된 사업 목록이 없어 참여 이력은 ‘확인 필요’로 남아요.'}</p></fieldset>}
       <p className="eligibility-privacy"><ShieldCheck size={14}/>입력한 정보는 이번 확인에만 쓰고 저장하지 않아요.</p>
       <Button className="button full-button" type="submit" disabled={state.status==='loading'}>{state.status==='loading'?<><RefreshCw className="loading-spin" size={16}/> 확인하는 중</>:state.status==='done'?<>이 조건으로 다시 확인 <RefreshCw size={16}/></>:<>자격 확인하기 <Check size={16}/></>}</Button>
     </form>

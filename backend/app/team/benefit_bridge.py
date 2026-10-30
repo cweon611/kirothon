@@ -118,6 +118,12 @@ def support_text(program: BenefitProgram) -> str | None:
     return program.raw_text.get("지원내용") or None
 
 
+def conditions_text(program: BenefitProgram) -> str | None:
+    """Original condition text from the source (not interpreted): tour50 특이사항, gov24 지원대상/선정기준."""
+    return (program.raw_text.get("특이사항") or program.raw_text.get("지원대상")
+            or program.raw_text.get("선정기준") or None)
+
+
 def program_details(ev: ProgramEvaluation, program: BenefitProgram) -> dict:
     t = ev.timeline
     fresh = ev.data_freshness
@@ -135,9 +141,7 @@ def program_details(ev: ProgramEvaluation, program: BenefitProgram) -> dict:
         "support": support_text(program),
         "payout_method": program.payout.method if program.payout else None,
         "match_basis": ev.matched_visits[0].match_basis if ev.matched_visits else None,
-        # Original condition text from the source (not interpreted): tour50 특이사항, gov24 지원대상/선정기준.
-        "conditions_text": program.raw_text.get("특이사항") or program.raw_text.get("지원대상")
-        or program.raw_text.get("선정기준"),
+        "conditions_text": conditions_text(program),
         "estimated_amount": ev.estimate.amount,
         "estimate_unavailable_reasons": list(ev.estimate.unavailable_reasons),
         "missing_user_fields": list(ev.missing_user_fields),

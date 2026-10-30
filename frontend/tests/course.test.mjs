@@ -14,7 +14,8 @@ test('destination names map to backend sigungu codes',()=>{
 test('request uses backend keys and clamps party size',()=>{
   const body=courseRequest({...trip,type:'당일',transport:'대중교통',people:30},['nature'],'46840')
   assert.deepEqual(body,{trip_type:'day',start_date:'2026-11-10',origin:'gj-buk',interests:['nature'],party_size:20,transport:'transit',sigungu_code:'46840'})
-  assert.equal(courseRequest({...trip,origin:'모르는 곳'},['nature'],'46840').origin,'gj-buk')
+  // An unknown origin is not silently replaced by 광주 북구: the backend rejects it instead.
+  assert.equal(courseRequest({...trip,origin:'모르는 곳'},['nature'],'46840').origin,null)
 })
 test('themes start with the user mix and never repeat a single picked theme',()=>{
   const themes=courseThemes(['nature'])

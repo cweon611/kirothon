@@ -2,11 +2,11 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { ArrowLeft, ArrowRight, CalendarDays, Car, Check, ChevronRight, Clock, House, Info, MapPin, Phone, RefreshCw, RotateCcw, Route, SlidersHorizontal, Sparkles, TrainFront, TriangleAlert, Utensils, Wallet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { type Trip, today, addDays, shortDate, safeUrl } from '@/lib/benefits'
+import { type Benefit, type Trip, today, addDays, shortDate, safeUrl } from '@/lib/benefits'
 import { directionsUrl } from '@/lib/directions'
 import { DirectionsLink } from '@/components/directions-link'
 import { EligibilityPanel } from '@/components/eligibility-panel'
-import { type Course, type CourseItem, type PlaceDetail, type Theme, INTERESTS, ORIGINS, courseRequest, courseSummary, courseThemes, errorMessage, formatKrw, interestLabel, originName, sigunguCode, uniqueCourses } from '@/lib/course'
+import { type Course, type CourseItem, type PlaceDetail, type ReasonsResponse, type Theme, INTERESTS, ORIGINS, courseRequest, courseSummary, courseThemes, errorMessage, formatKrw, interestLabel, originName, sigunguCode, uniqueCourses } from '@/lib/course'
 import './course-planner.css'
 
 type Row = {theme:Theme; course:Course}
@@ -48,8 +48,8 @@ function loadCourses(region:string, trip:Trip, interests:string[]):Promise<Outco
 const kindIcon={spot:MapPin,meal:Utensils,stay:House}
 const mealLabel:Record<string,string>={breakfast:'아침',lunch:'점심',dinner:'저녁'}
 
-export function CoursePlanner({region,trip,interests,residenceOptions,onSave,onNext,onReroll}:{
-  region:string; trip:Trip; interests:string[]; residenceOptions:string[];
+export function CoursePlanner({region,trip,confirmed,programs,interests,residenceOptions,onSave,onNext,onReroll}:{
+  region:string; trip:Trip; confirmed:boolean; programs:Benefit[]; interests:string[]; residenceOptions:string[];
   onSave:(trip:Trip, interests:string[])=>void; onNext:()=>void; onReroll:()=>void;
 }) {
   const [outcome,setOutcome]=useState<Outcome|null>(null)
@@ -72,9 +72,9 @@ export function CoursePlanner({region,trip,interests,residenceOptions,onSave,onN
   const close=()=>{if(history.state?.course)history.back();else setSelectedId(null)}
   const selected=outcome?.rows.find(row=>row.course.id===selectedId)
 
-  if (selected) return <CourseDetail row={selected} trip={trip} residenceOptions={residenceOptions} onBack={close} onNext={onNext}/>
+  if (selected) return <CourseDetail row={selected} trip={trip} residence={confirmed?trip.residence:''} programs={programs} residenceOptions={residenceOptions} onBack={close} onNext={onNext}/>
   return <div className="course-planner">
-    <ConditionPanel region={region} trip={trip} interests={interests} residenceOptions={residenceOptions} editing={editing} setEditing={setEditing} onReroll={onReroll}
+    <ConditionPanel region={region} trip={trip} confirmed={confirmed} interests={interests} residenceOptions={residenceOptions} editing={editing} setEditing={setEditing} onReroll={onReroll}
       onSave={(nextTrip,nextInterests)=>{onSave(nextTrip,nextInterests);setEditing(false)}}/>
     <div className="course-list-head"><div><span className="course-eyebrow"><Sparkles size={14}/> {region} 안에서 짠 동선</span><h2>추천 일정</h2></div>{!loading&&outcome.rows.length>0&&<span className="course-count">{outcome.rows.length}개 코스</span>}</div>
     {loading?<div className="course-empty" role="status"><RefreshCw className="loading-spin" size={22}/><p>관광지·식당·숙소를 이어 일정을 짜고 있어요.</p></div>
@@ -85,8 +85,8 @@ export function CoursePlanner({region,trip,interests,residenceOptions,onSave,onN
   </div>
 }
 
-function ConditionPanel({region,trip,interests,residenceOptions,editing,setEditing,onSave,onReroll}:{
-  region:string; trip:Trip; interests:string[]; residenceOptions:string[]; editing:boolean; setEditing:(value:boolean)=>void;
+function ConditionPanel({region,trip,confirmed,interests,residenceOptions,editing,setEditing,onSave,onReroll}:{
+  region:string; trip:Trip; confirmed:boolean; interests:string[]; residenceOptions:string[]; editing:boolean; setEditing:(value:boolean)=>void;
   onSave:(trip:Trip, interests:string[])=>void; onReroll:()=>void;
 }) {
   const [draft,setDraft]=useState(trip)
@@ -107,7 +107,7 @@ function ConditionPanel({region,trip,interests,residenceOptions,editing,setEditi
       <div><dt>일정</dt><dd>{trip.type} · {shortDate(trip.date)}{trip.type==='당일'?'':` ~ ${shortDate(end)}`}</dd></div>
       <div><dt>인원</dt><dd>{trip.people}명</dd></div>
       <div><dt>출발지</dt><dd>{trip.origin} · {trip.transport}</dd></div>
-      <div><dt>거주지</dt><dd>{trip.residence}</dd></div>
+      <div><dt>거주지</dt><dd>{confirmed?trip.residence:'아직 입력 전'}</dd></div>
       <div className="wide"><dt>관심 분야</dt><dd>{interests.map(interestLabel).join(', ')}</dd></div>
     </dl>:<form className="course-condition-form" onSubmit={submit}>
       <div className="field-grid">
@@ -161,12 +161,25 @@ function CourseUnavailable({error,trip,onRetry,onEdit}:{error:{code:string;messa
   </div>
 }
 
-function CourseDetail({row,trip,residenceOptions,onBack,onNext}:{row:Row; trip:Trip; residenceOptions:string[]; onBack:()=>void; onNext:()=>void}) {
+function CourseDetail({row,trip,residence,programs,residenceOptions,onBack,onNext}:{row:Row; trip:Trip; residence:string; programs:Benefit[]; residenceOptions:string[]; onBack:()=>void; onNext:()=>void}) {
   const {course,theme}=row
   const [day,setDay]=useState(0)
   const [placeId,setPlaceId]=useState<string|null>(null)
   const summary=courseSummary(course)
   const current=course.days[day]??course.days[0]
+  // AI sentences for the day on screen (the backend caps AI at 2 calls per course and reuses stored ones).
+  const [aiReasons,setAiReasons]=useState<Record<string,string>>({})
+  const currentDay=current?.day
+  useEffect(()=>{
+    if(currentDay===undefined)return
+    let active=true
+    const controller=new AbortController()
+    fetch(`/api/team/courses/${encodeURIComponent(course.id)}/reasons`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({day:currentDay}),signal:controller.signal})
+      .then(async response=>{if(!response.ok)throw new Error();const body=await response.json() as ReasonsResponse
+        if(active)setAiReasons(prev=>({...prev,...Object.fromEntries(body.items.filter(i=>i.reason_text).map(i=>[`${body.day}:${i.order}`,i.reason_text as string]))}))})
+      .catch(()=>{/* keep the course's rule sentences */})
+    return ()=>{active=false;controller.abort()}
+  },[course.id,currentDay])
   const placeDate=current?.date??course.start_date
   return <div className="course-detail">
     <button className="course-back" onClick={onBack}><ArrowLeft size={17}/> 추천 일정 목록</button>
@@ -185,17 +198,17 @@ function CourseDetail({row,trip,residenceOptions,onBack,onNext}:{row:Row; trip:T
     {course.days.length>1&&<div className="day-tabs" role="group" aria-label="여행 날짜">{course.days.map((d,i)=><button key={d.day} aria-pressed={day===i} className={day===i?'active':''} onClick={()=>setDay(i)}>{d.day}일차 · {shortDate(d.date)}</button>)}</div>}
     {current&&<ol className="course-timeline">
       <li className="course-stop course-stop-start"><span className="course-time">{current.depart}</span><span className="course-dot">{trip.transport==='자차'?<Car size={16}/>:<TrainFront size={16}/>}</span><div className="course-stop-card plain"><strong>{current.start_point} 출발</strong></div></li>
-      {current.items.map(item=><CourseStop key={item.order} item={item} onPlace={setPlaceId}/>)}
+      {current.items.map(item=><CourseStop key={item.order} item={item} reason={aiReasons[`${current.day}:${item.order}`]} onPlace={setPlaceId}/>)}
       {current.home_arrival&&<li className="course-stop course-stop-end"><span className="course-time">{current.return_depart}</span><span className="course-dot"><House size={16}/></span><div className="course-stop-card plain"><strong>귀가 출발</strong><span className="course-move"><Route size={13}/>약 {current.return_move_min}분 · {current.home_arrival} 도착 예정</span></div></li>}
     </ol>}
     {course.spend_breakdown&&course.spend_breakdown.items.length>0&&<details className="course-spend"><summary><Wallet size={17}/> 예상 지출 {formatKrw(course.spend_breakdown.total_krw)} 내역 보기</summary><ul>{course.spend_breakdown.items.map(item=><li key={item.label}><span>{item.label}</span><strong>{formatKrw(item.krw)}</strong></li>)}</ul><p>식비·숙박비 기본값이 들어간 추정치예요. 실제 금액은 장소마다 달라요.</p></details>}
-    <EligibilityPanel key={course.id} source={{kind:'course',courseId:course.id}} trip={trip} residenceOptions={residenceOptions}/>
+    <EligibilityPanel key={`${course.id}:${residence}`} source={{kind:'course',courseId:course.id}} trip={trip} residence={residence} programs={programs} residenceOptions={residenceOptions}/>
     <div className="sticky-action course-detail-actions"><button className="text-button" onClick={onBack}>다른 일정 보기</button><Button className="button" onClick={onNext}>이 일정의 혜택 확인하기 <ArrowRight size={18}/></Button></div>
     <PlaceDialog contentId={placeId} date={placeDate} origin={trip.origin} onClose={()=>setPlaceId(null)}/>
   </div>
 }
 
-function CourseStop({item,onPlace}:{item:CourseItem; onPlace:(id:string)=>void}) {
+function CourseStop({item,reason,onPlace}:{item:CourseItem; reason?:string; onPlace:(id:string)=>void}) {
   const Icon=kindIcon[item.kind as keyof typeof kindIcon]??MapPin
   const label=item.kind==='meal'?`${mealLabel[item.meal??'']??''} 식사`.trim():item.kind==='stay'?'숙소':item.place?.category??'관광지'
   return <li className={`course-stop course-stop-${item.kind}`}>
@@ -205,7 +218,8 @@ function CourseStop({item,onPlace}:{item:CourseItem; onPlace:(id:string)=>void})
       {typeof item.move_min_from_prev==='number'&&<span className={`course-move ${item.move_warning?'warn':''}`}><Route size={13}/>이전 장소에서 약 {item.move_min_from_prev}분{item.move_warning?' · 이동이 길어요':''}{item.transit_note?` · ${item.transit_note}`:''}</span>}
       <span className="course-stop-kind">{label}{item.required&&<em>필수 방문</em>}{item.place?.source==='demo'&&<em className="muted">시연 데이터</em>}</span>
       {item.place?<button className="course-place" onClick={()=>onPlace(item.place!.content_id)}>{item.place.title}<ChevronRight size={16}/></button>:<strong>{item.label??'장소 미정'}</strong>}
-      {item.reason_text&&<p>{item.reason_text}</p>}
+      {(reason??item.reason_text)&&<p>{reason??item.reason_text}</p>}
+      {!!item.reason_tags?.length&&<div className="course-reason-tags">{item.reason_tags.map(tag=><span key={tag}>{tag}</span>)}</div>}
       {(item.check_before_visit||item.refund_note)&&<div className="course-stop-notes">
         {item.check_before_visit&&<span className="warn"><Info size={13}/>방문 전 확인{item.check_reasons?.length?`: ${item.check_reasons.join(', ')}`:''}</span>}
         {item.refund_note&&<span><Wallet size={13}/>{item.refund_note}</span>}
