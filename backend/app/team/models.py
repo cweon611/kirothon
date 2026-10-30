@@ -7,3 +7,4 @@ to create a different service: define a separate, topic-specific table here.
 from .benefits.store_models import (  # noqa: F401 -- register benefit sync tables
     BenefitRecordVersion, BenefitSourceRecord, BenefitSyncRun, BenefitSyncState,
 )
+from .tourism_models import Course, HubRank, Place, RelatedPlace, TourismSyncRun  # noqa: F401
