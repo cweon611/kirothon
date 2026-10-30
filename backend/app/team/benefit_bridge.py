@@ -38,10 +38,13 @@ def region_of(code: str | None) -> Region | None:
 
 
 def build_request(query: RegionBenefitQuery, code: str) -> BenefitCheckRequest:
-    nights = (query.trip_end - query.trip_start).days
+    if getattr(query, "assume_stay", True):
+        nights = (query.trip_end - query.trip_start).days
+        checkins = [query.trip_start + timedelta(days=i) for i in range(nights)] or None
+    else:
+        nights, checkins = None, None
     visit = VisitInput(region=region_of(code), start_date=query.trip_start, end_date=query.trip_end,
-                       nights=nights,
-                       checkin_dates=[query.trip_start + timedelta(days=i) for i in range(nights)] or None)
+                       nights=nights, checkin_dates=checkins)
     fields = {k: v for k, v in (query.conditions or {}).items() if k in PASSTHROUGH}
     if "residence" not in fields:
         residence = region_of(query.residence_code)
@@ -81,7 +84,65 @@ def summarize(ev: ProgramEvaluation, program: BenefitProgram, code: str, query: 
             stay_checkin_weekdays=tuple(stay.checkin_weekdays) if stay and stay.checkin_weekdays is not None
             else None,
         ),
+        details=program_details(ev, program),
     )
+
+
+def _iso(value) -> str | None:
+    return value.isoformat() if value is not None else None
+
+
+def _period(rng) -> dict | None:
+    return {"start": _iso(rng.start), "end": _iso(rng.end)} if rng else None
+
+
+def support_text(program: BenefitProgram) -> str | None:
+    """Support content from stored facts only (no generated wording about amounts)."""
+    b = program.benefit
+    parts = []
+    if b and b.refund_rate is not None:
+        parts.append(f"환급률 {round(b.refund_rate * 100)}%")
+    if b and b.youth_refund_rate is not None:
+        parts.append(f"청년 {round(b.youth_refund_rate * 100)}%")
+    if b and b.caps:
+        parts.append("상한 " + ", ".join(f"{c.label} {c.amount:,}원" for c in b.caps))
+    if b and b.min_spend is not None:
+        parts.append(f"최소 인정 소비 {b.min_spend:,}원")
+    if program.payout and program.payout.method:
+        parts.append(f"지급: {program.payout.method}")
+    if parts:
+        return " · ".join(parts)
+    return program.raw_text.get("지원내용") or None
+
+
+def program_details(ev: ProgramEvaluation, program: BenefitProgram) -> dict:
+    t = ev.timeline
+    fresh = ev.data_freshness
+    unresolved = [{"code": r.code, "label": r.label, "detail": r.detail} for r in ev.unresolved_conditions
+                  if r.status != "missing_user_info"]
+    return {
+        "program_key": ev.program_id,
+        "related_program_ids": list(ev.related_program_ids),
+        "trip_period": _period(t.trip_period),
+        "application_period": _period(t.application_period),
+        "application_start_at": _iso(t.application_start_at),
+        "application_end_at": _iso(t.application_end_at),
+        "pre_apply_deadline": _iso(t.pre_apply_deadline),
+        "budget_remaining": t.budget_remaining,
+        "support": support_text(program),
+        "estimated_amount": ev.estimate.amount,
+        "estimate_unavailable_reasons": list(ev.estimate.unavailable_reasons),
+        "missing_user_fields": list(ev.missing_user_fields),
+        "unmet": [{"code": r.code, "label": r.label, "confirmed": r.rule_confirmed} for r in ev.unmet_conditions],
+        "unresolved": unresolved[:8],
+        "data_origin": ev.data_origin,
+        "source_type": ev.source_type,
+        "verification_status": ev.verification_status,
+        "review_status": ev.review_status,
+        "last_success_at": _iso(fresh.last_success_at) if fresh else None,
+        "source_updated_at": _iso(fresh.source_updated_at) if fresh else None,
+        "sources": [{"type": s.source_type, "title": s.title, "url": s.url} for s in ev.sources],
+    }
 
 
 def _failed_sources(session: Session) -> list[str]:

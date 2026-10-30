@@ -202,13 +202,18 @@ def step_places(client, session, log, targets, codes, num_of_rows, max_pages) ->
         session.commit()
 
 
-def step_festivals(client, session, log, codes, today: date, num_of_rows, max_pages) -> None:
+def step_festivals(client, session, log, codes, today: date, num_of_rows, max_pages,
+                   lookback_days: int = 0) -> None:
+    """eventStartDate is a lower bound on the start date, so festivals that opened before
+    today but are still running need an earlier query date (lookback_days)."""
     entry = log.step("festivals")
     regns = sorted({ldong_for(code, codes)[0] for code in sigungu_map()})
+    since = today - timedelta(days=max(0, lookback_days))
+    entry["notes"].append({"event_start_from": since.isoformat()})
     for regn in regns:
         try:
             rows, _, truncated = client.fetch_all("KorService2", "searchFestival2", num_of_rows=num_of_rows,
-                                                  max_pages=max_pages, eventStartDate=today.strftime("%Y%m%d"),
+                                                  max_pages=max_pages, eventStartDate=since.strftime("%Y%m%d"),
                                                   lDongRegnCd=regn)
         except TourApiError as exc:
             log.fail("festivals", regn, exc)
@@ -450,7 +455,8 @@ def run(args, client: TourApiClient | None = None) -> TourismSyncRun:
             if "places" in steps:
                 step_places(client, session, log, targets, codes, args.num_of_rows, args.max_pages)
             if "festivals" in steps:
-                step_festivals(client, session, log, codes, today, args.num_of_rows, args.max_pages)
+                step_festivals(client, session, log, codes, today, args.num_of_rows, args.max_pages,
+                               getattr(args, "festival_lookback_days", 0))
             start_ym = (today.replace(day=1) - timedelta(days=1)).strftime("%Y%m")
             for step, service, attr, fn in (("hubs", "LocgoHubTarService1", "base_ym_hub", step_hubs),
                                             ("related", "TarRlteTarService1", "base_ym_related", step_related)):
@@ -496,6 +502,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--timeout", type=float, default=10.0)
     parser.add_argument("--interval", type=float, default=0.2, help="seconds between calls")
     parser.add_argument("--force", action="store_true", help="ignore a running-run marker")
+    parser.add_argument("--festival-lookback-days", type=int, default=120,
+                        help="query festivals starting this many days before today so ongoing ones are kept")
     return parser
 
 

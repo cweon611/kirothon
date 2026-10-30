@@ -50,6 +50,9 @@ class ProgramSummary:
     reasons: tuple[str, ...] = ()
     unmet_codes: tuple[str, ...] = ()  # codes of unmet conditions, e.g. ("stay",)
     constraints: CourseConstraints = field(default_factory=CourseConstraints)
+    # Extra facts copied from the benefits engine (trip/application periods, support text,
+    # missing user inputs, freshness). Empty when the port does not provide them.
+    details: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -67,6 +70,9 @@ class RegionBenefitQuery:
     # Opaque passthrough (birth date, family, past participation ...) in the
     # benefits module's own request format. Never stored by F1/F2.
     conditions: dict = field(default_factory=dict)
+    # True: F1/F2 plan to stay every night in the region. False: lodging unknown
+    # (date-only lookups), so stay conditions stay unresolved instead of assumed.
+    assume_stay: bool = True
 
 
 @dataclass(frozen=True)
