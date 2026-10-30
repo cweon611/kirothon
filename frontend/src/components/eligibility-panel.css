@@ -53,3 +53,7 @@
 .eligibility-link{display:inline-flex;align-items:center;gap:4px;margin-top:10px;font-size:12px;font-weight:800;color:var(--teal-dark)}
 .eligibility-disclaimer{margin:0;font-size:11px;line-height:1.6;color:var(--gray-400)}
 .eligibility button:focus-visible,.eligibility summary:focus-visible,.eligibility a:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.eligibility-participation{border:0;margin:0;padding:0}
+.eligibility-participation legend{margin-bottom:6px;font-size:12px;font-weight:700;color:var(--navy-soft)}
+.eligibility-participation label{display:flex;gap:8px;align-items:flex-start;margin:6px 0;font-size:13px;color:var(--navy)}
+.eligibility-participation p{margin:6px 0 0;font-size:12px;color:var(--gray-400)}

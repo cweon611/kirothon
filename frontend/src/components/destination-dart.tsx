@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type PointerEvent, type KeyboardEvent } fr
 import { ArrowRight, ChevronDown, Compass, MapPin, RotateCcw, Sparkles, ExternalLink } from 'lucide-react'
 import map from '@/datasets/korea-map.json'
 import { mapPoint, clampPull, randomLanding, nearestDestination, flightPoint, SLING, MIN_PULL, type Point, type Destination } from '@/lib/destination'
-import { isOpen, isStale, type Benefit } from '@/lib/benefits'
+import { isOpen, isStale, pickProgram, regionPrograms, type Benefit } from '@/lib/benefits'
 import { regionDirectionsUrl } from '@/lib/directions'
 import { DirectionsLink } from '@/components/directions-link'
 import './destination-dart.css'
@@ -34,7 +34,8 @@ export function DestinationDart({ data, loading, error, origin, onRetry, onChoos
   const candidates = map.regions
   const activeAnchors = anchors
   const available = candidates.length > 0
-  const benefit = data.find(row => row.region_name === result?.region_name && row.present_in_source)
+  const programs = regionPrograms(data, result?.region_name)
+  const benefit = pickProgram(programs, null)
   const destination = anchors.find(region => region.name === result?.region_name)
   const strength = Math.hypot(pull.x,pull.y)
   const aiming = !flying && !result && strength >= MIN_PULL
@@ -116,7 +117,7 @@ export function DestinationDart({ data, loading, error, origin, onRetry, onChoos
         {!dragging&&!flying&&!result&&!aiming&&<g className="pull-hint" aria-hidden="true"><path d="M315 530v39m-5-5l5 5 5-5" fill="none" stroke="#d9c293" strokeWidth="1.5" strokeDasharray="3 3"/><text x="330" y="550">당겨요</text></g>}
       </svg>
       <div className="sling-status" role="status" aria-live="polite">{aiming?<><span>{directionLabel}</span><span>거리는 랜덤 · 손을 놓으면 출발!</span></>:<span>{message}</span>}</div>
-      {result&&<div className="dart-result sling-result"><div className="result-stamp"><Sparkles size={15}/>{landing?'내가 쏜 곳에서 시작하는 여행':'직접 고른 여행지'}</div><div className="dart-result-title"><div><span>{result.province} · {landing?'착지 지점 근처':'여행 목적지'}</span><h2 tabIndex={-1} ref={resultHeading}>{result.region_name}</h2></div><span className="destination-seal"><MapPin size={24}/></span></div><p>{loading?'혜택 정보를 확인하고 있어요.':error?'혜택 연결이 지연 중이에요. 축제는 따로 살펴볼 수 있어요.':!benefit?'지역 축제를 살펴보세요. 연결된 환급 혜택은 아직 없어요.':isStale(benefit)?'혜택 접수 상태를 다시 확인해 주세요.':isOpen(benefit)?'공식 안내에 접수중으로 표시된 여행 혜택이 있어요.':`수집된 혜택 상태: ${benefit.source_status||'확인 필요'}`}</p><button className="dart-result-cta" onClick={()=>onChoose(result)}>이 지역 일정 추천받기 <ArrowRight size={18}/></button>{!loading&&!benefit&&<DirectionsLink url={regionDirectionsUrl(origin,result.region_name)}>혜택 없이 바로 길찾기</DirectionsLink>}<button className="sling-result-reset" onClick={reset}><RotateCcw size={14}/> 다시 당겨볼래요</button></div>}
+      {result&&<div className="dart-result sling-result"><div className="result-stamp"><Sparkles size={15}/>{landing?'내가 쏜 곳에서 시작하는 여행':'직접 고른 여행지'}</div><div className="dart-result-title"><div><span>{result.province} · {landing?'착지 지점 근처':'여행 목적지'}</span><h2 tabIndex={-1} ref={resultHeading}>{result.region_name}</h2></div><span className="destination-seal"><MapPin size={24}/></span></div><p>{loading?'혜택 정보를 확인하고 있어요.':error?'혜택 연결이 지연 중이에요. 축제는 따로 살펴볼 수 있어요.':!benefit?'지역 축제를 살펴보세요. 연결된 환급 혜택은 아직 없어요.':isStale(benefit)?'혜택 접수 상태를 다시 확인해 주세요.':isOpen(benefit)?`공식 안내에 접수중으로 표시된 여행 혜택이 있어요.${programs.length>1?` (이 지역 지원제도 ${programs.length}개)`:''}`:`수집된 혜택 상태: ${benefit.source_status||'확인 필요'}`}</p><button className="dart-result-cta" onClick={()=>onChoose(result)}>이 지역 일정 추천받기 <ArrowRight size={18}/></button>{!loading&&!benefit&&<DirectionsLink url={regionDirectionsUrl(origin,result.region_name)}>혜택 없이 바로 길찾기</DirectionsLink>}<button className="sling-result-reset" onClick={reset}><RotateCcw size={14}/> 다시 당겨볼래요</button></div>}
     </div>
     <div className="dart-footer"><a href="https://www.geoboundaries.org/" target="_blank" rel="noopener noreferrer">지도: geoBoundaries · 가공한 여행 약도 <ExternalLink size={10}/></a></div>
   </section>

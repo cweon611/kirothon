@@ -8,3 +8,5 @@ html{color-scheme:light;scroll-behavior:auto}body{font-size:15px;line-height:1.6
 .hero-title{max-width:none}
 
 .review-preview-notice{padding:9px 16px;background:#e9d9af;color:#3b4a48;font-size:11px;line-height:1.7;text-align:center}
+
+.program-switch{margin:20px 0 4px}.program-switch .chip{white-space:normal;text-align:left;border-radius:14px;line-height:1.5}

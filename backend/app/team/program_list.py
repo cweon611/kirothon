@@ -2,14 +2,18 @@
 
 Reads the benefits module's stored sync data and manual registry; no external calls
 and no eligibility judgment (that needs the user's conditions: /api/benefits/check).
+Payment, visit/proof and contact fields are passed through as stored; None means the
+source did not state them (not "no requirement"). gov24 services whose official text does
+not name visitors (school trips, welfare leave ...) go to "excluded" with the reason, the
+same rule date recommendations apply.
 """
 from datetime import date
 
 from sqlmodel import Session
 
-from .benefit_bridge import region_of
+from .benefit_bridge import conditions_text, region_of
 from .benefits import sync as benefit_sync
-from .benefits.engine import CLOSED, KST, STALE_DAYS
+from .benefits.engine import CLOSED, KST, STALE_DAYS, audience_check
 from .benefits.regions import region_matches
 from .benefits.routes import source_statuses
 from .benefits.schemas import BenefitProgram
@@ -51,12 +55,17 @@ def list_programs(session: Session, today: date) -> dict:
     stored = benefit_sync.load_programs(session)
     programs, _ = collect_stored(stored, list(regions.values()))
     official = {p.program_id for p, origin in programs if origin != "manual_registry"}
-    items = []
+    items, excluded = [], []
     for p, origin in programs:
         targets = p.target_regions or p.region_hints
         codes = [code for code, region in regions.items()
                  if any(region_matches(target, region) for target in targets or [])]
         if not codes:
+            continue
+        audience = audience_check(p)
+        if audience and audience[0] == "unmet":
+            excluded.append({"program_id": p.id, "name": p.name,
+                             "reason": f"일반 관광객 대상 여행지원 제도로 확인되지 않음 — {audience[1]}"})
             continue
         state = open_now(p, today)
         items.append({
@@ -74,6 +83,14 @@ def list_programs(session: Session, today: date) -> dict:
             "stale": _stale(p, today),
             "superseded_by": [i for i in p.related_program_ids if i in official] if origin == "manual_registry" else [],
             "official_info_url": p.official_info_url, "application_url": p.application_url,
+            "payment_methods": p.payment_rule.methods if p.payment_rule else None,
+            "visit_rule": p.visit_rule.model_dump() if p.visit_rule else None,
+            "proof_items": p.proof_items,
+            "conditions_text": conditions_text(p),
+            "contacts": p.contacts,
+            "pre_apply_required": p.pre_apply.required if p.pre_apply else None,
+            "pre_apply_days_before_trip": p.pre_apply.days_before_trip if p.pre_apply else None,
+            "settlement_days_after_trip": p.settlement_days_after_trip,
         })
     rank = {True: 0, None: 1, False: 2}
     items.sort(key=lambda i: (rank[i["open_now"]], STATUS_ORDER.get(i["posted_status"], 4),
@@ -84,6 +101,7 @@ def list_programs(session: Session, today: date) -> dict:
         "scope": "광주·전남 27개 시군구를 대상 지역으로 하는 지원제도(수집 자료 + 수동 등록 자료)",
         "counts": {"total": len(items), "open_now": sum(1 for i in items if i["open_now"] is True)},
         "programs": items,
+        "excluded": excluded,
         "sources": [{"source": s.source, "status": s.status, "stale": s.stale,
                      "last_success_at": s.last_success_at.isoformat() if s.last_success_at else None}
                     for s in sources],

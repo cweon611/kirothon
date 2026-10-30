@@ -1,7 +1,8 @@
 import type { Trip } from './benefits'
 
-// Mirrors backend seeds (regions.json, origins.json, interest_map.json) so the page can build
-// requests before /api/team/meta answers. The backend still validates every value.
+// Copies of the backend seeds (seeds/regions.py, origins.py, interest_map.py) so the page can build
+// requests before /api/team/meta answers; applyMeta() then updates them in place. The backend still
+// validates every value.
 export const SIGUNGU: Record<string, string> = {
   '광주 동구': '29110', '광주 서구': '29140', '광주 남구': '29155', '광주 북구': '29170', '광주 광산구': '29200',
   '목포시': '46110', '여수시': '46130', '순천시': '46150', '나주시': '46170', '광양시': '46230',
@@ -10,7 +11,7 @@ export const SIGUNGU: Record<string, string> = {
   '무안군': '46840', '함평군': '46860', '영광군': '46870', '장성군': '46880', '완도군': '46890',
   '진도군': '46900', '신안군': '46910',
 }
-export const ORIGINS = [
+export const ORIGINS: {key:string; name:string; lat?:number; lng?:number}[] = [
   {key:'gj-dong',name:'광주 동구',lat:35.1462,lng:126.923},{key:'gj-seo',name:'광주 서구',lat:35.152,lng:126.8902},
   {key:'gj-nam',name:'광주 남구',lat:35.1329,lng:126.9026},{key:'gj-buk',name:'광주 북구',lat:35.174,lng:126.912},
   {key:'gj-gwangsan',name:'광주 광산구',lat:35.1395,lng:126.7937},{key:'st-gwangjusongjeong',name:'광주송정역',lat:35.1376,lng:126.7911},
@@ -22,6 +23,31 @@ export const INTERESTS = [
   {key:'activity',label:'체험·레저'},{key:'healing',label:'힐링·산책'},
 ]
 export const DEFAULT_INTERESTS = ['nature','history']
+
+/** The parts of GET /api/team/meta the page uses. */
+export type Meta = {
+  origins?:{key:string; name:string}[]; interests?:{key:string; label:string}[];
+  trip_regions?:{sido:string; sigungu:{code:string; name:string}[]}[];
+}
+/** Update the seed copies from /api/team/meta. Region names stay the map's labels; only their codes
+ * come from meta. Origins keep the known coordinates (meta has none). Returns true when anything changed. */
+export function applyMeta(meta:Meta) {
+  let changed=false
+  for (const group of meta.trip_regions ?? []) for (const row of group.sigungu) {
+    const label=group.sido.startsWith('광주')?`광주 ${row.name}`:row.name
+    if (label in SIGUNGU && SIGUNGU[label]!==row.code) { SIGUNGU[label]=row.code; changed=true }
+  }
+  if (meta.origins?.length) {
+    const known=new Map(ORIGINS.map(row=>[row.key,row]))
+    ORIGINS.splice(0,ORIGINS.length,...meta.origins.map(({key,name})=>({key,name,lat:known.get(key)?.lat,lng:known.get(key)?.lng})))
+    changed=true
+  }
+  if (meta.interests?.length) {
+    INTERESTS.splice(0,INTERESTS.length,...meta.interests.map(({key,label})=>({key,label})))
+    changed=true
+  }
+  return changed
+}
 // Alternative single-theme courses, in the order they are offered.
 const THEME_ORDER = ['nature','history','healing','activity']
 
@@ -58,9 +84,15 @@ export type PlaceDetail = {
   evidence?:string[]; source?:string; detail_status?:string
 }
 export type Theme = {key:string; title:string; interests:Interest[]}
+/** POST /api/team/courses/{id}/reasons. status: ai · mock · stored · failed(rule sentences) · quota. */
+export type ReasonsResponse = {
+  day:number; status:string; ai_calls?:number;
+  items:{order:number; content_id?:string|null; reason_text:string|null; reason_by?:string}[]
+}
 
 export function sigunguCode(region:string) { return SIGUNGU[region] ?? null }
-export function originKey(name:string) { return ORIGINS.find(row=>row.name===name)?.key ?? 'gj-buk' }
+/** null for an unknown origin: the backend then rejects the request instead of us silently using 광주 북구. */
+export function originKey(name:string) { return ORIGINS.find(row=>row.name===name)?.key ?? null }
 export function originName(key:string) { return ORIGINS.find(row=>row.key===key)?.name ?? key }
 export function interestLabel(key:string) { return INTERESTS.find(row=>row.key===key)?.label ?? key }
 

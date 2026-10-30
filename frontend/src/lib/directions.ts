@@ -26,7 +26,8 @@ const segment = (point:Point) => `${encodeURIComponent(point.name.replace(/[,/]/
 
 /** Kakao Map directions from the trip's origin (or the user's current location if unknown) to a point. */
 export function directionsUrl(originName:string, destination:Point) {
-  const origin=ORIGINS.find(row=>row.name===originName)
+  const row=ORIGINS.find(item=>item.name===originName)
+  const origin=row && typeof row.lat==='number' && typeof row.lng==='number' ? {name:row.name,lat:row.lat,lng:row.lng} : null
   const to=`to/${segment(destination)}`
   return origin ? `https://map.kakao.com/link/from/${segment(origin)}/${to}` : `https://map.kakao.com/link/${to}`
 }

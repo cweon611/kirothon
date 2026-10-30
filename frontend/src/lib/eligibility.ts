@@ -32,12 +32,13 @@ export type Profile = {
   birthDate:string;            // '' when not given
   family:Answer; sameAddress:Answer;
   firstTime:Answer;            // 'yes' = never joined these programs before
+  participated:string[];       // program family IDs the user picked when firstTime==='no'
 }
 export const OTHER = '그 외 지역'
 export const SIDO = ['서울특별시','부산광역시','대구광역시','인천광역시','광주광역시','대전광역시','울산광역시','세종특별자치시','경기도','강원특별자치도','충청북도','충청남도','전북특별자치도','전라남도','경상북도','경상남도','제주특별자치도']
 
 export function emptyProfile(residence:string):Profile {
-  return {residence, otherSido:'서울특별시', otherSigungu:'', birthDate:'', family:'unknown', sameAddress:'unknown', firstTime:'unknown'}
+  return {residence, otherSido:'서울특별시', otherSigungu:'', birthDate:'', family:'unknown', sameAddress:'unknown', firstTime:'unknown', participated:[]}
 }
 
 /** '광주 동구' → 광주광역시/동구, '무안군' → 전라남도/무안군 (the 27 destinations). */
@@ -61,6 +62,8 @@ export function userConditions(profile:Profile) {
   if (profile.family!=='unknown') out.is_family=profile.family==='yes'
   if (profile.family==='yes' && profile.sameAddress!=='unknown') out.same_address=profile.sameAddress==='yes'
   if (profile.firstTime==='yes') out.prior_participated_program_ids=[]
+  // The engine compares program IDs, so '참여한 적 있어요' counts only with the programs picked; otherwise it stays unknown.
+  if (profile.firstTime==='no' && profile.participated.length) out.prior_participated_program_ids=[...profile.participated]
   return out
 }
 
