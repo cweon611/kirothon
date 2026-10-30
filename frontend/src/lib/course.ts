@@ -11,9 +11,11 @@ export const SIGUNGU: Record<string, string> = {
   '진도군': '46900', '신안군': '46910',
 }
 export const ORIGINS = [
-  {key:'gj-dong',name:'광주 동구'},{key:'gj-seo',name:'광주 서구'},{key:'gj-nam',name:'광주 남구'},
-  {key:'gj-buk',name:'광주 북구'},{key:'gj-gwangsan',name:'광주 광산구'},{key:'st-gwangjusongjeong',name:'광주송정역'},
-  {key:'st-mokpo',name:'목포역'},{key:'st-suncheon',name:'순천역'},{key:'st-yeosuexpo',name:'여수엑스포역'},
+  {key:'gj-dong',name:'광주 동구',lat:35.1462,lng:126.923},{key:'gj-seo',name:'광주 서구',lat:35.152,lng:126.8902},
+  {key:'gj-nam',name:'광주 남구',lat:35.1329,lng:126.9026},{key:'gj-buk',name:'광주 북구',lat:35.174,lng:126.912},
+  {key:'gj-gwangsan',name:'광주 광산구',lat:35.1395,lng:126.7937},{key:'st-gwangjusongjeong',name:'광주송정역',lat:35.1376,lng:126.7911},
+  {key:'st-mokpo',name:'목포역',lat:34.7913,lng:126.3864},{key:'st-suncheon',name:'순천역',lat:34.9456,lng:127.5035},
+  {key:'st-yeosuexpo',name:'여수엑스포역',lat:34.7531,lng:127.7484},
 ]
 export const INTERESTS = [
   {key:'nature',label:'자연·바다'},{key:'history',label:'역사·문화'},{key:'food',label:'맛집'},
@@ -50,6 +52,7 @@ export type Course = {
 }
 export type PlaceDetail = {
   content_id:string; title:string; category?:string; addr?:string|null; tel?:string|null; overview?:string|null;
+  lat?:number|null; lng?:number|null;
   rest_text?:string|null; opening_window?:{open:string; close:string}|null; fee_krw?:number|null;
   closed_on_visit_date?:boolean|null; check_before_visit?:boolean; image_url?:string|null; image_credit?:string|null;
   evidence?:string[]; source?:string; detail_status?:string

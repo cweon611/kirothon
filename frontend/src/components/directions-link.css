@@ -1,0 +1,10 @@
+.directions-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:46px;padding:0 16px;border-radius:12px;font-size:14px;font-weight:700;text-decoration:none}
+.directions-link span:first-of-type{flex:0 1 auto}
+.directions-solid{background:#fee500;color:#191600}
+.directions-solid:hover{background:#f5d900}
+.directions-outline{border:1px solid var(--gray-200);background:var(--white);color:var(--navy)}
+.directions-outline:hover{border-color:var(--teal);color:var(--teal-dark)}
+.dart-result .directions-link{width:100%;margin-top:8px;min-height:44px;font-size:13px}
+.directions-link:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.no-benefit-actions{display:grid;gap:10px;width:100%;margin-top:18px}
+.no-benefit-actions .button,.no-benefit-actions .directions-link{width:100%}
