@@ -1,0 +1,54 @@
+{
+ "request": {
+  "method": "GET",
+  "path": "/api/team/courses/egdx8x8z/candidates",
+  "params": {
+   "day": 1,
+   "order": 1
+  },
+  "body": null
+ },
+ "status": 200,
+ "response": {
+  "day": 1,
+  "order": 1,
+  "candidates": [
+   {
+    "content_id": "126615",
+    "title": "무안 용월리 백로와 왜가리 번식지",
+    "category": "관광지",
+    "move_min_from_prev": 61,
+    "evidence": "관심 분야: 자연·바다",
+    "interest_labels": [
+     "자연·바다"
+    ],
+    "image_url": "https://tong.visitkorea.or.kr/cms/resource/11/3381511_image2_1.JPG",
+    "source": "kor"
+   },
+   {
+    "content_id": "2754458",
+    "title": "밀리터리테마파크",
+    "category": "관광지",
+    "move_min_from_prev": 61,
+    "evidence": "무안낙지공원 방문객이 함께 찾는 곳 27위",
+    "interest_labels": [
+     "역사·문화"
+    ],
+    "image_url": "https://tong.visitkorea.or.kr/cms/resource/91/3535691_image2_1.jpg",
+    "source": "kor"
+   },
+   {
+    "content_id": "129211",
+    "title": "무안식영정",
+    "category": "관광지",
+    "move_min_from_prev": 64,
+    "evidence": "관심 분야: 역사·문화",
+    "interest_labels": [
+     "역사·문화"
+    ],
+    "image_url": "https://tong.visitkorea.or.kr/cms/resource/66/3535766_image2_1.jpg",
+    "source": "kor"
+   }
+  ]
+ }
+}

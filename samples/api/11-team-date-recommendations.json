@@ -1,0 +1,983 @@
+{
+ "request": {
+  "method": "POST",
+  "path": "/api/team/date-recommendations",
+  "params": null,
+  "body": {
+   "start_date": "2026-11-10",
+   "end_date": "2026-11-11",
+   "residence": "29170",
+   "party_size": 2,
+   "birth_date": "1995-03-01"
+  }
+ },
+ "status": 200,
+ "response": {
+  "query": {
+   "start_date": "2026-11-10",
+   "end_date": "2026-11-11",
+   "days": 2,
+   "provided": [
+    "residence",
+    "party_size",
+    "birth_date"
+   ]
+  },
+  "today": "2026-10-30",
+  "today_fixed": true,
+  "outcome": "matches_found",
+  "message": "조건에 맞는 지역 6곳을 찾았어요.",
+  "complete": false,
+  "regions": [
+   {
+    "sigungu_code": "29170",
+    "name": "광주 북구",
+    "sido": "광주광역시",
+    "group": 2,
+    "category": "festival_only",
+    "reason": "여행 기간에 진행되는 축제·행사 2건이 있어요.",
+    "festivals": [
+     {
+      "content_id": "3488655",
+      "title": "2026 문화가 있는 날 청춘마이크",
+      "start_date": "2026-03-12",
+      "end_date": "2026-12-11",
+      "place": "전남광주통합특별시 북구 하서로 50 (운암동)",
+      "source": "한국관광공사 KorService2(searchFestival2)",
+      "fetched_at": "2026-10-30T13:15:21.165812+00:00"
+     },
+     {
+      "content_id": "617992",
+      "title": "제16회 광주비엔날레",
+      "start_date": "2026-09-05",
+      "end_date": "2026-11-15",
+      "place": "전남광주통합특별시 북구 비엔날레로 111 (용봉동)",
+      "source": "한국관광공사 KorService2(searchFestival2)",
+      "fetched_at": "2026-10-30T13:15:21.165812+00:00"
+     }
+    ],
+    "benefits": {
+     "applicable": [],
+     "needs_verification": [],
+     "excluded": []
+    },
+    "missing_user_fields": [],
+    "data_warnings": [
+     "일부 지원제도 출처를 확인하지 못했거나 정보가 오래됐어요."
+    ]
+   },
+   {
+    "sigungu_code": "46130",
+    "name": "여수시",
+    "sido": "전라남도",
+    "group": 2,
+    "category": "festival_only",
+    "reason": "여행 기간에 진행되는 축제·행사 1건이 있어요.",
+    "festivals": [
+     {
+      "content_id": "4067214",
+      "title": "2026 섬 방문의 해",
+      "start_date": "2026-03-01",
+      "end_date": "2026-12-31",
+      "place": "전남광주통합특별시 여수시 선어시장길 6 (중앙동)",
+      "source": "한국관광공사 KorService2(searchFestival2)",
+      "fetched_at": "2026-10-30T13:15:21.172408+00:00"
+     }
+    ],
+    "benefits": {
+     "applicable": [],
+     "needs_verification": [],
+     "excluded": [
+      {
+       "program_id": "manual:jn-island-halfprice-2026",
+       "round_id": "2026",
+       "name": "전남광주 섬 반값여행",
+       "judgment": "needs_verification",
+       "posted_status": "closing_soon",
+       "application_open": null,
+       "trip_period": {
+        "start": "2026-08-29",
+        "end": "2026-11-04"
+       },
+       "application_period": null,
+       "application_start_at": null,
+       "application_end_at": null,
+       "support": "환급률 50% · 상한 1인 100,000원 · 지급: 모바일 지역화폐",
+       "estimated_amount": null,
+       "budget_remaining": null,
+       "apply_url": null,
+       "official_url": "https://m.go.seoul.co.kr/news/2026/08/06/20260806500202",
+       "missing_user_fields": [
+        "visits[0].expected_spend",
+        "visits[0].places"
+       ],
+       "needs_official_check": [
+        "신청(접수) 기간",
+        "연령 조건",
+        "인원 조건",
+        "가족·동일 주소 조건",
+        "과거 참여 이력",
+        "숙박 조건",
+        "출처 검증",
+        "출처 충돌"
+       ],
+       "reasons": [
+        "불충족: 여행 인정 기간",
+        "확인 필요: 신청(접수) 기간",
+        "확인 필요: 연령 조건",
+        "확인 필요: 인원 조건"
+       ],
+       "data_origin": "manual_registry",
+       "source_type": "project_doc",
+       "verification_status": "unverified",
+       "review_status": null,
+       "last_success_at": null,
+       "last_verified_at": null,
+       "stale": false,
+       "sources": [
+        {
+         "type": "news_report",
+         "title": "서울신문 보도(2026-08-06)",
+         "url": "https://m.go.seoul.co.kr/news/2026/08/06/20260806500202"
+        },
+        {
+         "type": "news_report",
+         "title": "MTN 보도(섬 목록)",
+         "url": "https://news.mtn.co.kr/news-detail/2026083016565081727"
+        },
+        {
+         "type": "project_doc",
+         "title": "docs/feature-definition.md (2026-10-30 기준 정리)",
+         "url": null
+        }
+       ],
+       "excluded_reason": "미검증 자료상 기간·접수 조건 불충족(여행 인정 기간) — 공식 확인 전 추천하지 않음"
+      }
+     ]
+    },
+    "missing_user_fields": [],
+    "data_warnings": [
+     "일부 지원제도 출처를 확인하지 못했거나 정보가 오래됐어요."
+    ]
+   },
+   {
+    "sigungu_code": "46810",
+    "name": "강진군",
+    "sido": "전라남도",
+    "group": 3,
+    "category": "benefit_needs_verification",
+    "reason": "기간이 맞을 수 있는 혜택 후보가 있지만 사용자 정보나 공식 조건 확인이 필요해요.",
+    "festivals": [],
+    "benefits": {
+     "applicable": [],
+     "needs_verification": [
+      {
+       "program_id": "kto50:12780-2026-3",
+       "round_id": "2026-3",
+       "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 강진군 3차",
+       "judgment": "needs_verification",
+       "posted_status": "open",
+       "application_open": null,
+       "trip_period": {
+        "start": "2026-10-20",
+        "end": "2026-11-30"
+       },
+       "application_period": {
+        "start": "2026-10-20",
+        "end": null
+       },
+       "application_start_at": "2026-10-20T09:00:00+09:00",
+       "application_end_at": null,
+       "support": "환급률 50% · 청년 70% · 상한 개인(공통 안내) 100,000원, 2인 이상(공통 안내) 200,000원, 청년(공통 안내) 140,000원, 가족(공통 안내) 500,000원 · 지급: chak 앱(모바일 강진사랑상품권)",
+       "estimated_amount": null,
+       "budget_remaining": null,
+       "apply_url": "https://www.gangjintour.com/",
+       "official_url": "https://www.gangjintour.com/",
+       "missing_user_fields": [
+        "is_family"
+       ],
+       "needs_official_check": [
+        "신청(접수) 기간",
+        "사전 신청 기한",
+        "거주지 조건",
+        "연령 조건",
+        "인원 조건",
+        "가족·동일 주소 조건",
+        "과거 참여 이력",
+        "필수 방문 조건"
+       ],
+       "reasons": [
+        "확인 필요: 신청(접수) 기간",
+        "확인 필요: 사전 신청 기한",
+        "확인 필요: 거주지 조건",
+        "확인 필요: 연령 조건"
+       ],
+       "data_origin": "kto_tour50",
+       "source_type": "official_webpage",
+       "verification_status": "unverified",
+       "review_status": "needs_review",
+       "last_success_at": "2026-10-30T13:15:23.307474+00:00",
+       "last_verified_at": null,
+       "stale": true,
+       "sources": [
+        {
+         "type": "official_webpage",
+         "title": "한국관광공사 대한민국 반값여행 현황",
+         "url": "https://korean.visitkorea.or.kr/dgtourcard/tour50.do"
+        }
+       ]
+      }
+     ],
+     "excluded": [
+      {
+       "program_id": "kto50:12780-2026-2",
+       "round_id": "2026-2",
+       "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 강진군 2차",
+       "judgment": "needs_verification",
+       "posted_status": null,
+       "application_open": false,
+       "trip_period": {
+        "start": "2026-10-01",
+        "end": "2026-10-31"
+       },
+       "application_period": {
+        "start": null,
+        "end": "2026-09-29"
+       },
+       "application_start_at": null,
+       "application_end_at": "2026-09-29T10:40:00+09:00",
+       "support": "환급률 50% · 청년 70% · 상한 개인(공통 안내) 100,000원, 2인 이상(공통 안내) 200,000원, 청년(공통 안내) 140,000원, 가족(공통 안내) 500,000원 · 지급: chak 앱(모바일 강진사랑상품권)",
+       "estimated_amount": null,
+       "budget_remaining": null,
+       "apply_url": "https://www.gangjintour.com/",
+       "official_url": "https://www.gangjintour.com/",
+       "missing_user_fields": [
+        "is_family"
+       ],
+       "needs_official_check": [
+        "게시된 접수 상태",
+        "사전 신청 기한",
+        "거주지 조건",
+        "연령 조건",
+        "인원 조건",
+        "가족·동일 주소 조건",
+        "과거 참여 이력",
+        "필수 방문 조건"
+       ],
+       "reasons": [
+        "불충족: 신청(접수) 기간",
+        "불충족: 여행 인정 기간",
+        "확인 필요: 게시된 접수 상태",
+        "확인 필요: 사전 신청 기한"
+       ],
+       "data_origin": "kto_tour50",
+       "source_type": "official_webpage",
+       "verification_status": "unverified",
+       "review_status": "needs_review",
+       "last_success_at": "2026-10-30T13:15:23.307474+00:00",
+       "last_verified_at": null,
+       "stale": true,
+       "sources": [
+        {
+         "type": "official_webpage",
+         "title": "한국관광공사 대한민국 반값여행 현황",
+         "url": "https://korean.visitkorea.or.kr/dgtourcard/tour50.do"
+        }
+       ],
+       "excluded_reason": "현재 신청할 수 없음(접수 마감·시작 전·사전 신청 기한 경과)"
+      },
+      {
+       "program_id": "manual:jn-island-halfprice-2026",
+       "round_id": "2026",
+       "name": "전남광주 섬 반값여행",
+       "judgment": "needs_verification",
+       "posted_status": "closing_soon",
+       "application_open": null,
+       "trip_period": {
+        "start": "2026-08-29",
+        "end": "2026-11-04"
+       },
+       "application_period": null,
+       "application_start_at": null,
+       "application_end_at": null,
+       "support": "환급률 50% · 상한 1인 100,000원 · 지급: 모바일 지역화폐",
+       "estimated_amount": null,
+       "budget_remaining": null,
+       "apply_url": null,
+       "official_url": "https://m.go.seoul.co.kr/news/2026/08/06/20260806500202",
+       "missing_user_fields": [
+        "visits[0].expected_spend",
+        "visits[0].places"
+       ],
+       "needs_official_check": [
+        "신청(접수) 기간",
+        "연령 조건",
+        "인원 조건",
+        "가족·동일 주소 조건",
+        "과거 참여 이력",
+        "숙박 조건",
+        "출처 검증",
+        "출처 충돌"
+       ],
+       "reasons": [
+        "불충족: 여행 인정 기간",
+        "확인 필요: 신청(접수) 기간",
+        "확인 필요: 연령 조건",
+        "확인 필요: 인원 조건"
+       ],
+       "data_origin": "manual_registry",
+       "source_type": "project_doc",
+       "verification_status": "unverified",
+       "review_status": null,
+       "last_success_at": null,
+       "last_verified_at": null,
+       "stale": false,
+       "sources": [
+        {
+         "type": "news_report",
+         "title": "서울신문 보도(2026-08-06)",
+         "url": "https://m.go.seoul.co.kr/news/2026/08/06/20260806500202"
+        },
+        {
+         "type": "news_report",
+         "title": "MTN 보도(섬 목록)",
+         "url": "https://news.mtn.co.kr/news-detail/2026083016565081727"
+        },
+        {
+         "type": "project_doc",
+         "title": "docs/feature-definition.md (2026-10-30 기준 정리)",
+         "url": null
+        }
+       ],
+       "excluded_reason": "미검증 자료상 기간·접수 조건 불충족(여행 인정 기간) — 공식 확인 전 추천하지 않음"
+      },
+      {
+       "program_id": "manual:jn-vacation-2026h1",
+       "round_id": "2026-h1-jeonnam",
+       "name": "지역사랑 휴가지원 상반기 (전남 6개 군)",
+       "judgment": "needs_verification",
+       "posted_status": null,
+       "application_open": null,
+       "trip_period": null,
+       "application_period": null,
+       "application_start_at": null,
+       "application_end_at": null,
+       "support": "환급률 50% · 상한 개인 100,000원, 2인 이상 200,000원 · 지급: 모바일 지역사랑상품권",
+       "estimated_amount": null,
+       "budget_remaining": null,
+       "apply_url": null,
+       "official_url": "https://www.newsis.com/view/NISX20260227_0003528809",
+       "missing_user_fields": [],
+       "needs_official_check": [
+        "게시된 접수 상태",
+        "신청(접수) 기간",
+        "사전 신청 기한",
+        "여행 인정 기간",
+        "거주지 조건",
+        "인원 조건",
+        "가족·동일 주소 조건",
+        "과거 참여 이력"
+       ],
+       "reasons": [
+        "확인 필요: 게시된 접수 상태",
+        "확인 필요: 신청(접수) 기간",
+        "확인 필요: 사전 신청 기한",
+        "확인 필요: 여행 인정 기간"
+       ],
+       "data_origin": "manual_registry",
+       "source_type": "project_doc",
+       "verification_status": "unverified",
+       "review_status": null,
+       "last_success_at": null,
+       "last_verified_at": null,
+       "stale": null,
+       "sources": [
+        {
+         "type": "news_report",
+         "title": "뉴시스 보도",
+         "url": "https://www.newsis.com/view/NISX20260227_0003528809"
+        },
+        {
+         "type": "news_report",
+         "title": "세계일보 보도(6개 군)",
+         "url": "https://www.segye.com/newsView/20260727518262"
+        },
+        {
+         "type": "project_doc",
+         "title": "docs/feature-definition.md (2026-10-30 기준 정리)",
+         "url": null
+        }
+       ],
+       "excluded_reason": "같은 사업의 공식 페이지 수집 자료(kto50:12780:2026)가 있어 그 차수별 판정을 따름"
+      }
+     ]
+    },
+    "missing_user_fields": [
+     "is_family"
+    ],
+    "data_warnings": [
+     "일부 지원제도 출처를 확인하지 못했거나 정보가 오래됐어요."
+    ]
+   },
+   {
+    "sigungu_code": "46840",
+    "name": "무안군",
+    "sido": "전라남도",
+    "group": 3,
+    "category": "benefit_needs_verification",
+    "reason": "기간이 맞을 수 있는 혜택 후보가 있지만 사용자 정보나 공식 조건 확인이 필요해요.",
+    "festivals": [],
+    "benefits": {
+     "applicable": [],
+     "needs_verification": [
+      {
+       "program_id": "manual:muan-halfprice-2026",
+       "round_id": "2026",
+       "name": "2026 갯벌愛 무안 반값여행",
+       "judgment": "needs_verification",
+       "posted_status": null,
+       "application_open": null,
+       "trip_period": null,
+       "application_period": {
+        "start": "2026-09-14",
+        "end": null
+       },
+       "application_start_at": null,
+       "application_end_at": null,
+       "support": "환급률 50% · 상한 1박형 개인 100,000원, 1박형 팀 200,000원, 2박 이상 개인 200,000원, 2박 이상 팀 400,000원 · 지급: 모바일 무안사랑상품권",
+       "estimated_amount": null,
+       "budget_remaining": null,
+       "apply_url": null,
+       "official_url": "https://news.mtn.co.kr/news-detail/2026091118124235889",
+       "missing_user_fields": [
+        "visits[0].expected_spend",
+        "visits[0].nights",
+        "visits[0].places"
+       ],
+       "needs_official_check": [
+        "게시된 접수 상태",
+        "신청(접수) 기간",
+        "사전 신청 기한",
+        "여행 인정 기간",
+        "연령 조건",
+        "인원 조건",
+        "가족·동일 주소 조건",
+        "과거 참여 이력"
+       ],
+       "reasons": [
+        "확인 필요: 게시된 접수 상태",
+        "확인 필요: 신청(접수) 기간",
+        "확인 필요: 사전 신청 기한",
+        "확인 필요: 여행 인정 기간"
+       ],
+       "data_origin": "manual_registry",
+       "source_type": "project_doc",
+       "verification_status": "unverified",
+       "review_status": null,
+       "last_success_at": null,
+       "last_verified_at": null,
+       "stale": null,
+       "sources": [
+        {
+         "type": "news_report",
+         "title": "MTN 보도",
+         "url": "https://news.mtn.co.kr/news-detail/2026091118124235889"
+        },
+        {
+         "type": "project_doc",
+         "title": "docs/feature-definition.md (2026-10-30 기준 정리)",
+         "url": null
+        }
+       ]
+      }
+     ],
+     "excluded": []
+    },
+    "missing_user_fields": [
+     "visits[0].expected_spend",
+     "visits[0].nights",
+     "visits[0].places"
+    ],
+    "data_warnings": [
+     "일부 지원제도 출처를 확인하지 못했거나 정보가 오래됐어요."
+    ]
+   },
+   {
+    "sigungu_code": "46830",
+    "name": "영암군",
+    "sido": "전라남도",
+    "group": 3,
+    "category": "benefit_needs_verification",
+    "reason": "기간이 맞을 수 있는 혜택 후보가 있지만 사용자 정보나 공식 조건 확인이 필요해요.",
+    "festivals": [],
+    "benefits": {
+     "applicable": [],
+     "needs_verification": [
+      {
+       "program_id": "kto50:12800-2026-6",
+       "round_id": "2026-6",
+       "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 영암군 6차",
+       "judgment": "needs_verification",
+       "posted_status": "open",
+       "application_open": null,
+       "trip_period": {
+        "start": "2026-11-01",
+        "end": "2026-12-13"
+       },
+       "application_period": {
+        "start": "2026-10-29",
+        "end": "2026-11-13"
+       },
+       "application_start_at": "2026-10-29T10:00:00+09:00",
+       "application_end_at": "2026-11-13T18:00:00+09:00",
+       "support": "환급률 50% · 청년 70% · 상한 개인(공통 안내) 100,000원, 2인 이상(공통 안내) 200,000원, 청년(공통 안내) 140,000원, 가족(공통 안내) 500,000원 · 지급: 월출페이 앱",
+       "estimated_amount": null,
+       "budget_remaining": null,
+       "apply_url": "https://www.yeongam.go.kr/oneplusone",
+       "official_url": "https://www.yeongam.go.kr/oneplusone",
+       "missing_user_fields": [
+        "is_family"
+       ],
+       "needs_official_check": [
+        "사전 신청 기한",
+        "거주지 조건",
+        "연령 조건",
+        "인원 조건",
+        "가족·동일 주소 조건",
+        "과거 참여 이력",
+        "필수 방문 조건",
+        "숙박 조건"
+       ],
+       "reasons": [
+        "확인 필요: 사전 신청 기한",
+        "확인 필요: 거주지 조건",
+        "확인 필요: 연령 조건",
+        "확인 필요: 인원 조건"
+       ],
+       "data_origin": "kto_tour50",
+       "source_type": "official_webpage",
+       "verification_status": "unverified",
+       "review_status": "needs_review",
+       "last_success_at": "2026-10-30T13:15:23.307474+00:00",
+       "last_verified_at": null,
+       "stale": true,
+       "sources": [
+        {
+         "type": "official_webpage",
+         "title": "한국관광공사 대한민국 반값여행 현황",
+         "url": "https://korean.visitkorea.or.kr/dgtourcard/tour50.do"
+        }
+       ]
+      }
+     ],
+     "excluded": [
+      {
+       "program_id": "kto50:12800-2026-5",
+       "round_id": "2026-5",
+       "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 영암군 5차",
+       "judgment": "needs_verification",
+       "posted_status": null,
+       "application_open": false,
+       "trip_period": {
+        "start": "2026-10-01",
+        "end": "2026-10-31"
+       },
+       "application_period": {
+        "start": null,
+        "end": "2026-10-06"
+       },
+       "application_start_at": null,
+       "application_end_at": "2026-10-06T08:30:00+09:00",
+       "support": "환급률 50% · 청년 70% · 상한 개인(공통 안내) 100,000원, 2인 이상(공통 안내) 200,000원, 청년(공통 안내) 140,000원, 가족(공통 안내) 500,000원 · 지급: 월출페이 앱",
+       "estimated_amount": null,
+       "budget_remaining": null,
+       "apply_url": "https://www.yeongam.go.kr/oneplusone",
+       "official_url": "https://www.yeongam.go.kr/oneplusone",
+       "missing_user_fields": [
+        "is_family"
+       ],
+       "needs_official_check": [
+        "게시된 접수 상태",
+        "사전 신청 기한",
+        "거주지 조건",
+        "연령 조건",
+        "인원 조건",
+        "가족·동일 주소 조건",
+        "과거 참여 이력",
+        "필수 방문 조건"
+       ],
+       "reasons": [
+        "불충족: 신청(접수) 기간",
+        "불충족: 여행 인정 기간",
+        "확인 필요: 게시된 접수 상태",
+        "확인 필요: 사전 신청 기한"
+       ],
+       "data_origin": "kto_tour50",
+       "source_type": "official_webpage",
+       "verification_status": "unverified",
+       "review_status": "needs_review",
+       "last_success_at": "2026-10-30T13:15:23.307474+00:00",
+       "last_verified_at": null,
+       "stale": true,
+       "sources": [
+        {
+         "type": "official_webpage",
+         "title": "한국관광공사 대한민국 반값여행 현황",
+         "url": "https://korean.visitkorea.or.kr/dgtourcard/tour50.do"
+        }
+       ],
+       "excluded_reason": "현재 신청할 수 없음(접수 마감·시작 전·사전 신청 기한 경과)"
+      },
+      {
+       "program_id": "manual:jn-vacation-2026h1",
+       "round_id": "2026-h1-jeonnam",
+       "name": "지역사랑 휴가지원 상반기 (전남 6개 군)",
+       "judgment": "needs_verification",
+       "posted_status": null,
+       "application_open": null,
+       "trip_period": null,
+       "application_period": null,
+       "application_start_at": null,
+       "application_end_at": null,
+       "support": "환급률 50% · 상한 개인 100,000원, 2인 이상 200,000원 · 지급: 모바일 지역사랑상품권",
+       "estimated_amount": null,
+       "budget_remaining": null,
+       "apply_url": null,
+       "official_url": "https://www.newsis.com/view/NISX20260227_0003528809",
+       "missing_user_fields": [],
+       "needs_official_check": [
+        "게시된 접수 상태",
+        "신청(접수) 기간",
+        "사전 신청 기한",
+        "여행 인정 기간",
+        "거주지 조건",
+        "인원 조건",
+        "가족·동일 주소 조건",
+        "과거 참여 이력"
+       ],
+       "reasons": [
+        "확인 필요: 게시된 접수 상태",
+        "확인 필요: 신청(접수) 기간",
+        "확인 필요: 사전 신청 기한",
+        "확인 필요: 여행 인정 기간"
+       ],
+       "data_origin": "manual_registry",
+       "source_type": "project_doc",
+       "verification_status": "unverified",
+       "review_status": null,
+       "last_success_at": null,
+       "last_verified_at": null,
+       "stale": null,
+       "sources": [
+        {
+         "type": "news_report",
+         "title": "뉴시스 보도",
+         "url": "https://www.newsis.com/view/NISX20260227_0003528809"
+        },
+        {
+         "type": "news_report",
+         "title": "세계일보 보도(6개 군)",
+         "url": "https://www.segye.com/newsView/20260727518262"
+        },
+        {
+         "type": "project_doc",
+         "title": "docs/feature-definition.md (2026-10-30 기준 정리)",
+         "url": null
+        }
+       ],
+       "excluded_reason": "같은 사업의 공식 페이지 수집 자료(kto50:12800:2026)가 있어 그 차수별 판정을 따름"
+      }
+     ]
+    },
+    "missing_user_fields": [
+     "is_family"
+    ],
+    "data_warnings": [
+     "일부 지원제도 출처를 확인하지 못했거나 정보가 오래됐어요."
+    ]
+   },
+   {
+    "sigungu_code": "46890",
+    "name": "완도군",
+    "sido": "전라남도",
+    "group": 3,
+    "category": "benefit_needs_verification",
+    "reason": "기간이 맞을 수 있는 혜택 후보가 있지만 사용자 정보나 공식 조건 확인이 필요해요.",
+    "festivals": [],
+    "benefits": {
+     "applicable": [],
+     "needs_verification": [
+      {
+       "program_id": "kto50:12850-2026-6",
+       "round_id": "2026-6",
+       "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 완도군 6차",
+       "judgment": "needs_verification",
+       "posted_status": "open",
+       "application_open": null,
+       "trip_period": {
+        "start": "2026-11-01",
+        "end": "2026-11-30"
+       },
+       "application_period": {
+        "start": "2026-10-27",
+        "end": null
+       },
+       "application_start_at": "2026-10-27T10:00:00+09:00",
+       "application_end_at": null,
+       "support": "환급률 50% · 청년 70% · 상한 개인(공통 안내) 100,000원, 2인 이상(공통 안내) 200,000원, 청년(공통 안내) 140,000원, 가족(공통 안내) 500,000원 · 지급: chak 앱",
+       "estimated_amount": null,
+       "budget_remaining": null,
+       "apply_url": "https://www.wandotrip.kr/index.php",
+       "official_url": "https://www.wandotrip.kr/index.php",
+       "missing_user_fields": [],
+       "needs_official_check": [
+        "신청(접수) 기간",
+        "사전 신청 기한",
+        "거주지 조건",
+        "연령 조건",
+        "인원 조건",
+        "가족·동일 주소 조건",
+        "과거 참여 이력",
+        "필수 방문 조건"
+       ],
+       "reasons": [
+        "확인 필요: 신청(접수) 기간",
+        "확인 필요: 사전 신청 기한",
+        "확인 필요: 거주지 조건",
+        "확인 필요: 연령 조건"
+       ],
+       "data_origin": "kto_tour50",
+       "source_type": "official_webpage",
+       "verification_status": "unverified",
+       "review_status": "conflict",
+       "last_success_at": "2026-10-30T13:15:23.307474+00:00",
+       "last_verified_at": null,
+       "stale": true,
+       "sources": [
+        {
+         "type": "official_webpage",
+         "title": "한국관광공사 대한민국 반값여행 현황",
+         "url": "https://korean.visitkorea.or.kr/dgtourcard/tour50.do"
+        }
+       ]
+      }
+     ],
+     "excluded": [
+      {
+       "program_id": "kto50:12850-2026-5",
+       "round_id": "2026-5",
+       "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 완도군 5차",
+       "judgment": "needs_verification",
+       "posted_status": null,
+       "application_open": false,
+       "trip_period": {
+        "start": "2026-09-01",
+        "end": "2026-09-30"
+       },
+       "application_period": {
+        "start": null,
+        "end": "2026-09-01"
+       },
+       "application_start_at": null,
+       "application_end_at": "2026-09-01T18:00:00+09:00",
+       "support": "환급률 50% · 청년 70% · 상한 개인(공통 안내) 100,000원, 2인 이상(공통 안내) 200,000원, 청년(공통 안내) 140,000원, 가족(공통 안내) 500,000원 · 지급: chak 앱",
+       "estimated_amount": null,
+       "budget_remaining": null,
+       "apply_url": "https://www.wandotrip.kr/index.php",
+       "official_url": "https://www.wandotrip.kr/index.php",
+       "missing_user_fields": [],
+       "needs_official_check": [
+        "게시된 접수 상태",
+        "사전 신청 기한",
+        "거주지 조건",
+        "연령 조건",
+        "인원 조건",
+        "가족·동일 주소 조건",
+        "과거 참여 이력",
+        "필수 방문 조건"
+       ],
+       "reasons": [
+        "불충족: 신청(접수) 기간",
+        "불충족: 여행 인정 기간",
+        "확인 필요: 게시된 접수 상태",
+        "확인 필요: 사전 신청 기한"
+       ],
+       "data_origin": "kto_tour50",
+       "source_type": "official_webpage",
+       "verification_status": "unverified",
+       "review_status": "conflict",
+       "last_success_at": "2026-10-30T13:15:23.307474+00:00",
+       "last_verified_at": null,
+       "stale": true,
+       "sources": [
+        {
+         "type": "official_webpage",
+         "title": "한국관광공사 대한민국 반값여행 현황",
+         "url": "https://korean.visitkorea.or.kr/dgtourcard/tour50.do"
+        }
+       ],
+       "excluded_reason": "현재 신청할 수 없음(접수 마감·시작 전·사전 신청 기한 경과)"
+      },
+      {
+       "program_id": "manual:jn-vacation-2026h1",
+       "round_id": "2026-h1-jeonnam",
+       "name": "지역사랑 휴가지원 상반기 (전남 6개 군)",
+       "judgment": "needs_verification",
+       "posted_status": null,
+       "application_open": null,
+       "trip_period": null,
+       "application_period": null,
+       "application_start_at": null,
+       "application_end_at": null,
+       "support": "환급률 50% · 상한 개인 100,000원, 2인 이상 200,000원 · 지급: 모바일 지역사랑상품권",
+       "estimated_amount": null,
+       "budget_remaining": null,
+       "apply_url": null,
+       "official_url": "https://www.newsis.com/view/NISX20260227_0003528809",
+       "missing_user_fields": [],
+       "needs_official_check": [
+        "게시된 접수 상태",
+        "신청(접수) 기간",
+        "사전 신청 기한",
+        "여행 인정 기간",
+        "거주지 조건",
+        "인원 조건",
+        "가족·동일 주소 조건",
+        "과거 참여 이력"
+       ],
+       "reasons": [
+        "확인 필요: 게시된 접수 상태",
+        "확인 필요: 신청(접수) 기간",
+        "확인 필요: 사전 신청 기한",
+        "확인 필요: 여행 인정 기간"
+       ],
+       "data_origin": "manual_registry",
+       "source_type": "project_doc",
+       "verification_status": "unverified",
+       "review_status": null,
+       "last_success_at": null,
+       "last_verified_at": null,
+       "stale": null,
+       "sources": [
+        {
+         "type": "news_report",
+         "title": "뉴시스 보도",
+         "url": "https://www.newsis.com/view/NISX20260227_0003528809"
+        },
+        {
+         "type": "news_report",
+         "title": "세계일보 보도(6개 군)",
+         "url": "https://www.segye.com/newsView/20260727518262"
+        },
+        {
+         "type": "project_doc",
+         "title": "docs/feature-definition.md (2026-10-30 기준 정리)",
+         "url": null
+        }
+       ],
+       "excluded_reason": "같은 사업의 공식 페이지 수집 자료(kto50:12850:2026)가 있어 그 차수별 판정을 따름"
+      }
+     ]
+    },
+    "missing_user_fields": [],
+    "data_warnings": [
+     "일부 지원제도 출처를 확인하지 못했거나 정보가 오래됐어요."
+    ]
+   }
+  ],
+  "regions_not_matched": {
+   "names": [
+    "광주 동구",
+    "광주 서구",
+    "광주 남구",
+    "광주 광산구",
+    "목포시",
+    "순천시",
+    "나주시",
+    "광양시",
+    "담양군",
+    "곡성군",
+    "구례군",
+    "고흥군",
+    "보성군",
+    "화순군",
+    "장흥군",
+    "해남군",
+    "함평군",
+    "영광군",
+    "장성군",
+    "진도군",
+    "신안군"
+   ],
+   "meaning": "데이터 일부를 확인하지 못해 '없음'으로 단정하지 않음"
+  },
+  "missing_user_fields": [],
+  "data_status": {
+   "festivals": {
+    "source": "kto_festival",
+    "collection_method": "public_api",
+    "api": "한국관광공사 국문 관광정보 KorService2 searchFestival2",
+    "records": 30,
+    "key_configured": false,
+    "last_attempt_at": "2026-10-30T13:15:20.571271+00:00",
+    "last_attempt_status": "ok",
+    "last_success_at": "2026-10-30T13:15:21.174414+00:00",
+    "stale": false,
+    "status": "ok",
+    "message": null
+   },
+   "benefits": {
+    "lookup_status": "partial",
+    "checked_at": "2026-10-30T14:27:32+00:00",
+    "failed_sources": [
+     "gov24_api:never_synced:stale",
+     "kto_tour50:ok:stale"
+    ],
+    "message": "일부 지원제도 출처를 확인하지 못했거나 정보가 오래돼, 저장된 이전 자료와 수동 등록 자료로 판정했어요.",
+    "scope_note": "공공서비스(혜택) API·반값여행 현황 수집 자료와 수동 등록 자료 4건 기준이에요. 결과가 없어도 그 지역에 지원제도가 없다는 뜻은 아니에요.",
+    "sources": [
+     {
+      "source": "gov24_api",
+      "collection_method": "public_api",
+      "status": "never_synced",
+      "records": 0,
+      "last_attempt_at": null,
+      "last_success_at": null,
+      "stale": true,
+      "error_code": null,
+      "message": "아직 수집 이력 없음"
+     },
+     {
+      "source": "kto_tour50",
+      "collection_method": "official_webpage",
+      "status": "ok",
+      "records": 50,
+      "last_attempt_at": "2026-10-30T13:15:23.307474+00:00",
+      "last_success_at": "2026-10-30T13:15:23.307474+00:00",
+      "stale": true,
+      "error_code": null,
+      "message": "마지막 정상 수집이 갱신 주기를 넘김 — 저장된 이전 데이터 사용"
+     }
+    ]
+   },
+   "tourism_cache": {
+    "status": "ready",
+    "places": 3369,
+    "hub_rows": 2338,
+    "related_rows": 13571,
+    "last_attempt_at": "2026-10-30T13:15:20.571271+00:00",
+    "last_attempt_status": "success",
+    "last_success_at": "2026-10-30T13:15:21.174414+00:00",
+    "base_ym_hub": null,
+    "base_ym_related": null
+   },
+   "prepare_commands": {
+    "festivals": "python -m app.team.sync_tourism --steps codes,festivals  (TOURAPI_SERVICE_KEY 필요)",
+    "benefits": "python -m app.team.benefits.cli sync  (반값여행 현황은 키 불필요, 공공서비스 API는 키 필요)",
+    "script": "scripts/prepare-date-data.ps1"
+   }
+  },
+  "sorting": "1) 축제+신청 가능 예상 혜택 2) 둘 중 하나 3) 확인 필요 혜택 후보만 (AI 점수 없음)",
+  "disclaimer": "판정은 저장된 공식 출처 데이터와 입력값만 비교한 예상이에요. 최종 승인·지원액은 운영 기관 심사를 따르며, 금액을 확인하지 못하면 null로 표시해요."
+ }
+}

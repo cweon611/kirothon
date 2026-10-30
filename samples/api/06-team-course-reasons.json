@@ -1,0 +1,42 @@
+{
+ "request": {
+  "method": "POST",
+  "path": "/api/team/courses/egdx8x8z/reasons",
+  "params": null,
+  "body": {
+   "day": 1
+  }
+ },
+ "status": 200,
+ "response": {
+  "day": 1,
+  "status": "mock",
+  "ai_calls": 1,
+  "items": [
+   {
+    "order": 1,
+    "content_id": "2755010",
+    "reason_text": "광주 문화관광 · 관심 분야: 역사·문화",
+    "reason_by": "mock"
+   },
+   {
+    "order": 2,
+    "content_id": "127603",
+    "reason_text": "환급 지역 · 관심 분야: 자연·바다",
+    "reason_by": "mock"
+   },
+   {
+    "order": 4,
+    "content_id": "126275",
+    "reason_text": "환급 지역 · 관심 분야: 자연·바다",
+    "reason_by": "mock"
+   },
+   {
+    "order": 5,
+    "content_id": "129994",
+    "reason_text": "환급 지역 · 관심 분야: 역사·문화",
+    "reason_by": "mock"
+   }
+  ]
+ }
+}

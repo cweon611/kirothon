@@ -1,0 +1,51 @@
+{
+ "request": {
+  "method": "GET",
+  "path": "/api/benefits/sources",
+  "params": null,
+  "body": null
+ },
+ "status": 200,
+ "response": {
+  "checked_at": "2026-10-30T14:27:32.319977Z",
+  "update_method": "주기적 자동 갱신(polling). 공공서비스 API와 반값여행 현황 페이지 모두 웹훅·변경 알림을 제공하지 않아 실시간 반영이 아닙니다.",
+  "sources": [
+   {
+    "source": "gov24_api",
+    "status": "never_synced",
+    "data_origin": "stored_sync",
+    "collection_method": "public_api",
+    "last_attempt_at": null,
+    "last_success_at": null,
+    "stale": true,
+    "refresh_interval_seconds": 21600,
+    "queries": [],
+    "pages_fetched": 0,
+    "records_seen": 0,
+    "candidates": 0,
+    "truncated": false,
+    "fetched_at": null,
+    "error_code": null,
+    "message": "아직 수집 이력 없음"
+   },
+   {
+    "source": "kto_tour50",
+    "status": "ok",
+    "data_origin": "stored_sync",
+    "collection_method": "official_webpage",
+    "last_attempt_at": "2026-10-30T13:15:23.307474Z",
+    "last_success_at": "2026-10-30T13:15:23.307474Z",
+    "stale": true,
+    "refresh_interval_seconds": 1800,
+    "queries": [],
+    "pages_fetched": 0,
+    "records_seen": 50,
+    "candidates": 0,
+    "truncated": false,
+    "fetched_at": "2026-10-30T13:15:23.307474Z",
+    "error_code": null,
+    "message": "마지막 정상 수집이 갱신 주기를 넘김 — 저장된 이전 데이터 사용"
+   }
+  ]
+ }
+}

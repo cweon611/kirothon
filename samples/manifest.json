@@ -1,0 +1,28 @@
+{
+ "generated_at": "2026-10-30T23:27:32+09:00",
+ "service_today": "2026-10-30",
+ "ai_mode": "mock",
+ "external_calls": false,
+ "tables": {
+  "places": 3369,
+  "hub_rank": 2338,
+  "related_place": 13571,
+  "benefit_records": 50
+ },
+ "api_calls": [
+  "01-team-meta 200",
+  "02-team-programs 200",
+  "03-team-recommend 200",
+  "04-team-course-create 200",
+  "05-team-course-get 200",
+  "06-team-course-reasons 200",
+  "07-team-course-candidates 200",
+  "08-team-place-detail 200",
+  "09-team-course-swap 200",
+  "10-team-course-refund 200",
+  "11-team-date-recommendations 200",
+  "12-benefits-check 200",
+  "13-benefits-sources 200",
+  "14-benefits-detail 200"
+ ]
+}

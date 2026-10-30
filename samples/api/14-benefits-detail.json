@@ -1,0 +1,227 @@
+{
+ "request": {
+  "method": "GET",
+  "path": "/api/benefits/manual:muan-halfprice-2026",
+  "params": null,
+  "body": null
+ },
+ "status": 200,
+ "response": {
+  "benefit": {
+   "id": "manual:muan-halfprice-2026",
+   "program_id": "muan-halfprice",
+   "round_id": "2026",
+   "provider": "전라남도 무안군",
+   "external_service_id": null,
+   "name": "2026 갯벌愛 무안 반값여행",
+   "target_regions": [
+    {
+     "sido": "전라남도",
+     "sigungu": "무안군"
+    }
+   ],
+   "region_hints": [],
+   "application_period": {
+    "start": "2026-09-14",
+    "end": null
+   },
+   "application_start_at": null,
+   "application_end_at": null,
+   "business_period": null,
+   "trip_period": null,
+   "posted_status": null,
+   "status_checked_at": null,
+   "budget_remaining": null,
+   "contacts": null,
+   "residence_rule": {
+    "excluded_regions": [
+     {
+      "sido": "전라남도",
+      "sigungu": "무안군"
+     }
+    ],
+    "exclude_scope": "listed"
+   },
+   "age_rule": null,
+   "youth_rule": null,
+   "party_rule": null,
+   "family_rule": null,
+   "participation_rule": null,
+   "benefit": {
+    "benefit_type": "local_voucher",
+    "refund_rate": 0.5,
+    "youth_refund_rate": null,
+    "min_spend": null,
+    "caps": [
+     {
+      "label": "1박형 개인",
+      "amount": 100000,
+      "per": "group",
+      "min_party_size": null,
+      "max_party_size": 1,
+      "min_nights": 1,
+      "max_nights": 1,
+      "youth": null,
+      "family": null,
+      "max_persons": null,
+      "min_spend": 100000
+     },
+     {
+      "label": "1박형 팀",
+      "amount": 200000,
+      "per": "group",
+      "min_party_size": 2,
+      "max_party_size": null,
+      "min_nights": 1,
+      "max_nights": 1,
+      "youth": null,
+      "family": null,
+      "max_persons": null,
+      "min_spend": 100000
+     },
+     {
+      "label": "2박 이상 개인",
+      "amount": 200000,
+      "per": "group",
+      "min_party_size": null,
+      "max_party_size": 1,
+      "min_nights": 2,
+      "max_nights": null,
+      "youth": null,
+      "family": null,
+      "max_persons": null,
+      "min_spend": 200000
+     },
+     {
+      "label": "2박 이상 팀",
+      "amount": 400000,
+      "per": "group",
+      "min_party_size": 2,
+      "max_party_size": null,
+      "min_nights": 2,
+      "max_nights": null,
+      "youth": null,
+      "family": null,
+      "max_persons": null,
+      "min_spend": 200000
+     }
+    ],
+    "rounding_unit": null,
+    "lodging_cap": null,
+    "eligible_spend": [
+     "lodging",
+     "food",
+     "cafe",
+     "local_product",
+     "experience",
+     "admission"
+    ],
+    "excluded_spend": null,
+    "spend_rule_note": null
+   },
+   "visit_rule": {
+    "must_include": [
+     "무안황토갯벌랜드"
+    ],
+    "any_of": [],
+    "min_any_of": 0,
+    "min_total_places": 2
+   },
+   "stay_rule": {
+    "min_nights": 1,
+    "checkin_weekdays": [
+     0,
+     1,
+     2,
+     3,
+     4
+    ],
+    "checkin_scope": null
+   },
+   "payment_rule": null,
+   "proof_items": [
+    "숙박 자료",
+    "방문 사진",
+    "영수증"
+   ],
+   "pre_apply": {
+    "required": true,
+    "days_before_trip": null,
+    "channel": null
+   },
+   "settlement_days_after_trip": 7,
+   "payout": {
+    "method": "모바일 무안사랑상품권",
+    "voucher_valid_until": null,
+    "voucher_validity_note": null
+   },
+   "stackable_with": null,
+   "official_info_url": null,
+   "application_url": null,
+   "source_type": "project_doc",
+   "sources": [
+    {
+     "source_type": "news_report",
+     "title": "MTN 보도",
+     "url": "https://news.mtn.co.kr/news-detail/2026091118124235889",
+     "retrieved_at": null,
+     "note": null
+    },
+    {
+     "source_type": "project_doc",
+     "title": "docs/feature-definition.md (2026-10-30 기준 정리)",
+     "url": null,
+     "retrieved_at": null,
+     "note": null
+    }
+   ],
+   "verification_status": "unverified",
+   "last_verified_at": null,
+   "external_updated_at": null,
+   "unverified_fields": [
+    "trip_period",
+    "application_period.end",
+    "posted_status",
+    "age_rule",
+    "party_rule",
+    "caps.team_definition(2인 이상으로 해석)",
+    "benefit.rounding_unit",
+    "benefit.lodging_cap",
+    "benefit.excluded_spend",
+    "stay_rule.checkin_scope",
+    "pre_apply.days_before_trip",
+    "application_url",
+    "official_info_url",
+    "participation_rule",
+    "family_rule",
+    "stackable_with"
+   ],
+   "verified_fields": [],
+   "conflicts": [],
+   "raw_text": {},
+   "sync": null,
+   "related_program_ids": []
+  },
+  "data_origin": "manual_registry",
+  "source_status": {
+   "source": "manual_registry",
+   "status": "ok",
+   "data_origin": "local_registry",
+   "collection_method": "admin_registry",
+   "last_attempt_at": null,
+   "last_success_at": null,
+   "stale": null,
+   "refresh_interval_seconds": null,
+   "queries": [],
+   "pages_fetched": 0,
+   "records_seen": 0,
+   "candidates": 0,
+   "truncated": false,
+   "fetched_at": null,
+   "error_code": null,
+   "message": null
+  },
+  "stale_status": null,
+  "disclaimer": "판정은 입력값과 확인된 제도 조건만 비교한 결과이며 최종 승인을 보장하지 않습니다. 예상액은 추정치이고 실제 지급은 운영 기관 심사 결과를 따릅니다. 정보는 주기적 자동 갱신(실시간 아님) 기준입니다."
+ }
+}

@@ -1,0 +1,661 @@
+{
+ "request": {
+  "method": "GET",
+  "path": "/api/team/programs",
+  "params": null,
+  "body": null
+ },
+ "status": 200,
+ "response": {
+  "today": "2026-10-30",
+  "scope": "광주·전남 27개 시군구를 대상 지역으로 하는 지원제도(수집 자료 + 수동 등록 자료)",
+  "counts": {
+   "total": 18,
+   "open_now": 5
+  },
+  "programs": [
+   {
+    "program_id": "kto50:12770-2026-2",
+    "family_id": "kto50:12770:2026",
+    "round_id": "2026-2",
+    "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 장흥군 2차",
+    "provider": "전남광주통합특별시 장흥군",
+    "sigungu_codes": [
+     "46800"
+    ],
+    "sigungu_names": [
+     "장흥군"
+    ],
+    "posted_status": "open",
+    "open_now": true,
+    "application_period": {
+     "start": "2026-09-28",
+     "end": null
+    },
+    "trip_period": {
+     "start": "2026-10-12",
+     "end": "2026-11-02"
+    },
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "kto_tour50",
+    "source_type": "official_webpage",
+    "verification_status": "unverified",
+    "review_status": "needs_review",
+    "status_checked_at": "2026-10-30T13:15:23.307474+00:00",
+    "stale": true,
+    "superseded_by": [],
+    "official_info_url": "https://www.jangheung.go.kr/travel",
+    "application_url": "https://www.jangheung.go.kr/travel"
+   },
+   {
+    "program_id": "kto50:12780-2026-3",
+    "family_id": "kto50:12780:2026",
+    "round_id": "2026-3",
+    "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 강진군 3차",
+    "provider": "전남광주통합특별시 강진군",
+    "sigungu_codes": [
+     "46810"
+    ],
+    "sigungu_names": [
+     "강진군"
+    ],
+    "posted_status": "open",
+    "open_now": true,
+    "application_period": {
+     "start": "2026-10-20",
+     "end": null
+    },
+    "trip_period": {
+     "start": "2026-10-20",
+     "end": "2026-11-30"
+    },
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "kto_tour50",
+    "source_type": "official_webpage",
+    "verification_status": "unverified",
+    "review_status": "needs_review",
+    "status_checked_at": "2026-10-30T13:15:23.307474+00:00",
+    "stale": true,
+    "superseded_by": [],
+    "official_info_url": "https://www.gangjintour.com/",
+    "application_url": "https://www.gangjintour.com/"
+   },
+   {
+    "program_id": "kto50:12800-2026-6",
+    "family_id": "kto50:12800:2026",
+    "round_id": "2026-6",
+    "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 영암군 6차",
+    "provider": "전남광주통합특별시 영암군",
+    "sigungu_codes": [
+     "46830"
+    ],
+    "sigungu_names": [
+     "영암군"
+    ],
+    "posted_status": "open",
+    "open_now": true,
+    "application_period": {
+     "start": "2026-10-29",
+     "end": "2026-11-13"
+    },
+    "trip_period": {
+     "start": "2026-11-01",
+     "end": "2026-12-13"
+    },
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "kto_tour50",
+    "source_type": "official_webpage",
+    "verification_status": "unverified",
+    "review_status": "needs_review",
+    "status_checked_at": "2026-10-30T13:15:23.307474+00:00",
+    "stale": true,
+    "superseded_by": [],
+    "official_info_url": "https://www.yeongam.go.kr/oneplusone",
+    "application_url": "https://www.yeongam.go.kr/oneplusone"
+   },
+   {
+    "program_id": "kto50:12850-2026-6",
+    "family_id": "kto50:12850:2026",
+    "round_id": "2026-6",
+    "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 완도군 6차",
+    "provider": "전남광주통합특별시 완도군",
+    "sigungu_codes": [
+     "46890"
+    ],
+    "sigungu_names": [
+     "완도군"
+    ],
+    "posted_status": "open",
+    "open_now": true,
+    "application_period": {
+     "start": "2026-10-27",
+     "end": null
+    },
+    "trip_period": {
+     "start": "2026-11-01",
+     "end": "2026-11-30"
+    },
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "kto_tour50",
+    "source_type": "official_webpage",
+    "verification_status": "unverified",
+    "review_status": "conflict",
+    "status_checked_at": "2026-10-30T13:15:23.307474+00:00",
+    "stale": true,
+    "superseded_by": [],
+    "official_info_url": "https://www.wandotrip.kr/index.php",
+    "application_url": "https://www.wandotrip.kr/index.php"
+   },
+   {
+    "program_id": "manual:jn-island-halfprice-2026",
+    "family_id": "jn-island-halfprice",
+    "round_id": "2026",
+    "name": "전남광주 섬 반값여행",
+    "provider": null,
+    "sigungu_codes": [
+     "46110",
+     "46130",
+     "46770",
+     "46780",
+     "46810",
+     "46870",
+     "46900",
+     "46910"
+    ],
+    "sigungu_names": [
+     "목포시",
+     "여수시",
+     "고흥군",
+     "보성군",
+     "강진군",
+     "영광군",
+     "진도군",
+     "신안군"
+    ],
+    "posted_status": "closing_soon",
+    "open_now": true,
+    "application_period": null,
+    "trip_period": {
+     "start": "2026-08-29",
+     "end": "2026-11-04"
+    },
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "manual_registry",
+    "source_type": "project_doc",
+    "verification_status": "unverified",
+    "review_status": null,
+    "status_checked_at": "2026-10-30T00:00:00+09:00",
+    "stale": false,
+    "superseded_by": [],
+    "official_info_url": null,
+    "application_url": null
+   },
+   {
+    "program_id": "manual:jn-vacation-2026h1",
+    "family_id": "local-love-vacation",
+    "round_id": "2026-h1-jeonnam",
+    "name": "지역사랑 휴가지원 상반기 (전남 6개 군)",
+    "provider": null,
+    "sigungu_codes": [
+     "46770",
+     "46810",
+     "46820",
+     "46830",
+     "46870",
+     "46890"
+    ],
+    "sigungu_names": [
+     "고흥군",
+     "강진군",
+     "해남군",
+     "영암군",
+     "영광군",
+     "완도군"
+    ],
+    "posted_status": null,
+    "open_now": null,
+    "application_period": null,
+    "trip_period": null,
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "manual_registry",
+    "source_type": "project_doc",
+    "verification_status": "unverified",
+    "review_status": null,
+    "status_checked_at": null,
+    "stale": null,
+    "superseded_by": [
+     "kto50:12780:2026",
+     "kto50:12790:2026",
+     "kto50:12740:2026",
+     "kto50:12850:2026",
+     "kto50:12800:2026",
+     "kto50:12830:2026"
+    ],
+    "official_info_url": null,
+    "application_url": null
+   },
+   {
+    "program_id": "manual:jangheung-vacation-2026h2",
+    "family_id": "local-love-vacation",
+    "round_id": "2026-h2-jangheung",
+    "name": "지역사랑 휴가지원 하반기 (장흥군)",
+    "provider": "전라남도 장흥군",
+    "sigungu_codes": [
+     "46800"
+    ],
+    "sigungu_names": [
+     "장흥군"
+    ],
+    "posted_status": null,
+    "open_now": null,
+    "application_period": null,
+    "trip_period": null,
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "manual_registry",
+    "source_type": "project_doc",
+    "verification_status": "unverified",
+    "review_status": null,
+    "status_checked_at": null,
+    "stale": null,
+    "superseded_by": [
+     "kto50:12770:2026"
+    ],
+    "official_info_url": null,
+    "application_url": null
+   },
+   {
+    "program_id": "manual:muan-halfprice-2026",
+    "family_id": "muan-halfprice",
+    "round_id": "2026",
+    "name": "2026 갯벌愛 무안 반값여행",
+    "provider": "전라남도 무안군",
+    "sigungu_codes": [
+     "46840"
+    ],
+    "sigungu_names": [
+     "무안군"
+    ],
+    "posted_status": null,
+    "open_now": null,
+    "application_period": {
+     "start": "2026-09-14",
+     "end": null
+    },
+    "trip_period": null,
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "manual_registry",
+    "source_type": "project_doc",
+    "verification_status": "unverified",
+    "review_status": null,
+    "status_checked_at": null,
+    "stale": null,
+    "superseded_by": [],
+    "official_info_url": null,
+    "application_url": null
+   },
+   {
+    "program_id": "kto50:12740-2026-4",
+    "family_id": "kto50:12740:2026",
+    "round_id": "2026-4",
+    "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 고흥군 4차",
+    "provider": "전남광주통합특별시 고흥군",
+    "sigungu_codes": [
+     "46770"
+    ],
+    "sigungu_names": [
+     "고흥군"
+    ],
+    "posted_status": null,
+    "open_now": false,
+    "application_period": {
+     "start": null,
+     "end": "2026-08-28"
+    },
+    "trip_period": {
+     "start": "2026-09-01",
+     "end": "2026-10-31"
+    },
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "kto_tour50",
+    "source_type": "official_webpage",
+    "verification_status": "unverified",
+    "review_status": "needs_review",
+    "status_checked_at": null,
+    "stale": true,
+    "superseded_by": [],
+    "official_info_url": "https://tour.goheung.go.kr/front/M0000361/content/view.do",
+    "application_url": null
+   },
+   {
+    "program_id": "kto50:12770-2026-1",
+    "family_id": "kto50:12770:2026",
+    "round_id": "2026-1",
+    "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 장흥군 1차",
+    "provider": "전남광주통합특별시 장흥군",
+    "sigungu_codes": [
+     "46800"
+    ],
+    "sigungu_names": [
+     "장흥군"
+    ],
+    "posted_status": null,
+    "open_now": false,
+    "application_period": {
+     "start": null,
+     "end": "2026-09-21"
+    },
+    "trip_period": {
+     "start": "2026-09-19",
+     "end": "2026-10-11"
+    },
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "kto_tour50",
+    "source_type": "official_webpage",
+    "verification_status": "unverified",
+    "review_status": "needs_review",
+    "status_checked_at": null,
+    "stale": true,
+    "superseded_by": [],
+    "official_info_url": "https://www.jangheung.go.kr/travel",
+    "application_url": "https://www.jangheung.go.kr/travel"
+   },
+   {
+    "program_id": "kto50:12780-2026-2",
+    "family_id": "kto50:12780:2026",
+    "round_id": "2026-2",
+    "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 강진군 2차",
+    "provider": "전남광주통합특별시 강진군",
+    "sigungu_codes": [
+     "46810"
+    ],
+    "sigungu_names": [
+     "강진군"
+    ],
+    "posted_status": null,
+    "open_now": false,
+    "application_period": {
+     "start": null,
+     "end": "2026-09-29"
+    },
+    "trip_period": {
+     "start": "2026-10-01",
+     "end": "2026-10-31"
+    },
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "kto_tour50",
+    "source_type": "official_webpage",
+    "verification_status": "unverified",
+    "review_status": "needs_review",
+    "status_checked_at": null,
+    "stale": true,
+    "superseded_by": [],
+    "official_info_url": "https://www.gangjintour.com/",
+    "application_url": "https://www.gangjintour.com/"
+   },
+   {
+    "program_id": "kto50:12790-2026-3",
+    "family_id": "kto50:12790:2026",
+    "round_id": "2026-3",
+    "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 해남군 3차",
+    "provider": "전남광주통합특별시 해남군",
+    "sigungu_codes": [
+     "46820"
+    ],
+    "sigungu_names": [
+     "해남군"
+    ],
+    "posted_status": null,
+    "open_now": false,
+    "application_period": {
+     "start": null,
+     "end": "2026-07-14"
+    },
+    "trip_period": {
+     "start": "2026-06-30",
+     "end": "2026-08-18"
+    },
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "kto_tour50",
+    "source_type": "official_webpage",
+    "verification_status": "unverified",
+    "review_status": "needs_review",
+    "status_checked_at": null,
+    "stale": true,
+    "superseded_by": [],
+    "official_info_url": "https://www.haenam50.kr/index",
+    "application_url": null
+   },
+   {
+    "program_id": "kto50:12800-2026-5",
+    "family_id": "kto50:12800:2026",
+    "round_id": "2026-5",
+    "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 영암군 5차",
+    "provider": "전남광주통합특별시 영암군",
+    "sigungu_codes": [
+     "46830"
+    ],
+    "sigungu_names": [
+     "영암군"
+    ],
+    "posted_status": null,
+    "open_now": false,
+    "application_period": {
+     "start": null,
+     "end": "2026-10-06"
+    },
+    "trip_period": {
+     "start": "2026-10-01",
+     "end": "2026-10-31"
+    },
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "kto_tour50",
+    "source_type": "official_webpage",
+    "verification_status": "unverified",
+    "review_status": "needs_review",
+    "status_checked_at": null,
+    "stale": true,
+    "superseded_by": [],
+    "official_info_url": "https://www.yeongam.go.kr/oneplusone",
+    "application_url": "https://www.yeongam.go.kr/oneplusone"
+   },
+   {
+    "program_id": "kto50:12830-2026-6",
+    "family_id": "kto50:12830:2026",
+    "round_id": "2026-6",
+    "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 영광군 6차",
+    "provider": "전남광주통합특별시 영광군",
+    "sigungu_codes": [
+     "46870"
+    ],
+    "sigungu_names": [
+     "영광군"
+    ],
+    "posted_status": null,
+    "open_now": false,
+    "application_period": {
+     "start": null,
+     "end": "2026-08-28"
+    },
+    "trip_period": {
+     "start": "2026-09-01",
+     "end": "2026-09-30"
+    },
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "kto_tour50",
+    "source_type": "official_webpage",
+    "verification_status": "unverified",
+    "review_status": "needs_review",
+    "status_checked_at": null,
+    "stale": true,
+    "superseded_by": [],
+    "official_info_url": "https://www.yeonggwang.go.kr/travel/",
+    "application_url": null
+   },
+   {
+    "program_id": "kto50:12850-2026-5",
+    "family_id": "kto50:12850:2026",
+    "round_id": "2026-5",
+    "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 완도군 5차",
+    "provider": "전남광주통합특별시 완도군",
+    "sigungu_codes": [
+     "46890"
+    ],
+    "sigungu_names": [
+     "완도군"
+    ],
+    "posted_status": null,
+    "open_now": false,
+    "application_period": {
+     "start": null,
+     "end": "2026-09-01"
+    },
+    "trip_period": {
+     "start": "2026-09-01",
+     "end": "2026-09-30"
+    },
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "kto_tour50",
+    "source_type": "official_webpage",
+    "verification_status": "unverified",
+    "review_status": "conflict",
+    "status_checked_at": null,
+    "stale": true,
+    "superseded_by": [],
+    "official_info_url": "https://www.wandotrip.kr/index.php",
+    "application_url": "https://www.wandotrip.kr/index.php"
+   },
+   {
+    "program_id": "kto50:12740-2026-5",
+    "family_id": "kto50:12740:2026",
+    "round_id": "2026-5",
+    "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 고흥군 5차",
+    "provider": "전남광주통합특별시 고흥군",
+    "sigungu_codes": [
+     "46770"
+    ],
+    "sigungu_names": [
+     "고흥군"
+    ],
+    "posted_status": "closed",
+    "open_now": false,
+    "application_period": {
+     "start": "2026-10-30",
+     "end": "2026-10-30"
+    },
+    "trip_period": {
+     "start": "2026-11-01",
+     "end": "2026-11-30"
+    },
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "kto_tour50",
+    "source_type": "official_webpage",
+    "verification_status": "unverified",
+    "review_status": "conflict",
+    "status_checked_at": "2026-10-30T13:15:23.307474+00:00",
+    "stale": true,
+    "superseded_by": [],
+    "official_info_url": "https://tour.goheung.go.kr/front/M0000361/content/view.do",
+    "application_url": null
+   },
+   {
+    "program_id": "kto50:12790-2026-4",
+    "family_id": "kto50:12790:2026",
+    "round_id": "2026-4",
+    "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 해남군 4차",
+    "provider": "전남광주통합특별시 해남군",
+    "sigungu_codes": [
+     "46820"
+    ],
+    "sigungu_names": [
+     "해남군"
+    ],
+    "posted_status": "closed",
+    "open_now": false,
+    "application_period": {
+     "start": null,
+     "end": "2026-09-02"
+    },
+    "trip_period": {
+     "start": "2026-09-04",
+     "end": "2026-09-14"
+    },
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "kto_tour50",
+    "source_type": "official_webpage",
+    "verification_status": "unverified",
+    "review_status": "needs_review",
+    "status_checked_at": "2026-10-30T13:15:23.307474+00:00",
+    "stale": true,
+    "superseded_by": [],
+    "official_info_url": "https://www.haenam50.kr/index",
+    "application_url": null
+   },
+   {
+    "program_id": "kto50:12830-2026-7",
+    "family_id": "kto50:12830:2026",
+    "round_id": "2026-7",
+    "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 영광군 7차",
+    "provider": "전남광주통합특별시 영광군",
+    "sigungu_codes": [
+     "46870"
+    ],
+    "sigungu_names": [
+     "영광군"
+    ],
+    "posted_status": "closed",
+    "open_now": false,
+    "application_period": {
+     "start": null,
+     "end": "2026-10-23"
+    },
+    "trip_period": {
+     "start": "2026-10-01",
+     "end": "2026-10-31"
+    },
+    "refund_rate": 0.5,
+    "benefit_type": "local_voucher",
+    "data_origin": "kto_tour50",
+    "source_type": "official_webpage",
+    "verification_status": "unverified",
+    "review_status": "needs_review",
+    "status_checked_at": "2026-10-30T13:15:23.307474+00:00",
+    "stale": true,
+    "superseded_by": [],
+    "official_info_url": "https://www.yeonggwang.go.kr/travel/",
+    "application_url": null
+   }
+  ],
+  "sources": [
+   {
+    "source": "gov24_api",
+    "status": "never_synced",
+    "stale": true,
+    "last_success_at": null
+   },
+   {
+    "source": "kto_tour50",
+    "status": "ok",
+    "stale": true,
+    "last_success_at": "2026-10-30T13:15:23.307474+00:00"
+   }
+  ],
+  "note": "접수 여부는 게시 상태·신청 기간 기준이며 개인 자격 판정이 아니에요. 목록에 없다고 지원제도가 없다는 뜻은 아니에요."
+ }
+}

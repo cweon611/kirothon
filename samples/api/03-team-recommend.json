@@ -1,0 +1,757 @@
+{
+ "request": {
+  "method": "POST",
+  "path": "/api/team/recommend",
+  "params": null,
+  "body": {
+   "trip_type": "1N2D",
+   "start_date": "2026-11-10",
+   "origin": "gj-buk",
+   "interests": [
+    "nature",
+    "history"
+   ],
+   "party_size": 2,
+   "transport": "car",
+   "residence_code": "29170",
+   "benefit_conditions": {
+    "birth_date": "1995-03-01"
+   }
+  }
+ },
+ "status": 200,
+ "response": {
+  "query": {
+   "trip_type": "1N2D",
+   "start_date": "2026-11-10",
+   "end_date": "2026-11-11",
+   "origin": "gj-buk",
+   "interests": [
+    "nature",
+    "history"
+   ],
+   "party_size": 2,
+   "transport": "car"
+  },
+  "today": "2026-10-30",
+  "today_fixed": true,
+  "tourism_data": {
+   "status": "ready",
+   "places": 3369,
+   "hub_rows": 2338,
+   "related_rows": 13571,
+   "last_attempt_at": "2026-10-30T13:15:20.571271+00:00",
+   "last_attempt_status": "success",
+   "last_success_at": "2026-10-30T13:15:21.174414+00:00",
+   "base_ym_hub": null,
+   "base_ym_related": null
+  },
+  "regions": [
+   {
+    "sigungu_code": "46840",
+    "name": "무안군",
+    "sido": "전라남도",
+    "group": 1,
+    "score": 69,
+    "score_breakdown": {
+     "interest": 33,
+     "access": 28,
+     "hub": 8,
+     "season": 0
+    },
+    "travel_min": 71,
+    "travel_note": "직선거리 기반 추정치",
+    "refund": {
+     "program_id": "manual:muan-halfprice-2026",
+     "round_id": "2026",
+     "name": "2026 갯벌愛 무안 반값여행",
+     "judgment": "needs_verification",
+     "badge": "needs_verification",
+     "posted_status": null,
+     "application_open": null,
+     "rate": 0.5,
+     "cap_krw": null,
+     "stale": null,
+     "last_verified_at": null,
+     "source_url": "https://news.mtn.co.kr/news-detail/2026091118124235889",
+     "reasons": [
+      "확인 필요: 게시된 접수 상태",
+      "확인 필요: 신청(접수) 기간",
+      "확인 필요: 사전 신청 기한",
+      "확인 필요: 여행 인정 기간"
+     ]
+    },
+    "reason_tags": [
+     "2026 갯벌愛 무안 반값여행 확인 필요",
+     "역사·문화 일치 23곳",
+     "중심 관광지 '무안회산백련지'",
+     "광주 북구에서 약 71분"
+    ],
+    "photos": [
+     "http://tong.visitkorea.or.kr/cms/resource/09/3535609_image2_1.jpg",
+     "https://tong.visitkorea.or.kr/cms/resource/86/3535786_image2_1.jpg",
+     "http://tong.visitkorea.or.kr/cms/resource/91/3535791_image2_1.jpg"
+    ],
+    "photo_credit": "한국관광공사",
+    "candidates": [
+     {
+      "content_id": "127603",
+      "title": "무안회산백련지",
+      "category": "관광지",
+      "summary": "무안 회산백련지는 전남광주통합특별시 무안군 일로읍 복용리에 위치해 있다. 전체 면적이 10만 평쯤 되는 이 연못은 백련(白蓮) 자생지로 널리 알",
+      "evidence": "무안군 중심 관광지 1위",
+      "evidence_all": [
+       "무안군 중심 관광지 1위",
+       "무안황토갯벌랜드 방문객이 함께 찾는 곳 2위",
+       "톱머리해변 방문객이 함께 찾는 곳 2위",
+       "무안낙지공원 방문객이 함께 찾는 곳 10위"
+      ],
+      "interest_labels": [
+       "자연·바다"
+      ],
+      "image_url": "http://tong.visitkorea.or.kr/cms/resource/09/3535609_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "126275",
+      "title": "톱머리 해수욕장",
+      "category": "관광지",
+      "summary": "무안읍에서 서쪽으로 망운면 피서리에 있는 톱머리 해수욕장은 조수간만의 차가 심하여 썰물 때 펼쳐지는 넓은 백사장과 보호림으로 지정된 200녀 된",
+      "evidence": "무안군 중심 관광지 4위",
+      "evidence_all": [
+       "무안군 중심 관광지 4위",
+       "무안낙지공원 방문객이 함께 찾는 곳 1위",
+       "무안황토갯벌랜드 방문객이 함께 찾는 곳 4위"
+      ],
+      "interest_labels": [
+       "자연·바다"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/86/3535786_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "1330332",
+      "title": "무안황토갯벌랜드",
+      "category": "관광지",
+      "summary": "무안갯벌은 자연 생태의 원시성과 청정 환경을 유지하고 있다. 같은 장소에서 갯벌의 생성과 소멸 과정이 관찰 가능하여 지질학적 보전가치가 높을 뿐",
+      "evidence": "무안군 중심 관광지 6위",
+      "evidence_all": [
+       "무안군 중심 관광지 6위",
+       "무안낙지공원 방문객이 함께 찾는 곳 3위",
+       "톱머리해변 방문객이 함께 찾는 곳 15위"
+      ],
+      "interest_labels": [
+       "자연·바다"
+      ],
+      "image_url": "http://tong.visitkorea.or.kr/cms/resource/91/3535791_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "2748362",
+      "title": "무안낙지공원",
+      "category": "관광지",
+      "summary": "무안낙지공원은 펄 내음이 물씬 풍기는 조금나루 해변 앞, 무안의 특산물인 낙지를 알리고자 조성된 캠핑 공원이다. 공원 중간에는 낙지 공원의 볼거",
+      "evidence": "무안군 중심 관광지 9위",
+      "evidence_all": [
+       "무안군 중심 관광지 9위",
+       "톱머리해변 방문객이 함께 찾는 곳 3위",
+       "무안황토갯벌랜드 방문객이 함께 찾는 곳 6위"
+      ],
+      "interest_labels": [
+       "역사·문화"
+      ],
+      "image_url": "http://tong.visitkorea.or.kr/cms/resource/37/3590237_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "127706",
+      "title": "홀통유원지·홀통해변",
+      "category": "관광지",
+      "summary": "홀총유원지는 전남광주통합특별시 영광군, 무안군, 함평군 3군에 둘러싸인 함평만에 있는 유원지이다. 홀통 지명의 유래는 해변 가운데 홀로 튀어나온",
+      "evidence": "무안군 중심 관광지 10위",
+      "evidence_all": [
+       "무안군 중심 관광지 10위",
+       "무안낙지공원 방문객이 함께 찾는 곳 2위",
+       "톱머리해변 방문객이 함께 찾는 곳 5위",
+       "무안황토갯벌랜드 방문객이 함께 찾는 곳 9위",
+       "톱머리해변 방문객이 함께 찾는 곳 10위",
+       "무안황토갯벌랜드 방문객이 함께 찾는 곳 28위",
+       "무안낙지공원 방문객이 함께 찾는 곳 40위"
+      ],
+      "interest_labels": [
+       "자연·바다"
+      ],
+      "image_url": "http://tong.visitkorea.or.kr/cms/resource/58/3516558_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "2778169",
+      "title": "조금나루해수욕장",
+      "category": "관광지",
+      "summary": "전남광주통합특별시 무안군 망운면 송현리",
+      "evidence": "무안낙지공원 방문객이 함께 찾는 곳 4위",
+      "evidence_all": [
+       "무안낙지공원 방문객이 함께 찾는 곳 4위",
+       "톱머리해변 방문객이 함께 찾는 곳 6위"
+      ],
+      "interest_labels": [
+       "자연·바다"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/05/3535705_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "126617",
+      "title": "도리포",
+      "category": "관광지",
+      "summary": "전남광주통합특별시 무안군 해제면",
+      "evidence": "무안황토갯벌랜드 방문객이 함께 찾는 곳 11위",
+      "evidence_all": [
+       "무안황토갯벌랜드 방문객이 함께 찾는 곳 11위",
+       "톱머리해변 방문객이 함께 찾는 곳 17위",
+       "무안낙지공원 방문객이 함께 찾는 곳 31위"
+      ],
+      "interest_labels": [
+       "자연·바다"
+      ],
+      "image_url": "http://tong.visitkorea.or.kr/cms/resource/51/3535751_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "2748348",
+      "title": "도원선착장",
+      "category": "관광지",
+      "summary": "전남광주통합특별시 무안군 운남면 성내리 328-7",
+      "evidence": "톱머리해변 방문객이 함께 찾는 곳 21위",
+      "evidence_all": [
+       "톱머리해변 방문객이 함께 찾는 곳 21위"
+      ],
+      "interest_labels": [
+       "자연·바다"
+      ],
+      "image_url": "http://tong.visitkorea.or.kr/cms/resource/03/3535703_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "2754458",
+      "title": "밀리터리테마파크",
+      "category": "관광지",
+      "summary": "전남광주통합특별시 무안군 몽탄면 우명길 21",
+      "evidence": "무안낙지공원 방문객이 함께 찾는 곳 27위",
+      "evidence_all": [
+       "무안낙지공원 방문객이 함께 찾는 곳 27위"
+      ],
+      "interest_labels": [
+       "역사·문화"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/91/3535691_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "127177",
+      "title": "초의선사탄생지",
+      "category": "관광지",
+      "summary": "전남광주통합특별시 무안군 삼향읍 초의길 30",
+      "evidence": "무안낙지공원 방문객이 함께 찾는 곳 44위",
+      "evidence_all": [
+       "무안낙지공원 방문객이 함께 찾는 곳 44위"
+      ],
+      "interest_labels": [
+       "역사·문화"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/66/4087066_image2_1.jpg",
+      "source": "kor"
+     }
+    ],
+    "demo_data": false
+   },
+   {
+    "sigungu_code": "46890",
+    "name": "완도군",
+    "sido": "전라남도",
+    "group": 1,
+    "score": 65,
+    "score_breakdown": {
+     "interest": 35,
+     "access": 18,
+     "hub": 12,
+     "season": 0
+    },
+    "travel_min": 130,
+    "travel_note": "직선거리 기반 추정치",
+    "refund": {
+     "program_id": "kto50:12850-2026-6",
+     "round_id": "2026-6",
+     "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 완도군 6차",
+     "judgment": "needs_verification",
+     "badge": "needs_verification",
+     "posted_status": "open",
+     "application_open": null,
+     "rate": 0.5,
+     "cap_krw": null,
+     "stale": true,
+     "last_verified_at": null,
+     "source_url": "https://www.wandotrip.kr/index.php",
+     "reasons": [
+      "확인 필요: 신청(접수) 기간",
+      "확인 필요: 사전 신청 기한",
+      "확인 필요: 거주지 조건",
+      "확인 필요: 연령 조건"
+     ]
+    },
+    "reason_tags": [
+     "지역사랑 휴가지원 사업(대한민국 반값여행) 완도군 6차 확인 필요",
+     "공고 재확인 필요",
+     "자연·바다 일치 49곳",
+     "중심 관광지 '완도타워'"
+    ],
+    "photos": [
+     "https://tong.visitkorea.or.kr/cms/resource/46/3079246_image2_1.jpg",
+     "https://tong.visitkorea.or.kr/cms/resource_photo/59/4060859_image2_1.jpg",
+     "https://tong.visitkorea.or.kr/cms/resource/23/3553923_image2_1.jpg"
+    ],
+    "photo_credit": "한국관광공사",
+    "candidates": [
+     {
+      "content_id": "632089",
+      "title": "완도타워",
+      "category": "관광지",
+      "summary": "완도군 완도읍 동망산 정상 부근 일출공원에 건설된 76m 높이의 완도타워에서는 환상적인 일출과 일몰은 물론 완도항과 신지대교의 야경을 365일 ",
+      "evidence": "완도군 중심 관광지 1위",
+      "evidence_all": [
+       "완도군 중심 관광지 1위",
+       "신지명사십리해수욕장 방문객이 함께 찾는 곳 1위",
+       "완도청해포구촬영장 방문객이 함께 찾는 곳 1위",
+       "장보고기념관 방문객이 함께 찾는 곳 1위",
+       "정도리구계등 방문객이 함께 찾는 곳 1위",
+       "완도수목원 방문객이 함께 찾는 곳 2위",
+       "완도항여객선터미널 방문객이 함께 찾는 곳 2위"
+      ],
+      "interest_labels": [
+       "역사·문화"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/46/3079246_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "147317",
+      "title": "신지명사십리해수욕장",
+      "category": "관광지",
+      "summary": "신지명사십리(薪智鳴沙十里)해수욕장은 모래 우는 소리가 십 리 밖까지 들린다고 하여 ‘울모래’ 또는 ‘명사십리’로 불리기도 하였다. 길이 3,80",
+      "evidence": "완도군 중심 관광지 2위",
+      "evidence_all": [
+       "완도군 중심 관광지 2위",
+       "완도타워 방문객이 함께 찾는 곳 1위",
+       "완도항여객선터미널 방문객이 함께 찾는 곳 1위",
+       "장보고기념관 방문객이 함께 찾는 곳 2위",
+       "완도수목원 방문객이 함께 찾는 곳 3위",
+       "정도리구계등 방문객이 함께 찾는 곳 3위",
+       "완도청해포구촬영장 방문객이 함께 찾는 곳 5위"
+      ],
+      "interest_labels": [
+       "자연·바다"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource_photo/59/4060859_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "127498",
+      "title": "완도수목원",
+      "category": "관광지",
+      "summary": "1991년에 개원한 완도수목원은 전라남도에서 운영하는 공립수목원이다. 국토의 최남단에 위치한 지리적 특성으로 1년 내내 푸름을 자랑하는 난대림과",
+      "evidence": "완도군 중심 관광지 5위",
+      "evidence_all": [
+       "완도군 중심 관광지 5위",
+       "완도청해포구촬영장 방문객이 함께 찾는 곳 2위",
+       "장보고기념관 방문객이 함께 찾는 곳 3위",
+       "정도리구계등 방문객이 함께 찾는 곳 4위",
+       "완도타워 방문객이 함께 찾는 곳 5위",
+       "신지명사십리해수욕장 방문객이 함께 찾는 곳 6위",
+       "완도항여객선터미널 방문객이 함께 찾는 곳 8위"
+      ],
+      "interest_labels": [
+       "자연·바다"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/23/3553923_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "631011",
+      "title": "장보고기념관",
+      "category": "문화시설",
+      "summary": "장보고대사의 도전정신과 기상을 엿볼 수 있는 다양한 자료와 유물이 전시되어 있다. 특히 전시실은 보고 듣고 만지는 체험형 입체 관람 시스템을 갖",
+      "evidence": "완도군 중심 관광지 6위",
+      "evidence_all": [
+       "완도군 중심 관광지 6위",
+       "신지명사십리해수욕장 방문객이 함께 찾는 곳 3위",
+       "완도수목원 방문객이 함께 찾는 곳 4위",
+       "완도타워 방문객이 함께 찾는 곳 4위",
+       "완도청해포구촬영장 방문객이 함께 찾는 곳 7위",
+       "정도리구계등 방문객이 함께 찾는 곳 8위",
+       "완도항여객선터미널 방문객이 함께 찾는 곳 17위"
+      ],
+      "interest_labels": [
+       "역사·문화"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/45/3382645_image2_1.JPG",
+      "source": "kor"
+     },
+     {
+      "content_id": "2778466",
+      "title": "산양진항",
+      "category": "관광지",
+      "summary": "전남광주통합특별시 완도군 노화읍 노화서로 563-49",
+      "evidence": "완도군 중심 관광지 7위",
+      "evidence_all": [
+       "완도군 중심 관광지 7위"
+      ],
+      "interest_labels": [
+       "자연·바다"
+      ],
+      "image_url": "http://tong.visitkorea.or.kr/cms/resource/22/2797122_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "147777",
+      "title": "완도 정도리 구계등",
+      "category": "관광지",
+      "summary": "전남광주통합특별시 완도군 완도읍 중도리 976",
+      "evidence": "완도군 중심 관광지 8위",
+      "evidence_all": [
+       "완도군 중심 관광지 8위",
+       "완도청해포구촬영장 방문객이 함께 찾는 곳 3위",
+       "완도수목원 방문객이 함께 찾는 곳 6위",
+       "완도타워 방문객이 함께 찾는 곳 6위",
+       "신지명사십리해수욕장 방문객이 함께 찾는 곳 9위",
+       "장보고기념관 방문객이 함께 찾는 곳 10위",
+       "완도항여객선터미널 방문객이 함께 찾는 곳 11위"
+      ],
+      "interest_labels": [
+       "자연·바다"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource_photo/68/4072568_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "2752740",
+      "title": "화흥포항",
+      "category": "관광지",
+      "summary": "전남광주통합특별시 완도군 완도읍 화흥포길 242",
+      "evidence": "산양진항 방문객이 함께 찾는 곳 4위",
+      "evidence_all": [
+       "산양진항 방문객이 함께 찾는 곳 4위",
+       "완도청해포구촬영장 방문객이 함께 찾는 곳 13위",
+       "완도항여객선터미널 방문객이 함께 찾는 곳 14위",
+       "정도리구계등 방문객이 함께 찾는 곳 23위"
+      ],
+      "interest_labels": [
+       "자연·바다"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/74/3380974_image2_1.JPG",
+      "source": "kor"
+     },
+     {
+      "content_id": "129540",
+      "title": "망끝전망대",
+      "category": "관광지",
+      "summary": "전남광주통합특별시 완도군 보길면 정자리 산 148-6",
+      "evidence": "산양진항 방문객이 함께 찾는 곳 6위",
+      "evidence_all": [
+       "산양진항 방문객이 함께 찾는 곳 6위"
+      ],
+      "interest_labels": [
+       "역사·문화"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/40/4002140_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "147768",
+      "title": "완도 청해진 유적",
+      "category": "관광지",
+      "summary": "전남광주통합특별시 완도군 완도읍 청해진로 1380-138",
+      "evidence": "정도리구계등 방문객이 함께 찾는 곳 6위",
+      "evidence_all": [
+       "정도리구계등 방문객이 함께 찾는 곳 6위",
+       "신지명사십리해수욕장 방문객이 함께 찾는 곳 11위",
+       "완도타워 방문객이 함께 찾는 곳 11위",
+       "완도수목원 방문객이 함께 찾는 곳 17위",
+       "장보고기념관 방문객이 함께 찾는 곳 20위",
+       "완도청해포구촬영장 방문객이 함께 찾는 곳 26위"
+      ],
+      "interest_labels": [
+       "역사·문화"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/41/3591541_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "2782961",
+      "title": "완도군해조류센터",
+      "category": "문화시설",
+      "summary": "2014년 3월에 개관한 완도국제해조류박람회 주제관으로 특산품 홍보관과 해조류 전시실로 구성되어 있다.",
+      "evidence": "장보고기념관 방문객이 함께 찾는 곳 13위",
+      "evidence_all": [
+       "장보고기념관 방문객이 함께 찾는 곳 13위",
+       "완도청해포구촬영장 방문객이 함께 찾는 곳 16위",
+       "완도타워 방문객이 함께 찾는 곳 23위"
+      ],
+      "interest_labels": [
+       "역사·문화"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/87/2796587_image2_1.jpg",
+      "source": "kor"
+     }
+    ],
+    "demo_data": false
+   },
+   {
+    "sigungu_code": "46810",
+    "name": "강진군",
+    "sido": "전라남도",
+    "group": 1,
+    "score": 64,
+    "score_breakdown": {
+     "interest": 31,
+     "access": 25,
+     "hub": 8,
+     "season": 0
+    },
+    "travel_min": 90,
+    "travel_note": "직선거리 기반 추정치",
+    "refund": {
+     "program_id": "kto50:12780-2026-3",
+     "round_id": "2026-3",
+     "name": "지역사랑 휴가지원 사업(대한민국 반값여행) 강진군 3차",
+     "judgment": "needs_verification",
+     "badge": "needs_verification",
+     "posted_status": "open",
+     "application_open": null,
+     "rate": 0.5,
+     "cap_krw": null,
+     "stale": true,
+     "last_verified_at": null,
+     "source_url": "https://www.gangjintour.com/",
+     "reasons": [
+      "확인 필요: 신청(접수) 기간",
+      "확인 필요: 사전 신청 기한",
+      "확인 필요: 거주지 조건",
+      "확인 필요: 연령 조건"
+     ]
+    },
+    "reason_tags": [
+     "지역사랑 휴가지원 사업(대한민국 반값여행) 강진군 3차 확인 필요",
+     "공고 재확인 필요",
+     "역사·문화 일치 39곳",
+     "중심 관광지 '다산초당'"
+    ],
+    "photos": [
+     "https://tong.visitkorea.or.kr/cms/resource/02/4101902_image2_1.jpg",
+     "https://tong.visitkorea.or.kr/cms/resource/17/4101917_image2_1.jpg",
+     "https://tong.visitkorea.or.kr/cms/resource/62/4065162_image2_1.jpg"
+    ],
+    "photo_credit": "한국관광공사",
+    "candidates": [
+     {
+      "content_id": "126419",
+      "title": "다산초당",
+      "category": "관광지",
+      "summary": "다산초당은 조선 후기 실학자 정약용이 강진 유배 시기 머물며 학문 활동을 이어간 대표적인 유적지다. 그는 1801년 신유사옥 이후 유배되어 여러",
+      "evidence": "강진군 중심 관광지 2위",
+      "evidence_all": [
+       "강진군 중심 관광지 2위",
+       "백련사 방문객이 함께 찾는 곳 1위",
+       "남미륵사 방문객이 함께 찾는 곳 4위",
+       "가우도 방문객이 함께 찾는 곳 6위",
+       "마량항 방문객이 함께 찾는 곳 18위"
+      ],
+      "interest_labels": [
+       "역사·문화"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/02/4101902_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "2714792",
+      "title": "남미륵사",
+      "category": "관광지",
+      "summary": "남미륵사는 1980년 석법흥 스님이 창건한 사찰로 40여 년에 걸친 중창과 조경을 통해 현재의 웅장하고 아름다운 경관을 갖추게 되었다. 이곳은 ",
+      "evidence": "강진군 중심 관광지 5위",
+      "evidence_all": [
+       "강진군 중심 관광지 5위",
+       "가우도 방문객이 함께 찾는 곳 2위",
+       "다산초당 방문객이 함께 찾는 곳 7위",
+       "백련사 방문객이 함께 찾는 곳 16위",
+       "마량항 방문객이 함께 찾는 곳 35위"
+      ],
+      "interest_labels": [
+       "역사·문화"
+      ],
+      "image_url": null,
+      "source": "kor"
+     },
+     {
+      "content_id": "127285",
+      "title": "백련사(강진)",
+      "category": "관광지",
+      "summary": "백련사는 신라 문성왕때 무염국사(801 ~ 888)가 산 이름을 따라 만덕사라는 이름으로 창건했다고 전해온다. 이후 쇠락했다가 고려 희종 7년 ",
+      "evidence": "강진군 중심 관광지 7위",
+      "evidence_all": [
+       "강진군 중심 관광지 7위",
+       "다산초당 방문객이 함께 찾는 곳 1위",
+       "남미륵사 방문객이 함께 찾는 곳 20위",
+       "가우도 방문객이 함께 찾는 곳 29위"
+      ],
+      "interest_labels": [
+       "역사·문화"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/17/4101917_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "2024432",
+      "title": "가우도",
+      "category": "관광지",
+      "summary": "강진군 도암면 망호(望湖)에 속한 강진만의 8개 섬 가운데 유일한 유인도인 가우도는 강진읍 보은산이 소의 머리에 해당되고 섬의 생김새가 소(牛)",
+      "evidence": "강진군 중심 관광지 9위",
+      "evidence_all": [
+       "강진군 중심 관광지 9위",
+       "남미륵사 방문객이 함께 찾는 곳 2위",
+       "마량항 방문객이 함께 찾는 곳 2위",
+       "다산초당 방문객이 함께 찾는 곳 6위",
+       "백련사 방문객이 함께 찾는 곳 24위"
+      ],
+      "interest_labels": [
+       "자연·바다"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/62/4065162_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "127111",
+      "title": "강진 영랑생가",
+      "category": "관광지",
+      "summary": "구수한 남도 사투리로 현대 서정시의 새로운 지평을 열었던 영랑 김윤식 선생의 생가를 원형 그대로 보존한 곳으로 영랑의 시혼과 그 발자취를 엿볼 ",
+      "evidence": "다산초당 방문객이 함께 찾는 곳 2위",
+      "evidence_all": [
+       "다산초당 방문객이 함께 찾는 곳 2위",
+       "백련사 방문객이 함께 찾는 곳 3위",
+       "남미륵사 방문객이 함께 찾는 곳 11위"
+      ],
+      "interest_labels": [
+       "역사·문화"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/64/4105164_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "2514003",
+      "title": "가우도 출렁다리",
+      "category": "관광지",
+      "summary": "전남광주통합특별시 강진군 도암면 신기리",
+      "evidence": "다산초당 방문객이 함께 찾는 곳 5위",
+      "evidence_all": [
+       "다산초당 방문객이 함께 찾는 곳 5위",
+       "마량항 방문객이 함께 찾는 곳 6위",
+       "백련사 방문객이 함께 찾는 곳 8위",
+       "남미륵사 방문객이 함께 찾는 곳 24위",
+       "가우도 방문객이 함께 찾는 곳 40위"
+      ],
+      "interest_labels": [
+       "역사·문화"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/89/3377889_image2_1.JPG",
+      "source": "kor"
+     },
+     {
+      "content_id": "126357",
+      "title": "무위사",
+      "category": "관광지",
+      "summary": "전남광주통합특별시 강진군 성전면 무위사로 308",
+      "evidence": "백련사 방문객이 함께 찾는 곳 5위",
+      "evidence_all": [
+       "백련사 방문객이 함께 찾는 곳 5위",
+       "다산초당 방문객이 함께 찾는 곳 11위",
+       "가우도 방문객이 함께 찾는 곳 31위",
+       "남미륵사 방문객이 함께 찾는 곳 46위"
+      ],
+      "interest_labels": [
+       "역사·문화"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/50/3490250_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "130135",
+      "title": "강진 고려청자박물관",
+      "category": "문화시설",
+      "summary": "고려청자의 체계적인 관리와 연구를 위해1997년 고려청자박물관을 개관,운영하여청자의 연구는 물론 누구나 쉽게 청자를접하고 이해할 수 있도록 하고",
+      "evidence": "마량항 방문객이 함께 찾는 곳 7위",
+      "evidence_all": [
+       "마량항 방문객이 함께 찾는 곳 7위",
+       "가우도 방문객이 함께 찾는 곳 16위",
+       "남미륵사 방문객이 함께 찾는 곳 25위",
+       "백련사 방문객이 함께 찾는 곳 28위",
+       "다산초당 방문객이 함께 찾는 곳 38위"
+      ],
+      "interest_labels": [
+       "역사·문화"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/34/4101934_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "643998",
+      "title": "주작산자연휴양림",
+      "category": "관광지",
+      "summary": "전남광주통합특별시 강진군 주작산길 262",
+      "evidence": "백련사 방문객이 함께 찾는 곳 10위",
+      "evidence_all": [
+       "백련사 방문객이 함께 찾는 곳 10위",
+       "다산초당 방문객이 함께 찾는 곳 28위",
+       "남미륵사 방문객이 함께 찾는 곳 49위"
+      ],
+      "interest_labels": [
+       "자연·바다"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/64/4054264_image2_1.jpg",
+      "source": "kor"
+     },
+     {
+      "content_id": "2371610",
+      "title": "한국민화뮤지엄",
+      "category": "문화시설",
+      "summary": "전남광주통합특별시 강진군 대구면 청자촌길 61-5",
+      "evidence": "가우도 방문객이 함께 찾는 곳 17위",
+      "evidence_all": [
+       "가우도 방문객이 함께 찾는 곳 17위",
+       "남미륵사 방문객이 함께 찾는 곳 44위"
+      ],
+      "interest_labels": [
+       "역사·문화"
+      ],
+      "image_url": "https://tong.visitkorea.or.kr/cms/resource/54/3562254_image2_1.jpg",
+      "source": "kor"
+     }
+    ],
+    "demo_data": false
+   }
+  ],
+  "no_refund_notice": null,
+  "excluded_by_travel_cap": 0,
+  "excluded_no_data": 0,
+  "interest_basis": "lclsSystm",
+  "benefit_lookup": {
+   "status": "partial",
+   "checked_at": "2026-10-30T14:27:30+00:00",
+   "scope_note": "공공서비스(혜택) API·반값여행 현황 수집 자료와 수동 등록 자료 4건 기준이에요. 결과가 없어도 그 지역에 지원제도가 없다는 뜻은 아니에요.",
+   "message": "일부 지원제도 출처를 확인하지 못했거나 정보가 오래돼, 저장된 이전 자료와 수동 등록 자료로 판정했어요.",
+   "failed_sources": [
+    "gov24_api:never_synced:stale",
+    "kto_tour50:ok:stale"
+   ],
+   "connected": true
+  },
+  "notice": null
+ }
+}

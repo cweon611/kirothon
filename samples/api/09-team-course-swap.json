@@ -1,0 +1,505 @@
+{
+ "request": {
+  "method": "POST",
+  "path": "/api/team/courses/egdx8x8z/swap",
+  "params": null,
+  "body": {
+   "day": 1,
+   "order": 1,
+   "content_id": "126615"
+  }
+ },
+ "status": 200,
+ "response": {
+  "id": "egdx8x8z",
+  "trip_type": "1N2D",
+  "start_date": "2026-11-10",
+  "end_date": "2026-11-11",
+  "origin": "gj-buk",
+  "interests": [
+   "nature",
+   "history"
+  ],
+  "party_size": 2,
+  "transport": "car",
+  "region": {
+   "sigungu_code": "46840",
+   "name": "무안군",
+   "refund_program_id": "manual:muan-halfprice-2026",
+   "refund_program": {
+    "program_id": "manual:muan-halfprice-2026",
+    "round_id": "2026",
+    "name": "2026 갯벌愛 무안 반값여행",
+    "posted_status": null,
+    "application_open": null,
+    "rate": 0.5,
+    "cap_krw": null,
+    "stale": null,
+    "last_verified_at": null,
+    "source_url": "https://news.mtn.co.kr/news-detail/2026091118124235889"
+   },
+   "benefit_status": "ok"
+  },
+  "days": [
+   {
+    "day": 1,
+    "date": "2026-11-10",
+    "start_point": "광주 북구",
+    "depart": "09:00",
+    "items": [
+     {
+      "order": 1,
+      "start": "10:01",
+      "end": "11:31",
+      "kind": "spot",
+      "place": {
+       "content_id": "126615",
+       "title": "무안 용월리 백로와 왜가리 번식지",
+       "lat": 35.013228925,
+       "lng": 126.4870585813,
+       "category": "관광지",
+       "sigungu_code": "46840",
+       "source": "kor",
+       "image_url": "https://tong.visitkorea.or.kr/cms/resource/11/3381511_image2_1.JPG"
+      },
+      "move_min_from_prev": 61,
+      "move_warning": true,
+      "transit_note": null,
+      "meal": null,
+      "label": null,
+      "required": false,
+      "swappable": true,
+      "reason_tags": [
+       "환급 지역",
+       "관심 분야: 자연·바다"
+      ],
+      "reason_text": "환급 지역 · 관심 분야: 자연·바다",
+      "reason_by": "rule",
+      "in_refund_region": true,
+      "refund_note": null,
+      "check_before_visit": true,
+      "check_reasons": [
+       "쉬는 날 정보 없음",
+       "이용시간 확인 필요"
+      ]
+     },
+     {
+      "order": 2,
+      "start": "12:00",
+      "end": "13:00",
+      "kind": "meal",
+      "place": {
+       "content_id": "3434698",
+       "title": "동산정",
+       "lat": 34.98762060530753,
+       "lng": 126.47715456330882,
+       "category": "음식점",
+       "sigungu_code": "46840",
+       "source": "kor",
+       "image_url": null
+      },
+      "move_min_from_prev": 13,
+      "move_warning": false,
+      "transit_note": null,
+      "meal": "lunch",
+      "label": null,
+      "required": false,
+      "swappable": false,
+      "reason_tags": [
+       "무안군 음식점",
+       "방문객이 함께 찾는 곳",
+       "이전 장소에서 13분"
+      ],
+      "reason_text": "무안군 음식점 · 방문객이 함께 찾는 곳",
+      "reason_by": "rule",
+      "in_refund_region": true,
+      "refund_note": "영수증 보관",
+      "check_before_visit": true,
+      "check_reasons": [
+       "쉬는 날 정보 없음"
+      ]
+     },
+     {
+      "order": 3,
+      "start": "13:41",
+      "end": "15:11",
+      "kind": "spot",
+      "place": {
+       "content_id": "127603",
+       "title": "무안회산백련지",
+       "lat": 34.8601257396,
+       "lng": 126.5299100793,
+       "category": "관광지",
+       "sigungu_code": "46840",
+       "source": "kor",
+       "image_url": "http://tong.visitkorea.or.kr/cms/resource/09/3535609_image2_1.jpg"
+      },
+      "move_min_from_prev": 41,
+      "move_warning": true,
+      "transit_note": null,
+      "meal": null,
+      "label": null,
+      "required": false,
+      "swappable": true,
+      "reason_tags": [
+       "환급 지역",
+       "관심 분야: 자연·바다"
+      ],
+      "reason_text": "환급 지역 · 관심 분야: 자연·바다",
+      "reason_by": "mock",
+      "in_refund_region": true,
+      "refund_note": null,
+      "check_before_visit": true,
+      "check_reasons": [
+       "쉬는 날 표기 확인 필요"
+      ]
+     },
+     {
+      "order": 4,
+      "start": "15:59",
+      "end": "17:29",
+      "kind": "spot",
+      "place": {
+       "content_id": "126275",
+       "title": "톱머리 해수욕장",
+       "lat": 34.9681187285,
+       "lng": 126.3870136094,
+       "category": "관광지",
+       "sigungu_code": "46840",
+       "source": "kor",
+       "image_url": "https://tong.visitkorea.or.kr/cms/resource/86/3535786_image2_1.jpg"
+      },
+      "move_min_from_prev": 48,
+      "move_warning": true,
+      "transit_note": null,
+      "meal": null,
+      "label": null,
+      "required": false,
+      "swappable": true,
+      "reason_tags": [
+       "환급 지역",
+       "관심 분야: 자연·바다"
+      ],
+      "reason_text": "환급 지역 · 관심 분야: 자연·바다",
+      "reason_by": "mock",
+      "in_refund_region": true,
+      "refund_note": null,
+      "check_before_visit": true,
+      "check_reasons": [
+       "이용시간 확인 필요"
+      ]
+     },
+     {
+      "order": 5,
+      "start": "17:54",
+      "end": "18:54",
+      "kind": "spot",
+      "place": {
+       "content_id": "129994",
+       "title": "무안문화원",
+       "lat": 34.9866982364,
+       "lng": 126.4724681943,
+       "category": "문화시설",
+       "sigungu_code": "46840",
+       "source": "kor",
+       "image_url": "https://tong.visitkorea.or.kr/cms/resource/77/4083977_image2_1.jpg"
+      },
+      "move_min_from_prev": 25,
+      "move_warning": false,
+      "transit_note": null,
+      "meal": null,
+      "label": null,
+      "required": false,
+      "swappable": true,
+      "reason_tags": [
+       "환급 지역",
+       "관심 분야: 역사·문화"
+      ],
+      "reason_text": "환급 지역 · 관심 분야: 역사·문화",
+      "reason_by": "mock",
+      "in_refund_region": true,
+      "refund_note": null,
+      "check_before_visit": true,
+      "check_reasons": [
+       "쉬는 날 정보 없음",
+       "이용시간 확인 필요"
+      ]
+     },
+     {
+      "order": 6,
+      "start": "19:11",
+      "end": "20:11",
+      "kind": "meal",
+      "place": {
+       "content_id": "135104",
+       "title": "두암식당",
+       "lat": 34.9654017955,
+       "lng": 126.5189567355,
+       "category": "음식점",
+       "sigungu_code": "46840",
+       "source": "kor",
+       "image_url": "https://tong.visitkorea.or.kr/cms/resource/73/4093373_image2_1.jpg"
+      },
+      "move_min_from_prev": 17,
+      "move_warning": false,
+      "transit_note": null,
+      "meal": "dinner",
+      "label": null,
+      "required": false,
+      "swappable": false,
+      "reason_tags": [
+       "무안군 음식점",
+       "방문객이 함께 찾는 곳",
+       "이전 장소에서 17분"
+      ],
+      "reason_text": "무안군 음식점 · 방문객이 함께 찾는 곳",
+      "reason_by": "rule",
+      "in_refund_region": true,
+      "refund_note": "영수증 보관",
+      "check_before_visit": true,
+      "check_reasons": [
+       "쉬는 날 정보 없음"
+      ]
+     },
+     {
+      "order": 7,
+      "start": "20:45",
+      "end": null,
+      "kind": "stay",
+      "place": {
+       "content_id": "138864",
+       "title": "무안비치호텔",
+       "lat": 34.9682778553,
+       "lng": 126.3869645383,
+       "category": "숙박",
+       "sigungu_code": "46840",
+       "source": "kor",
+       "image_url": "http://tong.visitkorea.or.kr/cms/resource/92/2596892_image2_1.JPG"
+      },
+      "move_min_from_prev": 34,
+      "move_warning": false,
+      "transit_note": null,
+      "meal": null,
+      "label": null,
+      "required": false,
+      "swappable": false,
+      "reason_tags": [
+       "환급 지역 안 숙소"
+      ],
+      "reason_text": "환급 지역 안 숙소",
+      "reason_by": "rule",
+      "in_refund_region": true,
+      "refund_note": "영수증 보관",
+      "check_before_visit": false,
+      "check_reasons": []
+     }
+    ]
+   },
+   {
+    "day": 2,
+    "date": "2026-11-11",
+    "start_point": "무안비치호텔",
+    "depart": "09:30",
+    "items": [
+     {
+      "order": 1,
+      "start": "09:48",
+      "end": "11:18",
+      "kind": "spot",
+      "place": {
+       "content_id": "2748362",
+       "title": "무안낙지공원",
+       "lat": 35.0046176325,
+       "lng": 126.3526278081,
+       "category": "관광지",
+       "sigungu_code": "46840",
+       "source": "kor",
+       "image_url": "http://tong.visitkorea.or.kr/cms/resource/37/3590237_image2_1.jpg"
+      },
+      "move_min_from_prev": 18,
+      "move_warning": false,
+      "transit_note": null,
+      "meal": null,
+      "label": null,
+      "required": false,
+      "swappable": true,
+      "reason_tags": [
+       "환급 지역",
+       "관심 분야: 역사·문화",
+       "이전 장소에서 18분"
+      ],
+      "reason_text": "환급 지역 · 관심 분야: 역사·문화",
+      "reason_by": "rule",
+      "in_refund_region": true,
+      "refund_note": null,
+      "check_before_visit": true,
+      "check_reasons": [
+       "이용시간 확인 필요"
+      ]
+     },
+     {
+      "order": 2,
+      "start": "11:32",
+      "end": "12:32",
+      "kind": "meal",
+      "place": {
+       "content_id": "2877916",
+       "title": "제일회식당",
+       "lat": 35.0134839404,
+       "lng": 126.3916685792,
+       "category": "음식점",
+       "sigungu_code": "46840",
+       "source": "kor",
+       "image_url": "http://tong.visitkorea.or.kr/cms/resource/06/2877906_image2_1.JPG"
+      },
+      "move_min_from_prev": 14,
+      "move_warning": false,
+      "transit_note": null,
+      "meal": "lunch",
+      "label": null,
+      "required": false,
+      "swappable": false,
+      "reason_tags": [
+       "무안군 음식점",
+       "방문객이 함께 찾는 곳",
+       "이전 장소에서 14분"
+      ],
+      "reason_text": "무안군 음식점 · 방문객이 함께 찾는 곳",
+      "reason_by": "rule",
+      "in_refund_region": true,
+      "refund_note": "영수증 보관",
+      "check_before_visit": true,
+      "check_reasons": [
+       "쉬는 날 정보 없음"
+      ]
+     },
+     {
+      "order": 3,
+      "start": "12:55",
+      "end": "14:25",
+      "kind": "spot",
+      "place": {
+       "content_id": "127706",
+       "title": "홀통유원지·홀통해변",
+       "lat": 35.0612387613,
+       "lng": 126.3373111234,
+       "category": "관광지",
+       "sigungu_code": "46840",
+       "source": "kor",
+       "image_url": "http://tong.visitkorea.or.kr/cms/resource/58/3516558_image2_1.jpg"
+      },
+      "move_min_from_prev": 23,
+      "move_warning": false,
+      "transit_note": null,
+      "meal": null,
+      "label": null,
+      "required": false,
+      "swappable": true,
+      "reason_tags": [
+       "환급 지역",
+       "관심 분야: 자연·바다"
+      ],
+      "reason_text": "환급 지역 · 관심 분야: 자연·바다",
+      "reason_by": "rule",
+      "in_refund_region": true,
+      "refund_note": null,
+      "check_before_visit": false,
+      "check_reasons": []
+     },
+     {
+      "order": 4,
+      "start": "14:41",
+      "end": "16:11",
+      "kind": "spot",
+      "place": {
+       "content_id": "1330332",
+       "title": "무안황토갯벌랜드",
+       "lat": 35.1022174018,
+       "lng": 126.3336493393,
+       "category": "관광지",
+       "sigungu_code": "46840",
+       "source": "kor",
+       "image_url": "http://tong.visitkorea.or.kr/cms/resource/91/3535791_image2_1.jpg"
+      },
+      "move_min_from_prev": 16,
+      "move_warning": false,
+      "transit_note": null,
+      "meal": null,
+      "label": null,
+      "required": true,
+      "swappable": false,
+      "reason_tags": [
+       "환급 조건 필수 방문지",
+       "환급 지역",
+       "관심 분야: 자연·바다",
+       "이전 장소에서 16분"
+      ],
+      "reason_text": "환급 조건 필수 방문지 · 환급 지역",
+      "reason_by": "rule",
+      "in_refund_region": true,
+      "refund_note": null,
+      "check_before_visit": true,
+      "check_reasons": [
+       "쉬는 날 표기 확인 필요"
+      ]
+     }
+    ],
+    "return_move_min": 75,
+    "return_depart": "16:11",
+    "home_arrival": "17:26"
+   }
+  ],
+  "estimated_spend_krw": 172000,
+  "spend_breakdown": {
+   "total_krw": 172000,
+   "items": [
+    {
+     "label": "1일차 점심 2명 × 12,000원",
+     "krw": 24000,
+     "sigungu_code": "46840",
+     "category": "food",
+     "basis": "user"
+    },
+    {
+     "label": "1일차 저녁 2명 × 12,000원",
+     "krw": 24000,
+     "sigungu_code": "46840",
+     "category": "food",
+     "basis": "user"
+    },
+    {
+     "label": "숙박 1박(객실 1개 기준)",
+     "krw": 100000,
+     "sigungu_code": "46840",
+     "category": "lodging",
+     "basis": "default"
+    },
+    {
+     "label": "2일차 점심 2명 × 12,000원",
+     "krw": 24000,
+     "sigungu_code": "46840",
+     "category": "food",
+     "basis": "user"
+    }
+   ],
+   "by_sigungu": {
+    "46840": 172000
+   },
+   "fees_not_parsed": []
+  },
+  "spend_inputs": {
+   "meal_cost_krw": 12000,
+   "room_price_krw": null
+  },
+  "estimated_refund_krw": null,
+  "refund_estimate_note": "예상 지원액은 지원제도 확인 API(POST /api/benefits/check)에 spend_breakdown.by_sigungu를 넘겨 계산해요. 이 응답은 금액을 계산하지 않아요.",
+  "warnings": [],
+  "notes": [],
+  "generated_at": "2026-10-30T23:27:31+09:00",
+  "ai_calls": 1,
+  "ai_calls_left": 1,
+  "reasons_done": {
+   "1": "mock"
+  }
+ }
+}

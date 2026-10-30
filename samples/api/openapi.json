@@ -1,0 +1,4258 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "Kirothon Starter API",
+  "version": "1.1.0"
+ },
+ "paths": {
+  "/api/records": {
+   "get": {
+    "tags": [
+     "records"
+    ],
+    "summary": "List Records",
+    "operationId": "list_records_api_records_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/RecordRead"
+         },
+         "type": "array",
+         "title": "Response List Records Api Records Get"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "records"
+    ],
+    "summary": "Create Record",
+    "operationId": "create_record_api_records_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RecordCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RecordRead"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/records/{record_id}": {
+   "get": {
+    "tags": [
+     "records"
+    ],
+    "summary": "Get Record",
+    "operationId": "get_record_api_records__record_id__get",
+    "parameters": [
+     {
+      "name": "record_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Record Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RecordRead"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "patch": {
+    "tags": [
+     "records"
+    ],
+    "summary": "Update Record",
+    "operationId": "update_record_api_records__record_id__patch",
+    "parameters": [
+     {
+      "name": "record_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Record Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RecordUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RecordRead"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "records"
+    ],
+    "summary": "Delete Record",
+    "operationId": "delete_record_api_records__record_id__delete",
+    "parameters": [
+     {
+      "name": "record_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Record Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/ai/generate": {
+   "post": {
+    "tags": [
+     "ai"
+    ],
+    "summary": "Generate",
+    "description": "Independent AI API: does not create or update a Record.",
+    "operationId": "generate_api_ai_generate_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/GenerateRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/records/{record_id}/ai": {
+   "post": {
+    "tags": [
+     "ai"
+    ],
+    "summary": "Process Ai",
+    "operationId": "process_ai_api_records__record_id__ai_post",
+    "parameters": [
+     {
+      "name": "record_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Record Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AIRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/team/meta": {
+   "get": {
+    "tags": [
+     "team",
+     "course"
+    ],
+    "summary": "Meta",
+    "operationId": "meta_api_team_meta_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/team/programs": {
+   "get": {
+    "tags": [
+     "team",
+     "course"
+    ],
+    "summary": "Programs",
+    "operationId": "programs_api_team_programs_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/team/recommend": {
+   "post": {
+    "tags": [
+     "team",
+     "course"
+    ],
+    "summary": "Recommend Regions",
+    "operationId": "recommend_regions_api_team_recommend_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RecommendIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/team/courses": {
+   "post": {
+    "tags": [
+     "team",
+     "course"
+    ],
+    "summary": "Create Course",
+    "operationId": "create_course_api_team_courses_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CourseIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/team/courses/{course_id}": {
+   "get": {
+    "tags": [
+     "team",
+     "course"
+    ],
+    "summary": "Get Course",
+    "operationId": "get_course_api_team_courses__course_id__get",
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/team/courses/{course_id}/reasons": {
+   "post": {
+    "tags": [
+     "team",
+     "course"
+    ],
+    "summary": "Course Reasons",
+    "operationId": "course_reasons_api_team_courses__course_id__reasons_post",
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ReasonsIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/team/courses/{course_id}/refund": {
+   "post": {
+    "tags": [
+     "team",
+     "course"
+    ],
+    "summary": "Course Refund",
+    "description": "F3: verdict, estimate and dated steps for this course. Conditions are used once, never stored.",
+    "operationId": "course_refund_api_team_courses__course_id__refund_post",
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RefundIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/team/courses/{course_id}/candidates": {
+   "get": {
+    "tags": [
+     "team",
+     "course"
+    ],
+    "summary": "Swap Candidates",
+    "operationId": "swap_candidates_api_team_courses__course_id__candidates_get",
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     },
+     {
+      "name": "day",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "maximum": 2,
+       "minimum": 1,
+       "title": "Day"
+      }
+     },
+     {
+      "name": "order",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "maximum": 30,
+       "minimum": 1,
+       "title": "Order"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/team/courses/{course_id}/swap": {
+   "post": {
+    "tags": [
+     "team",
+     "course"
+    ],
+    "summary": "Swap Place",
+    "operationId": "swap_place_api_team_courses__course_id__swap_post",
+    "parameters": [
+     {
+      "name": "course_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Course Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SwapIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/team/places/{content_id}": {
+   "get": {
+    "tags": [
+     "team",
+     "course"
+    ],
+    "summary": "Place Detail",
+    "operationId": "place_detail_api_team_places__content_id__get",
+    "parameters": [
+     {
+      "name": "content_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Content Id"
+      }
+     },
+     {
+      "name": "date",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Date"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/team/date-recommendations": {
+   "post": {
+    "tags": [
+     "team",
+     "date-recommend"
+    ],
+    "summary": "Date Recommendations",
+    "operationId": "date_recommendations_api_team_date_recommendations_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DateRecommendIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/benefits/check": {
+   "post": {
+    "tags": [
+     "benefits"
+    ],
+    "summary": "Check Benefits",
+    "operationId": "check_benefits_api_benefits_check_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/BenefitCheckRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/BenefitCheckResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/benefits/sources": {
+   "get": {
+    "tags": [
+     "benefits"
+    ],
+    "summary": "Get Sources",
+    "description": "Public, read-only collection status (no error history, no secrets).",
+    "operationId": "get_sources_api_benefits_sources_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SourcesResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/benefits/{benefit_id}": {
+   "get": {
+    "tags": [
+     "benefits"
+    ],
+    "summary": "Get Benefit",
+    "operationId": "get_benefit_api_benefits__benefit_id__get",
+    "parameters": [
+     {
+      "name": "benefit_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "pattern": "^(manual|gov24|kto50):[A-Za-z0-9_.\\-]{1,80}$",
+       "title": "Benefit Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/BenefitDetailResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/health": {
+   "get": {
+    "summary": "Health",
+    "operationId": "health_api_health_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "AIRequest": {
+    "properties": {
+     "model_id": {
+      "type": "string",
+      "enum": [
+       "global.anthropic.claude-sonnet-5-5",
+       "global.anthropic.claude-sonnet-5",
+       "global.anthropic.claude-sonnet-4-6",
+       "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+       "global.openai.gpt-6-sol",
+       "global.openai.gpt-5.6-sol"
+      ],
+      "title": "Model Id",
+      "default": "global.anthropic.claude-haiku-4-5-20251001-v1:0"
+     },
+     "instruction": {
+      "type": "string",
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Instruction",
+      "default": "입력의 핵심 내용을 한국어로 간결하게 정리해줘."
+     }
+    },
+    "type": "object",
+    "title": "AIRequest"
+   },
+   "AgeRule": {
+    "properties": {
+     "min_age": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min Age"
+     },
+     "max_age": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max Age"
+     },
+     "basis": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "full_age_on_trip_start",
+         "full_age_on_application_date",
+         "full_age_on_fixed_date",
+         "birth_year"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Basis",
+      "description": "None = 판정 기준일 미확인"
+     },
+     "fixed_reference_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Fixed Reference Date"
+     }
+    },
+    "type": "object",
+    "title": "AgeRule"
+   },
+   "BenefitCheckRequest": {
+    "properties": {
+     "departure": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Region"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "출발지 (거주지와 별개)"
+     },
+     "residence": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Region"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "주민등록상 거주지"
+     },
+     "trip_start": {
+      "type": "string",
+      "format": "date",
+      "title": "Trip Start"
+     },
+     "trip_end": {
+      "type": "string",
+      "format": "date",
+      "title": "Trip End"
+     },
+     "visits": {
+      "items": {
+       "$ref": "#/components/schemas/VisitInput"
+      },
+      "type": "array",
+      "maxItems": 20,
+      "minItems": 1,
+      "title": "Visits"
+     },
+     "party_size": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 50.0,
+        "minimum": 1.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Party Size"
+     },
+     "expected_spend_total": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Expected Spend Total"
+     },
+     "birth_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Birth Date"
+     },
+     "age": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 120.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Age",
+      "description": "birth_date가 없을 때, 기준일 현재 만 나이"
+     },
+     "is_family": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Is Family"
+     },
+     "same_address": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Same Address"
+     },
+     "prior_participated_program_ids": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Prior Participated Program Ids",
+      "description": "참여한 사업 ID 목록. [] = 참여 이력 없음, null = 미입력"
+     },
+     "reference_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reference Date",
+      "description": "판정 기준일(신청일로 간주). 기본: 오늘(KST)"
+     },
+     "include_external": {
+      "type": "boolean",
+      "title": "Include External",
+      "default": true
+     }
+    },
+    "type": "object",
+    "required": [
+     "trip_start",
+     "trip_end",
+     "visits"
+    ],
+    "title": "BenefitCheckRequest"
+   },
+   "BenefitCheckResponse": {
+    "properties": {
+     "success": {
+      "type": "boolean",
+      "title": "Success",
+      "description": "모든 자동 수집 출처가 최근에 정상 수집됨"
+     },
+     "partial_failure": {
+      "type": "boolean",
+      "title": "Partial Failure",
+      "description": "일부 출처가 미설정·오류·오래됨·미수집"
+     },
+     "outcome": {
+      "type": "string",
+      "enum": [
+       "candidates_found",
+       "no_match_in_scope",
+       "source_unavailable",
+       "insufficient_information"
+      ],
+      "title": "Outcome"
+     },
+     "message": {
+      "type": "string",
+      "title": "Message"
+     },
+     "checked_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Checked At"
+     },
+     "scope": {
+      "$ref": "#/components/schemas/SearchScope"
+     },
+     "sources": {
+      "items": {
+       "$ref": "#/components/schemas/SourceStatus"
+      },
+      "type": "array",
+      "title": "Sources"
+     },
+     "coverage_note": {
+      "type": "string",
+      "title": "Coverage Note"
+     },
+     "missing_fields": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Missing Fields"
+     },
+     "results": {
+      "items": {
+       "$ref": "#/components/schemas/ProgramEvaluation"
+      },
+      "type": "array",
+      "title": "Results"
+     },
+     "combined_estimate": {
+      "$ref": "#/components/schemas/CombinedEstimate"
+     },
+     "disclaimer": {
+      "type": "string",
+      "title": "Disclaimer"
+     }
+    },
+    "type": "object",
+    "required": [
+     "success",
+     "partial_failure",
+     "outcome",
+     "message",
+     "checked_at",
+     "scope",
+     "sources",
+     "coverage_note",
+     "missing_fields",
+     "results",
+     "combined_estimate",
+     "disclaimer"
+    ],
+    "title": "BenefitCheckResponse"
+   },
+   "BenefitDetailResponse": {
+    "properties": {
+     "benefit": {
+      "$ref": "#/components/schemas/BenefitProgram"
+     },
+     "data_origin": {
+      "type": "string",
+      "enum": [
+       "gov24_api",
+       "kto_tour50",
+       "manual_registry",
+       "merged"
+      ],
+      "title": "Data Origin"
+     },
+     "source_status": {
+      "$ref": "#/components/schemas/SourceStatus"
+     },
+     "stale_status": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stale Status",
+      "description": "status_checked_at older than 7 days, None if unknown"
+     },
+     "disclaimer": {
+      "type": "string",
+      "title": "Disclaimer"
+     }
+    },
+    "type": "object",
+    "required": [
+     "benefit",
+     "data_origin",
+     "source_status",
+     "stale_status",
+     "disclaimer"
+    ],
+    "title": "BenefitDetailResponse"
+   },
+   "BenefitProgram": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "program_id": {
+      "type": "string",
+      "title": "Program Id",
+      "description": "사업 ID (차수와 무관)"
+     },
+     "round_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Round Id",
+      "description": "모집 차수 ID"
+     },
+     "provider": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Provider"
+     },
+     "external_service_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "External Service Id",
+      "description": "gov24 서비스ID"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "target_regions": {
+      "anyOf": [
+       {
+        "items": {
+         "$ref": "#/components/schemas/Region"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Target Regions"
+     },
+     "region_hints": {
+      "items": {
+       "$ref": "#/components/schemas/Region"
+      },
+      "type": "array",
+      "title": "Region Hints",
+      "description": "target_regions 미확인 시 텍스트 일치로 찾은 지역(근거 아님)"
+     },
+     "application_period": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/DateRange"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "application_start_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Application Start At",
+      "description": "원문에 시각이 있을 때만"
+     },
+     "application_end_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Application End At",
+      "description": "원문에 시각이 있을 때만"
+     },
+     "business_period": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/DateRange"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "사업기간(접수·여행 기간과 별개)"
+     },
+     "trip_period": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/DateRange"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "여행 인정 기간"
+     },
+     "posted_status": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "upcoming",
+         "open",
+         "closing_soon",
+         "closed",
+         "closed_early",
+         "budget_exhausted",
+         "ended"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Posted Status"
+     },
+     "status_checked_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Status Checked At"
+     },
+     "budget_remaining": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Budget Remaining",
+      "description": "잔액을 제공하는 출처가 없으면 null"
+     },
+     "contacts": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Contacts"
+     },
+     "residence_rule": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ResidenceRule"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "age_rule": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/AgeRule"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "youth_rule": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/YouthRule"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "party_rule": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/PartyRule"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "family_rule": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/FamilyRule"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "participation_rule": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ParticipationRule"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "benefit": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/BenefitRule"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "visit_rule": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/VisitRule"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "stay_rule": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/StayRule"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "payment_rule": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/PaymentRule"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "proof_items": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Proof Items"
+     },
+     "pre_apply": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/PreApplyRule"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "settlement_days_after_trip": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Settlement Days After Trip"
+     },
+     "payout": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/PayoutRule"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "stackable_with": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stackable With",
+      "description": "중복 적용이 확인된 benefit id"
+     },
+     "official_info_url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Official Info Url"
+     },
+     "application_url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Application Url"
+     },
+     "source_type": {
+      "type": "string",
+      "enum": [
+       "gov24_api",
+       "official_webpage",
+       "official_notice",
+       "news_report",
+       "project_doc"
+      ],
+      "title": "Source Type"
+     },
+     "sources": {
+      "items": {
+       "$ref": "#/components/schemas/SourceRef"
+      },
+      "type": "array",
+      "title": "Sources"
+     },
+     "verification_status": {
+      "type": "string",
+      "enum": [
+       "verified",
+       "unverified"
+      ],
+      "title": "Verification Status"
+     },
+     "last_verified_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Verified At"
+     },
+     "external_updated_at": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "External Updated At",
+      "description": "gov24 수정일시 원문"
+     },
+     "unverified_fields": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Unverified Fields"
+     },
+     "verified_fields": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Verified Fields",
+      "description": "verification_status가 unverified여도 공식 출처(API 구조화 필드)로 확인된 필드"
+     },
+     "conflicts": {
+      "items": {
+       "$ref": "#/components/schemas/FieldConflict"
+      },
+      "type": "array",
+      "title": "Conflicts"
+     },
+     "raw_text": {
+      "additionalProperties": {
+       "type": "string"
+      },
+      "type": "object",
+      "title": "Raw Text",
+      "description": "외부 API 원문 텍스트(해석하지 않음)"
+     },
+     "sync": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/SyncMeta"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "related_program_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Related Program Ids",
+      "description": "관련 가능성만 표시(자동 병합하지 않음)"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "program_id",
+     "name",
+     "source_type",
+     "sources",
+     "verification_status"
+    ],
+    "title": "BenefitProgram"
+   },
+   "BenefitRule": {
+    "properties": {
+     "benefit_type": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "cash_refund",
+         "local_voucher",
+         "onsite_discount"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Benefit Type"
+     },
+     "refund_rate": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 1.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Refund Rate"
+     },
+     "youth_refund_rate": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 1.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Youth Refund Rate"
+     },
+     "min_spend": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min Spend",
+      "description": "0 = confirmed no minimum"
+     },
+     "caps": {
+      "anyOf": [
+       {
+        "items": {
+         "$ref": "#/components/schemas/CapRule"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Caps"
+     },
+     "rounding_unit": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 1.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Rounding Unit",
+      "description": "1 = no rounding"
+     },
+     "lodging_cap": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/LodgingCap"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "eligible_spend": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string",
+         "enum": [
+          "lodging",
+          "food",
+          "cafe",
+          "experience",
+          "admission",
+          "local_product",
+          "shopping",
+          "transport",
+          "other"
+         ]
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Eligible Spend"
+     },
+     "excluded_spend": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string",
+         "enum": [
+          "lodging",
+          "food",
+          "cafe",
+          "experience",
+          "admission",
+          "local_product",
+          "shopping",
+          "transport",
+          "other"
+         ]
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Excluded Spend"
+     },
+     "spend_rule_note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Spend Rule Note"
+     }
+    },
+    "type": "object",
+    "title": "BenefitRule"
+   },
+   "CapRule": {
+    "properties": {
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "amount": {
+      "type": "integer",
+      "minimum": 0.0,
+      "title": "Amount"
+     },
+     "per": {
+      "type": "string",
+      "enum": [
+       "person",
+       "group"
+      ],
+      "title": "Per"
+     },
+     "min_party_size": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min Party Size"
+     },
+     "max_party_size": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max Party Size"
+     },
+     "min_nights": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min Nights"
+     },
+     "max_nights": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max Nights"
+     },
+     "youth": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Youth"
+     },
+     "family": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Family"
+     },
+     "max_persons": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max Persons",
+      "description": "per=person 일 때 인원 상한"
+     },
+     "min_spend": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min Spend",
+      "description": "이 구간의 최소 인정 소비액"
+     }
+    },
+    "type": "object",
+    "required": [
+     "label",
+     "amount",
+     "per"
+    ],
+    "title": "CapRule",
+    "description": "One cap tier. A None condition means the tier applies regardless of that attribute."
+   },
+   "CombinedEstimate": {
+    "properties": {
+     "amount": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Amount"
+     },
+     "benefit_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Benefit Ids"
+     },
+     "note": {
+      "type": "string",
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "note"
+    ],
+    "title": "CombinedEstimate"
+   },
+   "ConditionResult": {
+    "properties": {
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "met",
+       "unmet",
+       "missing_user_info",
+       "unconfirmed_program_rule",
+       "conflict",
+       "not_applicable"
+      ],
+      "title": "Status"
+     },
+     "detail": {
+      "type": "string",
+      "title": "Detail"
+     },
+     "rule_confirmed": {
+      "type": "boolean",
+      "title": "Rule Confirmed",
+      "description": "판정에 쓴 제도 조건이 검증된 출처에서 왔는지"
+     },
+     "user_fields": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "User Fields"
+     },
+     "program_fields": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Program Fields"
+     }
+    },
+    "type": "object",
+    "required": [
+     "code",
+     "label",
+     "status",
+     "detail",
+     "rule_confirmed"
+    ],
+    "title": "ConditionResult"
+   },
+   "CourseIn": {
+    "properties": {
+     "trip_type": {
+      "type": "string",
+      "enum": [
+       "day",
+       "1N2D"
+      ],
+      "title": "Trip Type"
+     },
+     "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Start Date"
+     },
+     "origin": {
+      "type": "string",
+      "title": "Origin"
+     },
+     "interests": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "maxItems": 3,
+      "minItems": 1,
+      "title": "Interests"
+     },
+     "party_size": {
+      "type": "integer",
+      "maximum": 20.0,
+      "minimum": 1.0,
+      "title": "Party Size"
+     },
+     "transport": {
+      "type": "string",
+      "enum": [
+       "car",
+       "transit"
+      ],
+      "title": "Transport",
+      "default": "car"
+     },
+     "residence_code": {
+      "anyOf": [
+       {
+        "type": "string",
+        "pattern": "^\\d{5}$"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Residence Code"
+     },
+     "benefit_conditions": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Benefit Conditions"
+     },
+     "sigungu_code": {
+      "type": "string",
+      "title": "Sigungu Code"
+     },
+     "program_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 100
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Program Id"
+     },
+     "meal_cost_krw": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 200000.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Meal Cost Krw"
+     },
+     "room_price_krw": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 2000000.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Room Price Krw"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "trip_type",
+     "start_date",
+     "origin",
+     "interests",
+     "party_size",
+     "sigungu_code"
+    ],
+    "title": "CourseIn"
+   },
+   "DateRange": {
+    "properties": {
+     "start": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Start"
+     },
+     "end": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "End"
+     }
+    },
+    "type": "object",
+    "title": "DateRange",
+    "description": "``start``/``end`` of None means that side is not confirmed (not open-ended)."
+   },
+   "DateRecommendIn": {
+    "properties": {
+     "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Start Date"
+     },
+     "end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "End Date"
+     },
+     "residence": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "$ref": "#/components/schemas/Region"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Residence",
+      "description": "주민등록상 거주지: 5자리 시군구 코드(meta) 또는 {sido, sigungu}"
+     },
+     "party_size": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 20.0,
+        "minimum": 1.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Party Size"
+     },
+     "birth_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Birth Date"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "start_date",
+     "end_date"
+    ],
+    "title": "DateRecommendIn"
+   },
+   "Estimate": {
+    "properties": {
+     "benefit_type": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "cash_refund",
+         "local_voucher",
+         "onsite_discount"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Benefit Type"
+     },
+     "amount": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Amount"
+     },
+     "amount_kind": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "calculated",
+         "upper_bound"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Amount Kind"
+     },
+     "recognized_spend": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Recognized Spend"
+     },
+     "refund_rate": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Refund Rate"
+     },
+     "cap_label": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cap Label"
+     },
+     "cap_amount": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cap Amount"
+     },
+     "min_spend": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min Spend"
+     },
+     "shortfall_to_min_spend": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Shortfall To Min Spend"
+     },
+     "unavailable_reasons": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Unavailable Reasons"
+     },
+     "notes": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Notes"
+     }
+    },
+    "type": "object",
+    "title": "Estimate"
+   },
+   "ExpectedSpend": {
+    "properties": {
+     "by_category": {
+      "anyOf": [
+       {
+        "additionalProperties": {
+         "type": "integer"
+        },
+        "propertyNames": {
+         "enum": [
+          "lodging",
+          "food",
+          "cafe",
+          "experience",
+          "admission",
+          "local_product",
+          "shopping",
+          "transport",
+          "other"
+         ]
+        },
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "By Category"
+     },
+     "total": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Total"
+     }
+    },
+    "type": "object",
+    "title": "ExpectedSpend"
+   },
+   "FamilyRule": {
+    "properties": {
+     "requires_family": {
+      "type": "boolean",
+      "title": "Requires Family"
+     },
+     "requires_same_address": {
+      "type": "boolean",
+      "title": "Requires Same Address"
+     }
+    },
+    "type": "object",
+    "required": [
+     "requires_family",
+     "requires_same_address"
+    ],
+    "title": "FamilyRule"
+   },
+   "FieldConflict": {
+    "properties": {
+     "field": {
+      "type": "string",
+      "title": "Field"
+     },
+     "values": {
+      "items": {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      "type": "array",
+      "title": "Values",
+      "description": "[{source, value}] — every conflicting value is kept"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "field",
+     "values"
+    ],
+    "title": "FieldConflict"
+   },
+   "GenerateRequest": {
+    "properties": {
+     "model_id": {
+      "type": "string",
+      "enum": [
+       "global.anthropic.claude-sonnet-5-5",
+       "global.anthropic.claude-sonnet-5",
+       "global.anthropic.claude-sonnet-4-6",
+       "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+       "global.openai.gpt-6-sol",
+       "global.openai.gpt-5.6-sol"
+      ],
+      "title": "Model Id",
+      "default": "global.anthropic.claude-haiku-4-5-20251001-v1:0"
+     },
+     "instruction": {
+      "type": "string",
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Instruction",
+      "default": "입력의 핵심 내용을 한국어로 간결하게 정리해줘."
+     },
+     "text": {
+      "type": "string",
+      "maxLength": 4000,
+      "minLength": 1,
+      "title": "Text"
+     }
+    },
+    "type": "object",
+    "required": [
+     "text"
+    ],
+    "title": "GenerateRequest"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "HowToApply": {
+    "properties": {
+     "application_url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Application Url"
+     },
+     "official_info_url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Official Info Url"
+     },
+     "contacts": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Contacts"
+     },
+     "pre_apply_channel": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Pre Apply Channel"
+     },
+     "payment_methods": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Payment Methods"
+     },
+     "proof_items": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Proof Items"
+     },
+     "payout": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/PayoutRule"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "type": "object",
+    "title": "HowToApply"
+   },
+   "LodgingCap": {
+    "properties": {
+     "applies": {
+      "type": "boolean",
+      "title": "Applies"
+     },
+     "amount_per_night": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Amount Per Night"
+     }
+    },
+    "type": "object",
+    "required": [
+     "applies"
+    ],
+    "title": "LodgingCap"
+   },
+   "MatchedVisit": {
+    "properties": {
+     "region": {
+      "$ref": "#/components/schemas/Region"
+     },
+     "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Start Date"
+     },
+     "end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "End Date"
+     },
+     "match_basis": {
+      "type": "string",
+      "enum": [
+       "target_region",
+       "text_hint"
+      ],
+      "title": "Match Basis"
+     }
+    },
+    "type": "object",
+    "required": [
+     "region",
+     "start_date",
+     "end_date",
+     "match_basis"
+    ],
+    "title": "MatchedVisit"
+   },
+   "ParticipationRule": {
+    "properties": {
+     "repeat_allowed": {
+      "type": "boolean",
+      "title": "Repeat Allowed"
+     },
+     "same_program_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Same Program Ids",
+      "description": "Program IDs that count as the same 사업"
+     }
+    },
+    "type": "object",
+    "required": [
+     "repeat_allowed"
+    ],
+    "title": "ParticipationRule"
+   },
+   "PartyRule": {
+    "properties": {
+     "min_size": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min Size"
+     },
+     "max_size": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max Size"
+     }
+    },
+    "type": "object",
+    "title": "PartyRule"
+   },
+   "PaymentRule": {
+    "properties": {
+     "methods": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Methods"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "methods"
+    ],
+    "title": "PaymentRule"
+   },
+   "PayoutRule": {
+    "properties": {
+     "method": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Method"
+     },
+     "voucher_valid_until": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Voucher Valid Until"
+     },
+     "voucher_validity_note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Voucher Validity Note"
+     }
+    },
+    "type": "object",
+    "title": "PayoutRule"
+   },
+   "PreApplyRule": {
+    "properties": {
+     "required": {
+      "type": "boolean",
+      "title": "Required"
+     },
+     "days_before_trip": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Days Before Trip",
+      "description": "deadline = trip start - N days (inclusive). None = 기한 미확인"
+     },
+     "channel": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Channel"
+     }
+    },
+    "type": "object",
+    "required": [
+     "required"
+    ],
+    "title": "PreApplyRule"
+   },
+   "ProgramEvaluation": {
+    "properties": {
+     "benefit_id": {
+      "type": "string",
+      "title": "Benefit Id"
+     },
+     "program_id": {
+      "type": "string",
+      "title": "Program Id"
+     },
+     "round_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Round Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "provider": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Provider"
+     },
+     "data_origin": {
+      "type": "string",
+      "enum": [
+       "gov24_api",
+       "kto_tour50",
+       "manual_registry",
+       "merged"
+      ],
+      "title": "Data Origin"
+     },
+     "source_type": {
+      "type": "string",
+      "enum": [
+       "gov24_api",
+       "official_webpage",
+       "official_notice",
+       "news_report",
+       "project_doc"
+      ],
+      "title": "Source Type"
+     },
+     "verification_status": {
+      "type": "string",
+      "enum": [
+       "verified",
+       "unverified"
+      ],
+      "title": "Verification Status"
+     },
+     "review_status": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "auto_extracted",
+         "needs_review",
+         "conflict",
+         "admin_reviewed"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Review Status"
+     },
+     "data_freshness": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/SyncMeta"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "verdict": {
+      "type": "string",
+      "enum": [
+       "potentially_eligible",
+       "ineligible",
+       "needs_verification"
+      ],
+      "title": "Verdict"
+     },
+     "can_apply_now": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Can Apply Now"
+     },
+     "matched_visits": {
+      "items": {
+       "$ref": "#/components/schemas/MatchedVisit"
+      },
+      "type": "array",
+      "title": "Matched Visits"
+     },
+     "met_conditions": {
+      "items": {
+       "$ref": "#/components/schemas/ConditionResult"
+      },
+      "type": "array",
+      "title": "Met Conditions"
+     },
+     "unmet_conditions": {
+      "items": {
+       "$ref": "#/components/schemas/ConditionResult"
+      },
+      "type": "array",
+      "title": "Unmet Conditions"
+     },
+     "unresolved_conditions": {
+      "items": {
+       "$ref": "#/components/schemas/ConditionResult"
+      },
+      "type": "array",
+      "title": "Unresolved Conditions"
+     },
+     "missing_user_fields": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Missing User Fields"
+     },
+     "official_checks_needed": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Official Checks Needed"
+     },
+     "timeline": {
+      "$ref": "#/components/schemas/Timeline"
+     },
+     "estimate": {
+      "$ref": "#/components/schemas/Estimate"
+     },
+     "how_to_apply": {
+      "$ref": "#/components/schemas/HowToApply"
+     },
+     "sources": {
+      "items": {
+       "$ref": "#/components/schemas/SourceRef"
+      },
+      "type": "array",
+      "title": "Sources"
+     },
+     "last_verified_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Verified At"
+     },
+     "conflicts": {
+      "items": {
+       "$ref": "#/components/schemas/FieldConflict"
+      },
+      "type": "array",
+      "title": "Conflicts"
+     },
+     "related_program_ids": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Related Program Ids"
+     }
+    },
+    "type": "object",
+    "required": [
+     "benefit_id",
+     "program_id",
+     "round_id",
+     "name",
+     "provider",
+     "data_origin",
+     "source_type",
+     "verification_status",
+     "review_status",
+     "data_freshness",
+     "verdict",
+     "can_apply_now",
+     "matched_visits",
+     "met_conditions",
+     "unmet_conditions",
+     "unresolved_conditions",
+     "missing_user_fields",
+     "official_checks_needed",
+     "timeline",
+     "estimate",
+     "how_to_apply",
+     "sources",
+     "last_verified_at",
+     "conflicts"
+    ],
+    "title": "ProgramEvaluation"
+   },
+   "ReasonsIn": {
+    "properties": {
+     "day": {
+      "type": "integer",
+      "maximum": 2.0,
+      "minimum": 1.0,
+      "title": "Day"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "day"
+    ],
+    "title": "ReasonsIn"
+   },
+   "RecommendIn": {
+    "properties": {
+     "trip_type": {
+      "type": "string",
+      "enum": [
+       "day",
+       "1N2D"
+      ],
+      "title": "Trip Type"
+     },
+     "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Start Date"
+     },
+     "origin": {
+      "type": "string",
+      "title": "Origin"
+     },
+     "interests": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "maxItems": 3,
+      "minItems": 1,
+      "title": "Interests"
+     },
+     "party_size": {
+      "type": "integer",
+      "maximum": 20.0,
+      "minimum": 1.0,
+      "title": "Party Size"
+     },
+     "transport": {
+      "type": "string",
+      "enum": [
+       "car",
+       "transit"
+      ],
+      "title": "Transport",
+      "default": "car"
+     },
+     "residence_code": {
+      "anyOf": [
+       {
+        "type": "string",
+        "pattern": "^\\d{5}$"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Residence Code"
+     },
+     "benefit_conditions": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Benefit Conditions"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "trip_type",
+     "start_date",
+     "origin",
+     "interests",
+     "party_size"
+    ],
+    "title": "RecommendIn"
+   },
+   "RecordCreate": {
+    "properties": {
+     "title": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Title"
+     },
+     "content": {
+      "type": "string",
+      "title": "Content",
+      "default": ""
+     }
+    },
+    "type": "object",
+    "required": [
+     "title"
+    ],
+    "title": "RecordCreate"
+   },
+   "RecordRead": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "content": {
+      "type": "string",
+      "title": "Content"
+     },
+     "ai_result": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ai Result"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "title",
+     "content",
+     "ai_result",
+     "created_at",
+     "updated_at"
+    ],
+    "title": "RecordRead"
+   },
+   "RecordUpdate": {
+    "properties": {
+     "title": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200,
+        "minLength": 1
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Title"
+     },
+     "content": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Content"
+     }
+    },
+    "type": "object",
+    "title": "RecordUpdate"
+   },
+   "RefundIn": {
+    "properties": {
+     "residence_code": {
+      "anyOf": [
+       {
+        "type": "string",
+        "pattern": "^\\d{5}$"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Residence Code"
+     },
+     "benefit_conditions": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Benefit Conditions"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "title": "RefundIn"
+   },
+   "Region": {
+    "properties": {
+     "sido": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 30
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sido",
+      "description": "시·도, 예: 전라남도"
+     },
+     "sigungu": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 30
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sigungu",
+      "description": "시·군·구, 예: 무안군"
+     }
+    },
+    "type": "object",
+    "title": "Region"
+   },
+   "ResidenceRule": {
+    "properties": {
+     "excluded_regions": {
+      "items": {
+       "$ref": "#/components/schemas/Region"
+      },
+      "type": "array",
+      "title": "Excluded Regions",
+      "description": "[] with scope=listed = confirmed no residence exclusion"
+     },
+     "exclude_scope": {
+      "type": "string",
+      "enum": [
+       "listed",
+       "visited_target_regions"
+      ],
+      "title": "Exclude Scope",
+      "description": "visited_target_regions: residents of the target region being visited are excluded",
+      "default": "listed"
+     }
+    },
+    "type": "object",
+    "title": "ResidenceRule"
+   },
+   "SearchScope": {
+    "properties": {
+     "trip_start": {
+      "type": "string",
+      "format": "date",
+      "title": "Trip Start"
+     },
+     "trip_end": {
+      "type": "string",
+      "format": "date",
+      "title": "Trip End"
+     },
+     "reference_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Reference Date"
+     },
+     "visits": {
+      "items": {
+       "$ref": "#/components/schemas/VisitScope"
+      },
+      "type": "array",
+      "title": "Visits"
+     },
+     "gov24_keywords": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Gov24 Keywords"
+     }
+    },
+    "type": "object",
+    "required": [
+     "trip_start",
+     "trip_end",
+     "reference_date",
+     "visits",
+     "gov24_keywords"
+    ],
+    "title": "SearchScope"
+   },
+   "SourceRef": {
+    "properties": {
+     "source_type": {
+      "type": "string",
+      "enum": [
+       "gov24_api",
+       "official_webpage",
+       "official_notice",
+       "news_report",
+       "project_doc"
+      ],
+      "title": "Source Type"
+     },
+     "title": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Title"
+     },
+     "url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Url"
+     },
+     "retrieved_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Retrieved At"
+     },
+     "note": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "source_type"
+    ],
+    "title": "SourceRef"
+   },
+   "SourceStatus": {
+    "properties": {
+     "source": {
+      "type": "string",
+      "enum": [
+       "gov24_api",
+       "kto_tour50",
+       "manual_registry"
+      ],
+      "title": "Source"
+     },
+     "status": {
+      "type": "string",
+      "enum": [
+       "ok",
+       "partial",
+       "error",
+       "not_configured",
+       "skipped",
+       "never_synced"
+      ],
+      "title": "Status"
+     },
+     "data_origin": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "live_api",
+         "cache",
+         "mixed",
+         "local_registry",
+         "stored_sync"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Data Origin"
+     },
+     "collection_method": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "public_api",
+         "official_webpage",
+         "admin_registry"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Collection Method"
+     },
+     "last_attempt_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Attempt At"
+     },
+     "last_success_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Success At"
+     },
+     "stale": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stale"
+     },
+     "refresh_interval_seconds": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Refresh Interval Seconds"
+     },
+     "queries": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Queries"
+     },
+     "pages_fetched": {
+      "type": "integer",
+      "title": "Pages Fetched",
+      "default": 0
+     },
+     "records_seen": {
+      "type": "integer",
+      "title": "Records Seen",
+      "default": 0
+     },
+     "candidates": {
+      "type": "integer",
+      "title": "Candidates",
+      "default": 0
+     },
+     "truncated": {
+      "type": "boolean",
+      "title": "Truncated",
+      "default": false
+     },
+     "fetched_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Fetched At"
+     },
+     "error_code": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Error Code"
+     },
+     "message": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Message"
+     }
+    },
+    "type": "object",
+    "required": [
+     "source",
+     "status"
+    ],
+    "title": "SourceStatus"
+   },
+   "SourcesResponse": {
+    "properties": {
+     "checked_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Checked At"
+     },
+     "update_method": {
+      "type": "string",
+      "title": "Update Method"
+     },
+     "sources": {
+      "items": {
+       "$ref": "#/components/schemas/SourceStatus"
+      },
+      "type": "array",
+      "title": "Sources"
+     }
+    },
+    "type": "object",
+    "required": [
+     "checked_at",
+     "update_method",
+     "sources"
+    ],
+    "title": "SourcesResponse"
+   },
+   "StayRule": {
+    "properties": {
+     "min_nights": {
+      "type": "integer",
+      "title": "Min Nights"
+     },
+     "checkin_weekdays": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "integer"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Checkin Weekdays",
+      "description": "0=월 … 6=일. None = 요일 제한 없음(규칙 자체는 확인됨)"
+     },
+     "checkin_scope": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "first",
+         "all"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Checkin Scope",
+      "description": "요일 조건을 첫 체크인에만/모든 체크인에 적용. None = 미확인"
+     }
+    },
+    "type": "object",
+    "required": [
+     "min_nights"
+    ],
+    "title": "StayRule"
+   },
+   "SwapIn": {
+    "properties": {
+     "day": {
+      "type": "integer",
+      "maximum": 2.0,
+      "minimum": 1.0,
+      "title": "Day"
+     },
+     "order": {
+      "type": "integer",
+      "maximum": 30.0,
+      "minimum": 1.0,
+      "title": "Order"
+     },
+     "content_id": {
+      "type": "string",
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Content Id"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "day",
+     "order",
+     "content_id"
+    ],
+    "title": "SwapIn"
+   },
+   "SyncMeta": {
+    "properties": {
+     "source": {
+      "type": "string",
+      "title": "Source"
+     },
+     "source_key": {
+      "type": "string",
+      "title": "Source Key"
+     },
+     "record_version": {
+      "type": "integer",
+      "title": "Record Version"
+     },
+     "review_status": {
+      "type": "string",
+      "enum": [
+       "auto_extracted",
+       "needs_review",
+       "conflict",
+       "admin_reviewed"
+      ],
+      "title": "Review Status"
+     },
+     "review_notes": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Review Notes"
+     },
+     "source_updated_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Source Updated At",
+      "description": "원본이 제공한 수정 시각, 없으면 null"
+     },
+     "last_attempt_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Attempt At"
+     },
+     "last_success_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Success At"
+     },
+     "content_changed_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Content Changed At"
+     },
+     "missing_from_source_since": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Missing From Source Since"
+     },
+     "stale": {
+      "type": "boolean",
+      "title": "Stale",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "source",
+     "source_key",
+     "record_version",
+     "review_status"
+    ],
+    "title": "SyncMeta",
+    "description": "Collection timestamps of a stored external record (None for manual entries)."
+   },
+   "Timeline": {
+    "properties": {
+     "application_period": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/DateRange"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "application_start_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Application Start At"
+     },
+     "application_end_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Application End At"
+     },
+     "application_closed": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Application Closed"
+     },
+     "pre_apply_deadline": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Pre Apply Deadline"
+     },
+     "pre_apply_deadline_passed": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Pre Apply Deadline Passed"
+     },
+     "trip_period": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/DateRange"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "settlement_deadline": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Settlement Deadline"
+     },
+     "posted_status": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "upcoming",
+         "open",
+         "closing_soon",
+         "closed",
+         "closed_early",
+         "budget_exhausted",
+         "ended"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Posted Status"
+     },
+     "status_checked_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Status Checked At"
+     },
+     "budget_remaining": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Budget Remaining",
+      "description": "제공 출처 없음 → null. 접수중 문구로 추정하지 않음"
+     }
+    },
+    "type": "object",
+    "title": "Timeline"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "ctx": {
+      "type": "object",
+      "title": "Context"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   },
+   "VisitInput": {
+    "properties": {
+     "region": {
+      "$ref": "#/components/schemas/Region"
+     },
+     "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Start Date"
+     },
+     "end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "End Date"
+     },
+     "nights": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 60.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Nights",
+      "description": "이 지역 숙박 수"
+     },
+     "checkin_dates": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string",
+         "format": "date"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Checkin Dates"
+     },
+     "places": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array",
+        "maxItems": 50
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Places"
+     },
+     "expected_spend": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExpectedSpend"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "type": "object",
+    "required": [
+     "region",
+     "start_date",
+     "end_date"
+    ],
+    "title": "VisitInput"
+   },
+   "VisitRule": {
+    "properties": {
+     "must_include": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Must Include"
+     },
+     "any_of": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Any Of"
+     },
+     "min_any_of": {
+      "type": "integer",
+      "title": "Min Any Of",
+      "default": 0
+     },
+     "min_total_places": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min Total Places"
+     }
+    },
+    "type": "object",
+    "title": "VisitRule"
+   },
+   "VisitScope": {
+    "properties": {
+     "region": {
+      "$ref": "#/components/schemas/Region"
+     },
+     "dates": {
+      "items": {
+       "type": "string",
+       "format": "date"
+      },
+      "type": "array",
+      "title": "Dates"
+     }
+    },
+    "type": "object",
+    "required": [
+     "region",
+     "dates"
+    ],
+    "title": "VisitScope"
+   },
+   "YouthRule": {
+    "properties": {
+     "min_age": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min Age"
+     },
+     "max_age": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max Age"
+     },
+     "basis": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "full_age_on_trip_start",
+         "full_age_on_application_date",
+         "full_age_on_fixed_date",
+         "birth_year"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Basis"
+     },
+     "fixed_reference_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Fixed Reference Date"
+     }
+    },
+    "type": "object",
+    "title": "YouthRule"
+   }
+  }
+ }
+}
