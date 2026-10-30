@@ -37,7 +37,8 @@ backend/app/team/
   course_routes.py     (신규) /api/team/* 엔드포인트
   course_refund.py     (신규) 코스 → 지원제도 판정 입력 변환, 할 일 타임라인(F3)
   program_list.py      (신규) 환급제 한눈에 목록
-  seeds/regions.json · origins.json · interest_map.json · place_overrides.json · demo_places.json
+  seeds/regions.py · origins.py · interest_map.py · place_overrides.py · demo_places.py
+                       (각 모듈의 DATA. JSON이 아닌 .py인 이유: 배포 도구는 backend/app 아래 .py만 서버에 올린다)
 backend/.env.example   (수정) 지원제도 변수 + 관광 변수, 이름만
 scripts/local-env.ps1 · sync-tourism.ps1 (신규), dev-backend.ps1 (수정) — 로컬에서 backend/.env(git 제외) 읽기
 backend/tests/course_fixtures.py · test_tourapi_sync.py · test_recommend_planner.py · test_course_api.py · test_benefit_bridge.py
@@ -95,7 +96,7 @@ docs/region-course-backend.md
 | festivals | searchFestival2 (오늘 31일 전부터 시작한 행사, 시도별) | `place`(타입 15, 행사 기간). 추천은 여행 기간과 겹치는 행사만 센다 | 건너뜀 |
 | hubs | 중심 관광지 × 27 | `hub_rank` (기준연월·시군구 단위로 교체) | 오류·빈 응답이면 기존 행 유지 |
 | related | 연관 관광지 × 27 | `related_place` | 같음 |
-| match | 이름 정규화 + 같은 시군구(+좌표 0.5km) → 보수적 별칭(지점명 `/…` 제거, `·` 병기 분리, 해수욕장≈해변, 앞의 시군구명 제거)으로 한 곳만 맞을 때 → 실패한 상위 10위 중심 관광지만 searchKeyword2 → `seeds/place_overrides.json` | `content_id` 채움, 매칭률 출력 | — |
+| match | 이름 정규화 + 같은 시군구(+좌표 0.5km) → 보수적 별칭(지점명 `/…` 제거, `·` 병기 분리, 해수욕장≈해변, 앞의 시군구명 제거)으로 한 곳만 맞을 때 → 실패한 상위 10위 중심 관광지만 searchKeyword2 → `seeds/place_overrides.py` | `content_id` 채움, 매칭률 출력 | — |
 | details | 시군구별 중심 관광지 상위 5곳 detailCommon2·detailIntro2 | 소개·쉬는날·이용시간·요금 | 한도 초과면 중단 |
 
 - 전체 수집 1회 실제 호출은 460회로 API별 일일 1,000회 안이다(`--details-top`, `--keyword-limit`로 조절).
@@ -393,7 +394,7 @@ GET /api/team/programs
 **F1** (`recommend.py`)
 - 출발지 → 시군구 대표 좌표(중심 관광지 상위 5곳 평균, 없으면 캐시 장소 평균) 이동시간이 당일 150분·1박2일 240분을 넘으면 뺀다.
 - 그룹: 위 배지표. 그룹 안 점수 100점 = 취향 40(관광지·문화시설·레포츠 중 관심 분야 비율, 맛집 선택 시 음식점 포함) + 접근성 30(60분 이하 만점, 상한까지 선형) + 대표 관광지 20(중심 관광지 상위 5곳 중 관심 분야 1곳당 4점) + 시기 10(여행 기간 축제·행사). 동점은 지원 상한 큰 순 → 시군구 코드 순.
-- 이유 태그 2~4개, 관광지 후보는 중심 관광지 상위 10 → 그 연관 관광지(같은 시군구 먼저) → 나머지 캐시 순, 관심 분야로 거른다. 시군구 관광지가 5곳 미만이면 `seeds/demo_places.json`으로 채우고 `source: "demo"`.
+- 이유 태그 2~4개, 관광지 후보는 중심 관광지 상위 10 → 그 연관 관광지(같은 시군구 먼저) → 나머지 캐시 순, 관심 분야로 거른다. 시군구 관광지가 5곳 미만이면 `seeds/demo_places.py`로 채우고 `source: "demo"`.
 
 **F2** (`planner.py`)
 - 체류: 관광지 90·문화시설 60(관람 소요시간 있으면 그 값)·레포츠 120·식사 60분. 이동: 20km 이상 ×1.3÷60km/h, 미만 ×1.4÷35km/h, +5분, 대중교통 ×1.5. 40분 초과 구간 `move_warning`.
@@ -428,9 +429,9 @@ cd backend
 - [ ] **서버 반영 전.** 수집은 로컬 `.local-data`에만 했다. 서버에 `main`을 배포하고 서비스 환경변수에 키를 넣은 뒤 서버에서 수집 명령을 한 번 돌려야 한다(로컬 DB는 올리지 않는다).
 - [ ] 공공서비스(혜택) API(지원제도 담당 쪽)는 이번에 받은 키 목록에 없어 켜지 않았다. 같은 계정에서 그 API 활용신청이 승인돼 있으면 `KIROTHON_DATA_GO_KR_SERVICE_KEY`에 같은 키를 넣으면 된다. 그전까지 `benefit_lookup.status`는 `partial`이다.
 - [ ] 지원제도 수동 등록 자료가 모두 미검증(공고 원문 미검토)이라 무안 반값여행·섬 반값여행은 `needs_verification`까지만 나온다. 반값여행 현황 차수도 관광공사 페이지 기준이라 미검증이다. 지원제도 담당의 공고 검토(그쪽 작업 10번)가 끝나야 `applicable`이 나온다.
-- [ ] 중심 관광지 이름 매칭 30.5%. 남은 것 중 관광지인데 못 맞춘 것은 `seeds/place_overrides.json`에 사람이 확인해 넣는다.
-- [ ] `seeds/origins.json` 좌표는 구청·역 위치 근사값이다(이동시간 추정용).
-- [ ] `seeds/demo_places.json`은 비어 있다. 실제 수집이 되므로 필수는 아니지만, 서버 수집 전 시연이 필요하면 팀이 장소를 확인해 넣는다.
+- [ ] 중심 관광지 이름 매칭 30.5%. 남은 것 중 관광지인데 못 맞춘 것은 `seeds/place_overrides.py`에 사람이 확인해 넣는다.
+- [ ] `seeds/origins.py` 좌표는 구청·역 위치 근사값이다(이동시간 추정용).
+- [ ] `seeds/demo_places.py`는 비어 있다. 실제 수집이 되므로 필수는 아니지만, 서버 수집 전 시연이 필요하면 팀이 장소를 확인해 넣는다.
 - [ ] 서버(Bedrock)에서 실제 AI 문장 품질과 30자·금지어 필터 통과율. 로컬은 mock만 확인했다.
 - [ ] 휴무·이용시간 해석은 단순 규칙이다. 공휴일·격주·계절 운영은 `방문 전 확인`으로만 표시한다(실데이터에서도 '쉬는 날 표기 확인 필요'가 자주 붙는다).
 - [ ] 1박2일은 두 날 중 하루라도 휴무인 관광지를 아예 뺀다(보수적).

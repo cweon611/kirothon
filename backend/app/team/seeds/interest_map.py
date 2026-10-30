@@ -1,4 +1,6 @@
-{
+"""Interest categories mapped to lclsSystm keywords and KorService2 content types."""
+
+DATA = {
   "_note": "분류체계(lclsSystm) 코드는 이 파일에 적지 않는다. sync_tourism이 lclsSystmCode2(lclsSystmListYn=Y) 응답의 분류명에서 keywords를 찾아 코드로 바꾸고 tourism-codes.json에 저장한다. 코드가 아직 없으면 content_types(KorService2 관광타입 ID)로만 판정한다.",
   "interests": [
     {"key": "nature", "label": "자연·바다", "level": 1, "keywords": ["자연"], "content_types": ["12"]},

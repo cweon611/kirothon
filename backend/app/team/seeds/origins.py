@@ -1,4 +1,6 @@
-{
+"""Departure points (gu offices, stations) with approximate coordinates."""
+
+DATA = {
   "_note": "출발지 9곳. 좌표는 구청·역 위치의 근사값(소수 넷째 자리)이며 직선거리 기반 이동시간 추정에만 쓴다. 공식 좌표로 검증하지 않았다.",
   "origins": [
     {"key": "gj-dong", "name": "광주 동구", "sigungu_code": "29110", "lat": 35.1462, "lng": 126.9230},
