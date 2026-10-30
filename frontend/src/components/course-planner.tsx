@@ -1,10 +1,11 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { ArrowLeft, ArrowRight, CalendarDays, Car, Check, ChevronRight, Clock, ExternalLink, House, Info, MapPin, Phone, RefreshCw, RotateCcw, Route, SlidersHorizontal, Sparkles, TrainFront, TriangleAlert, Utensils, Wallet } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CalendarDays, Car, Check, ChevronRight, Clock, House, Info, MapPin, Phone, RefreshCw, RotateCcw, Route, SlidersHorizontal, Sparkles, TrainFront, TriangleAlert, Utensils, Wallet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { type Trip, today, addDays, shortDate, safeUrl } from '@/lib/benefits'
 import { directionsUrl } from '@/lib/directions'
 import { DirectionsLink } from '@/components/directions-link'
+import { EligibilityPanel } from '@/components/eligibility-panel'
 import { type Course, type CourseItem, type PlaceDetail, type Theme, INTERESTS, ORIGINS, courseRequest, courseSummary, courseThemes, errorMessage, formatKrw, interestLabel, originName, sigunguCode, uniqueCourses } from '@/lib/course'
 import './course-planner.css'
 
@@ -71,7 +72,7 @@ export function CoursePlanner({region,trip,interests,residenceOptions,onSave,onN
   const close=()=>{if(history.state?.course)history.back();else setSelectedId(null)}
   const selected=outcome?.rows.find(row=>row.course.id===selectedId)
 
-  if (selected) return <CourseDetail row={selected} trip={trip} onBack={close} onNext={onNext}/>
+  if (selected) return <CourseDetail row={selected} trip={trip} residenceOptions={residenceOptions} onBack={close} onNext={onNext}/>
   return <div className="course-planner">
     <ConditionPanel region={region} trip={trip} interests={interests} residenceOptions={residenceOptions} editing={editing} setEditing={setEditing} onReroll={onReroll}
       onSave={(nextTrip,nextInterests)=>{onSave(nextTrip,nextInterests);setEditing(false)}}/>
@@ -160,13 +161,12 @@ function CourseUnavailable({error,trip,onRetry,onEdit}:{error:{code:string;messa
   </div>
 }
 
-function CourseDetail({row,trip,onBack,onNext}:{row:Row; trip:Trip; onBack:()=>void; onNext:()=>void}) {
+function CourseDetail({row,trip,residenceOptions,onBack,onNext}:{row:Row; trip:Trip; residenceOptions:string[]; onBack:()=>void; onNext:()=>void}) {
   const {course,theme}=row
   const [day,setDay]=useState(0)
   const [placeId,setPlaceId]=useState<string|null>(null)
   const summary=courseSummary(course)
   const current=course.days[day]??course.days[0]
-  const program=course.region.refund_program
   const placeDate=current?.date??course.start_date
   return <div className="course-detail">
     <button className="course-back" onClick={onBack}><ArrowLeft size={17}/> 추천 일정 목록</button>
@@ -189,7 +189,7 @@ function CourseDetail({row,trip,onBack,onNext}:{row:Row; trip:Trip; onBack:()=>v
       {current.home_arrival&&<li className="course-stop course-stop-end"><span className="course-time">{current.return_depart}</span><span className="course-dot"><House size={16}/></span><div className="course-stop-card plain"><strong>귀가 출발</strong><span className="course-move"><Route size={13}/>약 {current.return_move_min}분 · {current.home_arrival} 도착 예정</span></div></li>}
     </ol>}
     {course.spend_breakdown&&course.spend_breakdown.items.length>0&&<details className="course-spend"><summary><Wallet size={17}/> 예상 지출 {formatKrw(course.spend_breakdown.total_krw)} 내역 보기</summary><ul>{course.spend_breakdown.items.map(item=><li key={item.label}><span>{item.label}</span><strong>{formatKrw(item.krw)}</strong></li>)}</ul><p>식비·숙박비 기본값이 들어간 추정치예요. 실제 금액은 장소마다 달라요.</p></details>}
-    {program&&<section className="course-program"><h3><CalendarDays size={17}/> 연결된 여행 지원제도</h3><p><strong>{program.name}</strong>{program.rate?` · 환급률 ${Math.round(program.rate*100)}%`:''}{program.cap_krw?` · 최대 ${formatKrw(program.cap_krw)}`:''}</p>{safeUrl(program.source_url??null)&&<a href={safeUrl(program.source_url??null)} target="_blank" rel="noopener noreferrer">공식 공고 <ExternalLink size={13}/></a>}</section>}
+    <EligibilityPanel key={course.id} source={{kind:'course',courseId:course.id}} trip={trip} residenceOptions={residenceOptions}/>
     <div className="sticky-action course-detail-actions"><button className="text-button" onClick={onBack}>다른 일정 보기</button><Button className="button" onClick={onNext}>이 일정의 혜택 확인하기 <ArrowRight size={18}/></Button></div>
     <PlaceDialog contentId={placeId} date={placeDate} origin={trip.origin} onClose={()=>setPlaceId(null)}/>
   </div>
