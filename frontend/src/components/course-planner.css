@@ -111,7 +111,7 @@
 .place-evidence em{font-style:normal;padding:4px 8px;border-radius:8px;background:var(--teal-pale);color:var(--teal-dark)}
 
 .course-planner button:focus-visible,.course-detail button:focus-visible,.course-detail a:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
-@media(max-width:600px){
+@media(max-width:600px),(min-width:500px){
   .course-conditions{padding:18px 16px}
   .course-card-button{grid-template-columns:70px minmax(0,1fr) 18px;gap:12px;padding:14px}
   .course-card-cover{width:70px;height:70px}
