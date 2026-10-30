@@ -425,6 +425,9 @@ def _check_stay(c: _Ctx):
     if rule is None:
         c.add("stay", label, "unconfirmed_program_rule", "숙박 조건 미확인", program_fields=["stay_rule"])
         return
+    if rule.min_nights == 0 and rule.checkin_weekdays is None:
+        c.add("stay", label, "not_applicable", "숙박 조건 없음(확인됨)")
+        return
     missing = [f"visits[{i}].nights" for i, v, _ in c.visits if v.nights is None]
     if missing:
         c.add("stay", label, "missing_user_info", "지역 숙박 수 미입력", user_fields=missing)
