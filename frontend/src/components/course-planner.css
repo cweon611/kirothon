@@ -85,14 +85,11 @@
 .course-stop-notes{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .course-stop-notes span{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:8px;background:var(--teal-wash);font-size:11px;color:var(--teal-dark)}
 .course-stop-notes span.warn{background:var(--yellow-pale);color:var(--orange)}
-.course-spend,.course-program{margin-top:16px;padding:16px 18px;border:1px solid var(--gray-200);border-radius:14px;background:var(--white)}
+.course-spend{margin-top:16px;padding:16px 18px;border:1px solid var(--gray-200);border-radius:14px;background:var(--white)}
 .course-spend summary{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;cursor:pointer}
 .course-spend ul{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:8px;font-size:13px}
 .course-spend li{display:flex;justify-content:space-between;gap:12px}
 .course-spend p{margin:10px 0 0;font-size:11px;color:var(--gray-600)}
-.course-program h3{display:flex;align-items:center;gap:6px;margin:0 0 6px;font-size:14px}
-.course-program p{margin:0;font-size:13px}
-.course-program a{display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:12px;font-weight:700;color:var(--teal-dark)}
 .course-detail-actions{display:flex;justify-content:space-between;align-items:center;gap:12px}
 
 /* Place dialog */
