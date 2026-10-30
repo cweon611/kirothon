@@ -17,6 +17,7 @@ from urllib.parse import unquote
 import httpx
 
 BASE_URL = "https://apis.data.go.kr/B551011"
+STANDARD_SITES_URL = "https://api.data.go.kr/openapi/tn_pubr_public_trrsrt_api"
 KEY_ENV = "TOURAPI_SERVICE_KEY"
 # A data.go.kr key belongs to the account, so the benefits module's key also works
 # once the tourism APIs are approved for that account.
@@ -110,7 +111,25 @@ class TourApiClient:
         query = {"serviceKey": self._key, "MobileOS": "WEB", "MobileApp": self._app, "_type": "json",
                  "pageNo": 1, "numOfRows": 100}
         query.update({k: v for k, v in params.items() if v is not None})
-        url = f"{BASE_URL}/{service}/{operation}"
+        return self._request(f"{BASE_URL}/{service}/{operation}", query, f"{service}/{operation}")
+
+    def get_standard_sites(self, page_no: int = 1, num_of_rows: int = 1000) -> Page:
+        """전국관광지정보표준데이터 (data.go.kr 15021141): type=json, no MobileOS/MobileApp."""
+        query = {"serviceKey": self._key, "pageNo": page_no, "numOfRows": num_of_rows, "type": "json"}
+        return self._request(STANDARD_SITES_URL, query, "tn_pubr_public_trrsrt_api")
+
+    def fetch_standard_sites(self, num_of_rows: int = 1000, max_pages: int = 10) -> tuple[list[dict], int, bool]:
+        items: list[dict] = []
+        total = 0
+        for page_no in range(1, max_pages + 1):
+            page = self.get_standard_sites(page_no, num_of_rows)
+            items.extend(page.items)
+            total = page.total_count
+            if not page.items or page_no * num_of_rows >= total:
+                break
+        return items, total, total > len(items)
+
+    def _request(self, url: str, query: dict, label: str) -> Page:
         last: TourApiError | None = None
         for attempt in range(self._retries + 1):
             if attempt:
@@ -120,21 +139,19 @@ class TourApiClient:
             try:
                 response = self._client.get(url, params=query)
             except httpx.TimeoutException:
-                last = TourApiError("timeout", f"{service}/{operation} 응답 시간 초과({self._timeout:.0f}초)")
+                last = TourApiError("timeout", f"{label} 응답 시간 초과({self._timeout:.0f}초)")
                 continue
             except httpx.HTTPError as exc:
                 # The exception text can contain the request URL with the key.
-                last = TourApiError("http", f"{service}/{operation} 연결 실패({type(exc).__name__})")
+                last = TourApiError("http", f"{label} 연결 실패({type(exc).__name__})")
                 continue
             if response.status_code == 429 or response.status_code >= 500:
-                last = TourApiError("http", f"{service}/{operation} HTTP {response.status_code}",
-                                    str(response.status_code))
+                last = TourApiError("http", f"{label} HTTP {response.status_code}", str(response.status_code))
                 continue
             if response.status_code >= 400:
-                raise TourApiError("http", f"{service}/{operation} HTTP {response.status_code}",
-                                   str(response.status_code))
+                raise TourApiError("http", f"{label} HTTP {response.status_code}", str(response.status_code))
             try:
-                return parse_page(response.text, f"{service}/{operation}")
+                return parse_page(response.text, label)
             except TourApiError as exc:
                 if exc.code in RETRYABLE_CODES:
                     last = exc
@@ -176,6 +193,8 @@ def parse_page(text: str, label: str) -> Page:
         if code is None:
             raise TourApiError("parse", f"{label} 응답을 해석하지 못했습니다(JSON 아님).") from None
         raise _code_error(label, code, reason) from None
+    if isinstance(data, dict) and "response" not in data and isinstance(data.get("header"), dict):
+        data = {"response": data}  # standard-data APIs (api.data.go.kr/openapi) have no "response" wrapper
     if not isinstance(data, dict) or not isinstance(data.get("response"), dict):
         raise TourApiError("parse", f"{label} 응답에 response 항목이 없습니다.")
     header = data["response"].get("header") or {}

@@ -52,6 +52,7 @@ class RegionResult:
 
 def classify(programs: tuple[ProgramSummary, ...], trip_type: str) -> tuple[ProgramSummary | None, str, bool]:
     """Return (representative program, badge, is_group1)."""
+    programs = tuple(p for p in programs if not p.superseded_by) or programs
     if not programs:
         return None, "none", False
 

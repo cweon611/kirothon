@@ -5,6 +5,7 @@ nights, check-in date, party size, residence) and runs the same stored-data
 evaluation as POST /api/benefits/check. No external calls are made, and the
 engine's verdicts are passed through unchanged; F1/F2 only read them.
 """
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 
 from pydantic import ValidationError
@@ -76,6 +77,8 @@ def summarize(ev: ProgramEvaluation, program: BenefitProgram, code: str, query: 
         unmet_codes=tuple(r.code for r in ev.unmet_conditions),
         constraints=CourseConstraints(
             required_place_names=tuple(visit.must_include) if visit and visit.must_include else None,
+            any_of_place_names=tuple(visit.any_of) if visit and visit.any_of and visit.min_any_of else None,
+            min_any_of=visit.min_any_of if visit and visit.any_of and visit.min_any_of else None,
             min_spots=visit.min_total_places if visit else None,
             min_nights=stay.min_nights if stay else None,
             stay_checkin_weekdays=tuple(stay.checkin_weekdays) if stay and stay.checkin_weekdays is not None
@@ -113,8 +116,16 @@ class BenefitsEnginePort:
         manual_count = 0
         for code, request in requests.items():
             programs, manual_count = collect_stored(stored, rules.visit_regions(request))
-            found = [summarize(ev, program, code, query) for program, origin in programs
+            pairs = [(ev, program) for program, origin in programs
                      if (ev := rules.evaluate(program, origin, request, query.today))]
+            official = {ev.program_id for ev, _ in pairs if ev.data_origin != "manual_registry"}
+            found = []
+            for ev, program in pairs:
+                summary = summarize(ev, program, code, query)
+                linked = tuple(i for i in program.related_program_ids if i in official)
+                if ev.data_origin == "manual_registry" and linked:
+                    summary = replace(summary, superseded_by=linked)
+                found.append(summary)
             if found:
                 by_region[code] = tuple(found)
         return BenefitLookup(

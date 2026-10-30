@@ -1,4 +1,5 @@
 """HTTP contract of /api/team/* for the frontend (validation, storage, swap, reasons, privacy)."""
+from datetime import date
 import json
 
 import pytest
@@ -194,6 +195,46 @@ def test_course_applies_benefits_engine_constraints(client):
     assert "무안황토갯벌랜드" in warnings["required_place_unmatched"]["message"]
     elsewhere = client.post("/api/team/courses", json={**TRIP, "sigungu_code": "46860", "program_id": MUAN_PROGRAM})
     assert any(w["code"] == "program_not_found" for w in elsewhere.json()["warnings"])
+
+
+def test_course_refund_links_course_to_benefit_check(client):
+    course = client.post("/api/team/courses", json={**TRIP, "sigungu_code": MUAN, "program_id": MUAN_PROGRAM}).json()
+    res = client.post(f"/api/team/courses/{course['id']}/refund",
+                      json={"residence_code": RESIDENCE, "benefit_conditions": {"birth_date": "1995-03-01"}})
+    assert res.status_code == 200, res.text
+    data = res.json()
+    selected = data["selected"]
+    assert selected["benefit_id"] == MUAN_PROGRAM and selected["is_course_program"]
+    assert data["check"]["outcome"] in ("candidates_found", "insufficient_information")
+    keys = [s["key"] for s in selected["steps"]]
+    assert keys[0] in ("application_close", "pre_apply") and keys[-2:] == ["settle", "payout"]
+    settle = next(s for s in selected["steps"] if s["key"] == "settle")
+    if settle["due"]:
+        assert settle["d_day"] == (date.fromisoformat(settle["due"]) - date(2026, 11, 2)).days
+    else:
+        assert settle["due_text"]
+    visits = data["spend_input"]["visits"]
+    muan = next(v for v in visits if v["region"]["sigungu"] == "무안군")
+    assert muan["nights"] == 1 and muan["expected_spend"]["by_category"]["lodging"] == 100_000
+    assert RESIDENCE not in json.dumps(data["spend_input"])
+    bad = client.post(f"/api/team/courses/{course['id']}/refund", json={"benefit_conditions": {"age": "old"}})
+    assert bad.status_code == 422 and bad.json()["code"] == "invalid_benefit_conditions"
+    assert client.post("/api/team/courses/nope1234/refund", json={}).status_code == 404
+
+
+def test_programs_list_filters_region_and_flags_superseded(client):
+    from test_benefit_sync import aside, gangjin, jangheung, page, schedule, sync_tour50
+    other = (schedule(90, "51830", "양양", [("1차", "여행기간 : 11.01~11.30<br>신청접수 : 10.20~", True)]),
+             aside(90, "51830", "양양군", "ONGOING", "● 1차 여행기간 : 11.01~11.30", sido="강원특별자치도"))
+    assert sync_tour50(page(jangheung(), gangjin(), other)).status == "ok"
+    data = client.get("/api/team/programs").json()
+    names = [p["name"] for p in data["programs"]]
+    assert not any("양양" in n for n in names)
+    by_id = {p["program_id"]: p for p in data["programs"]}
+    assert by_id["manual:jangheung-vacation-2026h2"]["superseded_by"] == ["kto50:12770:2026"]
+    assert by_id["kto50:12780-2026-3"]["open_now"] is True and by_id["kto50:12780-2026-3"]["sigungu_codes"] == ["46810"]
+    assert data["programs"][0]["open_now"] is True
+    assert client.get("/api/team/meta").json()["programs_open"] == data["counts"]["open_now"]
 
 
 def test_empty_cache_is_explicit(client):
