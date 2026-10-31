@@ -116,12 +116,22 @@ export default function App() {
     }).catch(()=>{if(active)setError('혜택 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.')}).finally(()=>{clearTimeout(timeout);if(active)setLoading(false)})
     return ()=>{active=false;clearTimeout(timeout);controller.abort()}
   },[retry])
+  // Each screen is one history entry ({step, idx}); idx counts screens since the app opened, so the
+  // in-page back button and the browser back button always land on the same, previously seen screen.
+  useEffect(()=>{history.replaceState({step:0,idx:0},'',location.pathname+location.search)},[])
   useEffect(()=>{
-    const back=()=>{const value=Number(location.hash.replace('#step-',''));setStep(value>=1&&value<=5&&(value<=2||selectedId)?value-1:0)}
+    const back=()=>{const value=Number(history.state?.step??0);setStep(value>=0&&value<=4&&(value<=1||selectedId)?value:0)}
     window.addEventListener('popstate',back);return ()=>window.removeEventListener('popstate',back)
   },[selectedId])
   useEffect(()=>{window.scrollTo({top:0,behavior:'instant'}); if(step)heading.current?.focus()},[step])
-  const go=(value:number)=>{if(value>0&&(!trip.date||trip.date<today())){setNotice('오늘 이후의 여행 시작일을 선택해 주세요.');setStep(0);return}setNotice('');setStep(value);window.scrollTo({top:0,behavior:'instant'});history.pushState(null,'',`#step-${value+1}`)}
+  const home=()=>{const idx=Number(history.state?.idx??0); if(idx>0)history.go(-idx); else setStep(0)}
+  const go=(value:number)=>{
+    if(value===0){setNotice('');home();return}
+    if(!trip.date||trip.date<today()){setNotice('오늘 이후의 여행 시작일을 선택해 주세요.');home();return}
+    setNotice('');setStep(value);window.scrollTo({top:0,behavior:'instant'})
+    history.pushState({step:value,idx:Number(history.state?.idx??0)+1},'',`#step-${value+1}`)
+  }
+  const goBack=()=>{if(Number(history.state?.idx??0)>0)history.back(); else home()}
   const choose=(row:Benefit)=>{setSelectedId(row.region_name);go(2)}
 
   const matching=data.filter(row=>row.present_in_source&&inPeriod(row,trip)&&row.region_name.includes(search.trim())&&(!onlyOpen||isOpen(row))).sort((a,b)=>Number(isOpen(b))-Number(isOpen(a))||a.region_name.localeCompare(b.region_name,'ko'))
@@ -150,7 +160,7 @@ export default function App() {
       <div className={step===0?'dart-home-screen':'content-screen'}>
         <header className="site-header"><Brand onClick={()=>go(0)}/><span className="slogan">지역 여행 추천·혜택 안내</span><button className="icon-button" aria-label="이용 안내" onClick={()=>setHelpOpen(true)}><CircleHelp size={21}/></button></header>
         <div className="mobile-step-label">{String(step+1).padStart(2,'0')} / 05 <span>{steps[step]}</span></div>
-        {step>0&&<div className="page-header"><button className="back-button" aria-label="이전 단계로" onClick={()=>go(step-1)}><ArrowLeft size={20}/></button><div><span className="page-step">STEP 0{step+1}</span><h1 ref={heading} tabIndex={-1} className="page-title">{title}</h1></div></div>}
+        {step>0&&<div className="page-header"><button className="back-button" aria-label="이전 단계로" onClick={goBack}><ArrowLeft size={20}/></button><div><span className="page-step">STEP 0{step+1}</span><h1 ref={heading} tabIndex={-1} className="page-title">{title}</h1></div></div>}
         {notice&&<div role="status" className="inline-feedback">{notice}</div>}
         {step===0&&<Suspense fallback={<div className="empty-state" role="status" style={{background:"#18384a",color:"#ececdd",borderColor:"#48626c",marginTop:30}}>여행 지도를 펼치고 있어요.</div>}><DestinationDart data={data} loading={loading} error={error} onRetry={()=>setRetry(value=>value+1)} origin={trip.origin} onChoose={row=>{setSelectedId(row.id);go(2)}} onBrowse={()=>{setOnlyOpen(false);setSearch('');go(1)}}/></Suspense>}
         {step===1&&<>

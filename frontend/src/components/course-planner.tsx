@@ -68,7 +68,7 @@ export function CoursePlanner({region,trip,interests,residenceOptions,onSave,onN
     window.addEventListener('popstate',back)
     return ()=>window.removeEventListener('popstate',back)
   },[])
-  const open=(id:string)=>{history.pushState({course:id},'',location.hash);setSelectedId(id);window.scrollTo({top:0,behavior:'instant'})}
+  const open=(id:string)=>{history.pushState({...history.state,course:id,idx:Number(history.state?.idx??0)+1},'',location.hash);setSelectedId(id);window.scrollTo({top:0,behavior:'instant'})}
   const close=()=>{if(history.state?.course)history.back();else setSelectedId(null)}
   const selected=outcome?.rows.find(row=>row.course.id===selectedId)
 
