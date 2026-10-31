@@ -1,8 +1,40 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { emptyProfile, userConditions, refundRequest, tripCheckRequest, refundResults, fieldLabel, uniqueLabels, dDay, regionOf, OTHER } from '../src/lib/eligibility.ts'
+import { emptyProfile, userConditions, refundRequest, tripCheckRequest, refundResults, fieldLabel, uniqueLabels, dDay, regionOf, conditionGroups, conditionReviewLabel, OTHER } from '../src/lib/eligibility.ts'
 
 const trip={type:'1박 2일',date:'2026-11-10',origin:'광주 북구',residence:'광주 북구',people:2,transport:'자차'}
+
+test('API met list does not present exempt or unverified rules as fulfilled',()=>{
+  const groups=conditionGroups({met_conditions:[
+    {code:'trip_period',status:'met',rule_confirmed:true},
+    {code:'family',status:'not_applicable',rule_confirmed:true},
+    {code:'age',status:'met',rule_confirmed:false},
+    {code:'pre_apply',status:'not_applicable',rule_confirmed:false},
+  ],unmet_conditions:[]})
+  assert.deepEqual(groups.met.map(c=>c.code),['trip_period'])
+  assert.deepEqual(groups.notApplicable.map(c=>c.code),['family'])
+  assert.deepEqual(groups.review.map(c=>c.code),['age','pre_apply'])
+})
+
+test('unverified failures and unresolved checks stay visible as review items',()=>{
+  const groups=conditionGroups({met_conditions:[],unmet_conditions:[
+    {code:'party_size',status:'unmet',rule_confirmed:true},
+    {code:'posted_status',status:'unmet',rule_confirmed:false},
+  ],unresolved_conditions:[
+    {code:'residence',status:'missing_user_info',rule_confirmed:true},
+    {code:'source',status:'conflict',rule_confirmed:false},
+  ]})
+  assert.deepEqual(groups.unmet.map(c=>c.code),['party_size'])
+  assert.deepEqual(groups.review.map(c=>c.code),['posted_status','residence','source'])
+  assert.equal(conditionReviewLabel(groups.review[1]),'정보 입력 필요')
+  assert.equal(conditionReviewLabel(groups.review[2]),'출처 불일치')
+})
+
+test('partial responses without rule confirmation cannot claim a confirmed match',()=>{
+  const groups=conditionGroups({met_conditions:[{code:'age',status:'met'}]})
+  assert.equal(groups.met.length,0)
+  assert.equal(groups.review.length,1)
+})
 
 test('unknown answers are left out instead of guessed',()=>{
   assert.deepEqual(userConditions(emptyProfile('광주 북구')),{residence:{sido:'광주광역시',sigungu:'북구'}})
@@ -43,8 +75,8 @@ test('group-limited travel support is labelled apart from general support and ne
     met_conditions: [], unmet_conditions: [], missing_user_fields: [], estimate: null })
   const targeted = row('gov24:장애인가족여행', 'targeted'), travel = row('kto50:12780-2026-3', 'general')
   assert.equal(resultVerdict(targeted).label, '특정 대상 전용 · 확인 필요')
-  assert.equal(resultVerdict(travel).label, '확인이 더 필요해요')   // needs_verification is never upgraded
-  assert.equal(resultVerdict(row('x', 'targeted', 'ineligible')).label, '이번 조건으로는 어려워요')
+  assert.equal(resultVerdict(travel).label, '추가 확인 필요')   // needs_verification is never upgraded
+  assert.equal(resultVerdict(row('x', 'targeted', 'ineligible')).label, '미충족 조건 있음')
   // Order is the server's; nothing is moved to the back on the client.
   assert.deepEqual(mergeRefund({ selected: null, check: { results: [targeted, travel] } }).map(r => r.benefit_id), ['gov24:장애인가족여행', 'kto50:12780-2026-3'])
   assert.equal(programKind({ data_origin: 'gov24_api', audience: 'targeted' }), '특정 대상 전용 관광지원')

@@ -50,9 +50,8 @@ button { -webkit-tap-highlight-color: transparent; }
 .site-header { height: 68px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: relative; z-index: 10; }
 .content-screen .site-header { margin: 0 -20px; }
 .brand { appearance: none; border: 0; padding: 0; background: transparent; display: inline-flex; align-items: center; gap: 8px; color: var(--navy); cursor: pointer; }
-.brand-mark { width: 32px; height: 32px; border-radius: 11px 11px 11px 4px; display: grid; place-items: center; color: var(--white); background: var(--teal); transform: rotate(-4deg); }
-.brand-mark svg { transform: rotate(4deg); }
-.brand-name { font-size: 20px; font-weight: 800; letter-spacing: -.06em; }
+.brand { flex-shrink: 0; border-radius: 12px; }
+.brand-logo { display: block; width: 144px; height: 54px; overflow: hidden; border-radius: 12px; }
 .slogan { display: none; color: var(--gray-600); font-size: 12px; }
 .icon-button, .back-button { border: 1px solid var(--gray-200); background: rgba(255,255,255,.78); color: var(--navy); width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; position: relative; cursor: pointer; }
 .notification-dot { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: var(--coral); top: 8px; right: 8px; border: 1px solid var(--white); }

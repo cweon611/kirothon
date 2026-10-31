@@ -76,7 +76,7 @@ export function CoursePlanner({region,trip,interests,residenceOptions,onSave,onN
   return <div className="course-planner">
     <ConditionPanel region={region} trip={trip} interests={interests} residenceOptions={residenceOptions} editing={editing} setEditing={setEditing} onReroll={onReroll}
       onSave={(nextTrip,nextInterests)=>{onSave(nextTrip,nextInterests);setEditing(false)}}/>
-    <div className="course-list-head"><div><span className="course-eyebrow"><Sparkles size={14}/> {region} 안에서 짠 동선</span><h2>추천 일정</h2></div>{!loading&&outcome.rows.length>0&&<span className="course-count">{outcome.rows.length}개 코스</span>}</div>
+    <div className="course-list-head"><div><span className="course-eyebrow"><Sparkles size={14}/> {region} 여행 코스</span><h2>추천 일정</h2></div>{!loading&&outcome.rows.length>0&&<span className="course-count">{outcome.rows.length}개 코스</span>}</div>
     {loading?<div className="course-empty" role="status"><RefreshCw className="loading-spin" size={22}/><p>관광지·식당·숙소를 이어 일정을 짜고 있어요.</p></div>
       :outcome.error?<CourseUnavailable error={outcome.error} trip={trip} onRetry={()=>setRetry(value=>value+1)} onEdit={()=>setEditing(true)}/>
       :<div className="course-cards">{outcome.rows.map((row,i)=><CourseCard key={row.course.id} row={row} best={i===0} onOpen={()=>open(row.course.id)}/>)}</div>}
@@ -181,7 +181,7 @@ function CourseDetail({row,trip,residenceOptions,onBack,onNext}:{row:Row; trip:T
         <div><dt>귀가 예정</dt><dd>{summary.homeArrival??'확인 필요'}</dd></div>
       </dl>
     </section>
-    {course.warnings.length>0&&<section className="course-warnings" aria-label="확인할 점"><h3><TriangleAlert size={17}/> 출발 전에 확인해 주세요</h3><ul>{course.warnings.map(w=><li key={w.code+w.message}>{w.message}{w.suggested_date&&<small> 추천 출발일: {shortDate(w.suggested_date)}</small>}</li>)}</ul></section>}
+    {course.warnings.length>0&&<section className="course-warnings" aria-label="확인할 점"><h3><TriangleAlert size={17}/> 출발 전 확인 사항</h3><ul>{course.warnings.map(w=><li key={w.code+w.message}>{w.message}{w.suggested_date&&<small> 추천 출발일: {shortDate(w.suggested_date)}</small>}</li>)}</ul></section>}
     {course.days.length>1&&<div className="day-tabs" role="group" aria-label="여행 날짜">{course.days.map((d,i)=><button key={d.day} aria-pressed={day===i} className={day===i?'active':''} onClick={()=>setDay(i)}>{d.day}일차 · {shortDate(d.date)}</button>)}</div>}
     {current&&<ol className="course-timeline">
       <li className="course-stop course-stop-start"><span className="course-time">{current.depart}</span><span className="course-dot">{trip.transport==='자차'?<Car size={16}/>:<TrainFront size={16}/>}</span><div className="course-stop-card plain"><strong>{current.start_point} 출발</strong></div></li>
@@ -189,7 +189,7 @@ function CourseDetail({row,trip,residenceOptions,onBack,onNext}:{row:Row; trip:T
       {current.home_arrival&&<li className="course-stop course-stop-end"><span className="course-time">{current.return_depart}</span><span className="course-dot"><House size={16}/></span><div className="course-stop-card plain"><strong>귀가 출발</strong><span className="course-move"><Route size={13}/>약 {current.return_move_min}분 · {current.home_arrival} 도착 예정</span></div></li>}
     </ol>}
     {course.spend_breakdown&&course.spend_breakdown.items.length>0&&<details className="course-spend"><summary><Wallet size={17}/> 예상 지출 {formatKrw(course.spend_breakdown.total_krw)} 내역 보기</summary><ul>{course.spend_breakdown.items.map(item=><li key={item.label}><span>{item.label}</span><strong>{formatKrw(item.krw)}</strong></li>)}</ul><p>식비·숙박비 기본값이 들어간 추정치예요. 실제 금액은 장소마다 달라요.</p></details>}
-    <EligibilityPanel key={course.id} source={{kind:'course',courseId:course.id}} trip={trip} residenceOptions={residenceOptions}/>
+    <EligibilityPanel key={`${course.id}:${trip.residence}`} source={{kind:'course',courseId:course.id}} trip={trip} residenceOptions={residenceOptions}/>
     <div className="sticky-action course-detail-actions"><button className="text-button" onClick={onBack}>다른 일정 보기</button><Button className="button" onClick={onNext}>이 일정의 혜택 확인하기 <ArrowRight size={18}/></Button></div>
     <PlaceDialog contentId={placeId} date={placeDate} origin={trip.origin} onClose={()=>setPlaceId(null)}/>
   </div>

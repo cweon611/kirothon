@@ -1,10 +1,10 @@
-import { useState, type FormEvent, type ReactNode } from 'react'
-import { CalendarClock, Check, ChevronDown, CircleCheck, CircleHelp, CircleX, ExternalLink, RefreshCw, ShieldCheck, UserRound } from 'lucide-react'
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { CalendarClock, Check, ChevronDown, CircleCheck, CircleHelp, CircleX, ExternalLink, Info, RefreshCw, ShieldCheck, UserRound } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { type Trip, addDays, shortDate } from '@/lib/benefits'
 import { programLinks } from '@/lib/links'
 import { formatKrw } from '@/lib/course'
-import { type Answer, type CheckResponse, type CheckResult, type Profile, type RefundResponse, OTHER, SIDO, dDay, emptyProfile, refundRequest, refundResults, tripCheckRequest, uniqueLabels, resultVerdict } from '@/lib/eligibility'
+import { type Answer, type CheckResponse, type CheckResult, type Condition, type Profile, type RefundResponse, OTHER, SIDO, conditionGroups, conditionReviewLabel, dDay, emptyProfile, refundRequest, refundResults, tripCheckRequest, uniqueLabels, resultVerdict } from '@/lib/eligibility'
 import './eligibility-panel.css'
 
 type Source = {kind:'course'; courseId:string} | {kind:'trip'; region:string}
@@ -24,29 +24,41 @@ export function EligibilityPanel({source,trip,residenceOptions}:{source:Source; 
   // Personal answers live only in this component: never stored or sent anywhere but the check request.
   const [profile,setProfile]=useState<Profile>(()=>emptyProfile(trip.residence))
   const [state,setState]=useState<State>({status:'idle'})
+  const requestVersion=useRef(0)
+  const sourceKey=source.kind==='course'?source.courseId:source.region
+  useEffect(()=>{
+    requestVersion.current++
+    setState({status:'idle'})
+    return ()=>{requestVersion.current++}
+  },[source.kind,sourceKey,trip.date,trip.type,trip.people])
   const end=addDays(trip.date,trip.type==='당일'?0:1)
-  const set=(patch:Partial<Profile>)=>setProfile(current=>({...current,...patch}))
+  const set=(patch:Partial<Profile>)=>{
+    requestVersion.current++
+    setProfile(current=>({...current,...patch}))
+    setState({status:'idle'})
+  }
 
   const run=async(event:FormEvent)=>{
     event.preventDefault()
+    const version=++requestVersion.current
     setState({status:'loading'})
     try {
       if (source.kind==='course') {
         const response=await post<RefundResponse>(`/api/team/courses/${encodeURIComponent(source.courseId)}/refund`,refundRequest(profile))
-        setState({status:'done',results:refundResults(response),response:response.check})
+        if(version===requestVersion.current) setState({status:'done',results:refundResults(response),response:response.check})
       } else {
         const body=tripCheckRequest(profile,trip,source.region,end)
         if (!body) { setState({status:'error',message:'이 지역은 아직 자격 확인을 지원하지 않아요.'}); return }
         const response=await post<CheckResponse>('/api/benefits/check',body)
-        setState({status:'done',results:response.results,response})
+        if(version===requestVersion.current) setState({status:'done',results:response.results,response})
       }
     } catch {
-      setState({status:'error',message:'자격 확인을 하지 못했어요. 잠시 후 다시 시도해 주세요.'})
+      if(version===requestVersion.current) setState({status:'error',message:'자격 확인을 하지 못했어요. 잠시 후 다시 시도해 주세요.'})
     }
   }
 
   return <section className="eligibility" aria-labelledby="eligibility-title">
-    <div className="eligibility-head"><span className="eligibility-icon"><UserRound size={20}/></span><div><h3 id="eligibility-title">내 조건으로 받을 수 있는지 확인</h3><p>{source.kind==='course'?'이 일정의 방문지·숙박·예상 지출로 판정해요.':`${shortDate(trip.date)} ${trip.type} · ${trip.people}명 일정으로 판정해요.`}</p></div></div>
+    <div className="eligibility-head"><span className="eligibility-icon"><UserRound size={20}/></span><div><h3 id="eligibility-title">혜택 조건 확인</h3><p>{source.kind==='course'?'선택 일정의 방문지·숙박·예상 지출 기준':`${shortDate(trip.date)} ${trip.type} · ${trip.people}명 입력 기준`}</p></div></div>
     <form className="eligibility-form" onSubmit={run}>
       <label className="eligibility-field"><span>거주지 <small>주민등록 기준</small></span>
         <select value={profile.residence} onChange={e=>set({residence:e.target.value})}>{[...residenceOptions.filter(v=>v!==OTHER),OTHER].map(v=><option key={v}>{v}</option>)}</select></label>
@@ -84,6 +96,7 @@ function ResultCard({row,open}:{row:CheckResult; open:boolean}) {
   const verdict=resultVerdict(row)
   const amount=row.estimate?.amount
   const missing=uniqueLabels(row.missing_user_fields??[])
+  const conditions=conditionGroups(row)
   const links=programLinks({applyUrl:row.how_to_apply?.application_url,infoUrl:row.how_to_apply?.official_info_url,sourceType:row.source_type})
   return <details className={`eligibility-card tone-${verdict.tone}`} open={open}>
     <summary>
@@ -92,11 +105,14 @@ function ResultCard({row,open}:{row:CheckResult; open:boolean}) {
       <span className="eligibility-amount">{typeof amount==='number'?`${row.estimate?.amount_kind==='upper_bound'?'최대 ':''}${formatKrw(amount)}`:'금액 확인 필요'}</span>
       <ChevronDown className="eligibility-chevron" size={18}/>
     </summary>
-    {row.can_apply_now===false&&<p className="eligibility-alert">지금은 신청할 수 없어요(마감·예산 소진·사전 신청 기한 경과).</p>}
+    <p className="eligibility-result-context">입력 정보와 확인된 공고 기준의 비교 결과 · 신청 승인·지급 확정 아님</p>
+    {row.can_apply_now===false&&<p className="eligibility-alert">{conditions.unmet.some(c=>['posted_status','application_period','pre_apply'].includes(c.code))?'접수 조건 미충족 · 접수 상태·신청 기한 확인':'접수 가능 여부 확인 필요 · 미검증 자료 기준의 제한 항목'}</p>}
     {row.verification_status==='unverified'&&<p className="eligibility-hint">공식 공고로 아직 검토되지 않은 자료 기준이에요. 신청 전 공고를 꼭 확인해 주세요.</p>}
-    {row.unmet_conditions.length>0&&<ConditionList title="맞지 않는 조건" icon={<CircleX size={15}/>} tone="unmet" rows={row.unmet_conditions}/>}
-    {missing.length>0&&<div className="eligibility-missing"><span>더 알려주면 정확해져요</span><ul>{missing.map(text=><li key={text}>{text}</li>)}</ul></div>}
-    {row.met_conditions.length>0&&<ConditionList title="맞는 조건" icon={<CircleCheck size={15}/>} tone="met" rows={row.met_conditions}/>}
+    {conditions.unmet.length>0&&<ConditionList title="미충족 조건" icon={<CircleX size={15}/>} tone="unmet" rows={conditions.unmet}/>}
+    {conditions.review.length>0&&<ConditionList title="추가 확인 필요" icon={<CircleHelp size={15}/>} tone="review" rows={conditions.review}/>}
+    {missing.length>0&&<div className="eligibility-missing"><span>추가 입력 항목</span><ul>{missing.map(text=><li key={text}>{text}</li>)}</ul></div>}
+    {conditions.met.length>0&&<ConditionList title="충족 조건" icon={<CircleCheck size={15}/>} tone="met" rows={conditions.met}/>}
+    {conditions.notApplicable.length>0&&<ConditionList title="해당 없는 조건" icon={<Info size={15}/>} tone="neutral" rows={conditions.notApplicable}/>}
     {row.estimate&&(row.estimate.notes?.length||row.estimate.unavailable_reasons?.length)?<ul className="eligibility-notes">{[...(row.estimate.unavailable_reasons??[]),...(row.estimate.notes??[])].map(text=><li key={text}>{text}</li>)}</ul>:null}
     {row.steps&&row.steps.length>0&&<ol className="eligibility-steps">{row.steps.map(step=><li key={step.key} className={step.passed?'passed':''}>
       <CalendarClock size={15}/><div><strong>{step.title}</strong><span>{[step.due?`${shortDate(step.due)}까지`:step.period?`${shortDate(step.period.start)} ~ ${shortDate(step.period.end)}`:step.due_text,step.detail].filter(Boolean).join(' · ')}</span></div>{dDay(step)&&<em>{dDay(step)}</em>}
@@ -106,6 +122,6 @@ function ResultCard({row,open}:{row:CheckResult; open:boolean}) {
   </details>
 }
 
-function ConditionList({title,icon,tone,rows}:{title:string; icon:ReactNode; tone:string; rows:{code:string;label?:string|null;detail?:string|null}[]}) {
-  return <div className={`eligibility-conditions ${tone}`}><span>{icon}{title}</span><ul>{rows.map(c=><li key={c.code+(c.detail??'')}><b>{c.label??c.code}</b>{c.detail?` · ${c.detail}`:''}</li>)}</ul></div>
+function ConditionList({title,icon,tone,rows}:{title:string; icon:ReactNode; tone:string; rows:Condition[]}) {
+  return <div className={`eligibility-conditions ${tone}`}><span>{icon}{title} <small>{rows.length}개</small></span><ul>{rows.map(c=><li key={c.code+(c.detail??'')}><b>{c.label??c.code}</b>{tone==='review'&&<em className="condition-review-label">{conditionReviewLabel(c)}</em>}{c.detail&&<p>{c.detail}</p>}</li>)}</ul></div>
 }

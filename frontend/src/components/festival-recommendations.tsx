@@ -36,7 +36,7 @@ export function FestivalRecommendations({region,trip,confirmed,rec}:{region:stri
   const shown=showAll?ranked:live.slice(0,3)
   const stateLabels={match:'여행일과 겹쳐요',other:'다른 일정',unknown:'일정 확인 필요',ended:'종료된 행사',unconfirmed:'개최 여부 확인 필요'}
   return <section className="festival-section" aria-labelledby="festival-title">
-    <div className="festival-intro"><span className="festival-eyebrow"><Sparkles size={15}/> 여행의 이유가 되는 순간</span><h2 id="festival-title">{region}에서 만나는 축제</h2><p>가고 싶은 축제 하나, 이번 여행에 더해보세요.</p></div>
+    <div className="festival-intro"><span className="festival-eyebrow"><Sparkles size={15}/> 지역 축제 안내</span><h2 id="festival-title">{region} 축제</h2><p>여행일 기준 지역 축제 추천</p></div>
     <div className="festival-trip"><CalendarDays size={17}/><span>{trip.date} ~ {end}</span><strong>{!confirmed?'날짜 확인 전':loading?'확인 중':`여행일에 맞는 축제 ${matching.length}개`}</strong></div>
     {!confirmed?<div className="festival-empty" role="status"><p>여행 날짜를 아직 확인하지 않았어요. 위의 <strong>여행 정보 수정</strong>에서 여행 시작일과 유형을 정하면 그 기간의 축제를 보여드려요.</p></div>
     :loading?<div className="festival-empty" role="status"><RefreshCw className="loading-spin" size={22}/><p>지역 축제를 찾고 있어요.</p></div>
