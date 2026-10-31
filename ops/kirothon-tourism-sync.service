@@ -1,0 +1,23 @@
+[Unit]
+Description=Kirothon team data refresh: tourism places, festivals and support programs (full)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+UMask=0077
+WorkingDirectory=/home/ubuntu/kirothon/backend
+# Keys (TOURAPI_SERVICE_KEY, KIROTHON_DATA_GO_KR_SERVICE_KEY) live outside the deployed trees.
+EnvironmentFile=/home/ubuntu/kirothon-config/team.env
+Environment=KIROTHON_DB_PATH=/home/ubuntu/kirothon-data/records.sqlite3
+Environment=KIROTHON_AI_MODE=mock
+ExecStart=/bin/bash /home/ubuntu/kirothon-tools/team-data-sync.sh full
+TimeoutStartSec=3600
+Nice=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/ubuntu/kirothon-data

@@ -156,6 +156,7 @@ def program_view(p: ProgramSummary, excluded_reason: str | None = None) -> dict:
         "application_start_at": d.get("application_start_at"), "application_end_at": d.get("application_end_at"),
         "support": d.get("support"), "payout_method": d.get("payout_method"), "match_basis": d.get("match_basis"),
         "conditions_text": d.get("conditions_text"), "estimated_amount": d.get("estimated_amount"),
+        "audience": d.get("audience", "general"),
         "budget_remaining": d.get("budget_remaining"),
         "apply_url": p.apply_url, "official_url": p.source_url,
         "missing_user_fields": d.get("missing_user_fields", []),
@@ -182,10 +183,7 @@ def split_programs(programs: tuple[ProgramSummary, ...]):
             excluded.append(program_view(p, "같은 사업의 공식 페이지 수집 자료(" + ", ".join(sorted(related))
                                          + ")가 있어 그 차수별 판정을 따름"))
             continue
-        audience = next((x for x in (p.details or {}).get("unmet", []) if x["code"] == "audience"), None)
-        if audience:
-            excluded.append(program_view(p, f"일반 관광객 대상 여행지원 제도로 확인되지 않음 — {audience.get('detail', '')}"))
-            continue
+        # Non-travel public services (수학여행비, 자녀돌봄휴가비 …) never reach this list: the engine drops them.
         if p.judgment == "ineligible":
             labels = ", ".join(x["label"] for x in (p.details or {}).get("unmet", [])) or "조건 미상"
             excluded.append(program_view(p, f"확인된 필수 조건 불충족: {labels}"))

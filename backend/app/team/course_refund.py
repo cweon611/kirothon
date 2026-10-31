@@ -101,13 +101,25 @@ def steps(ev: ProgramEvaluation, trip_start: date, trip_end: date, today: date) 
     return out
 
 
+def pick_course_program(results: list, program_id: str | None):
+    """The course's own program if it was checked, else the first general-visitor result with no unmet condition.
+
+    Results are sorted eligible-first, open-first. Non-travel services never reach `results` (the engine drops
+    them); travel support limited to a group (audience 'targeted') and programs with an unmet condition are
+    not featured. The verdict is untouched, so 'needs_verification' stays as it is.
+    """
+    if program_id:
+        own = next((r for r in results if r.benefit_id == program_id), None)
+        if own is not None:
+            return own
+    return next((r for r in results if not r.unmet_conditions and getattr(r, "audience", "general") == "general"), None)
+
+
 def check_course(session: Session, body: dict, program_id: str | None, residence_code: str | None,
                  conditions: dict | None, today: date) -> dict:
     request = course_request(body, residence_code, conditions, today)
     response: BenefitCheckResponse = check_benefits(request, session)
-    selected = next((r for r in response.results if r.benefit_id == program_id), None) if program_id else None
-    if selected is None and response.results:
-        selected = response.results[0]  # results are sorted: eligible first, open first
+    selected = pick_course_program(response.results, program_id)
     trip_start, trip_end = request.trip_start, request.trip_end
     return {
         "program_id": program_id,

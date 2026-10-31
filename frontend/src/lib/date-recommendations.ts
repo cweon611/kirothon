@@ -1,5 +1,6 @@
 // Client for POST /api/team/date-recommendations (backend/app/team/date_recommend.py).
 import type { Festival } from './festivals.ts'
+import type { Benefit } from './benefits.ts'
 
 export type Judgment = 'potentially_eligible' | 'needs_verification' | 'ineligible'
 export type Period = { start: string | null; end: string | null } | null
@@ -14,6 +15,7 @@ export type ProgramItem = {
   application_start_at: string | null; application_end_at: string | null;
   support: string | null; payout_method: string | null; conditions_text: string | null;
   match_basis?: 'target_region' | 'text_hint' | null;
+  audience?: 'general' | 'targeted';
   estimated_amount: number | null; budget_remaining: number | null;
   apply_url: string | null; official_url: string | null;
   missing_user_fields: string[]; needs_official_check: string[]; reasons: string[];
@@ -99,14 +101,61 @@ export function festivalsFromSelected(data: DateRecommendResponse, region: strin
   const src = data.data_status.festivals
   const toRow = (f: FestivalItem): Festival => ({
     id: f.content_id, region_name: region, title: f.title, start_date: f.start_date, end_date: f.end_date,
-    period_note: `${f.start_date || '날짜 미확인'} ~ ${f.end_date || '날짜 미확인'}`,
-    location: f.place || '장소 미확인', source_url: f.source_url || '', source_status: '',
-    collected_at: f.fetched_at || '', source: f.source,
+    // Empty strings mean "not in the data": the card leaves that row out instead of printing a placeholder.
+    period_note: f.start_date || f.end_date ? `${f.start_date || '미확인'} ~ ${f.end_date || '미확인'}` : '',
+    location: f.place?.trim() || '', source_url: f.source_url?.trim() || '', source_status: '',
+    collected_at: f.fetched_at || '', source: f.source?.trim() || undefined,
   })
   const rows = sel ? [...sel.festivals, ...sel.festivals_undated].map(toRow) : []
   const state = sel?.states.festivals ?? 'unavailable'
   return { rows, state, usingPrevious: state !== 'unavailable' && src.status !== 'ok',
            lastSuccessAt: src.last_success_at }
+}
+
+const OFFICIAL_SOURCE_TYPES = ['official_webpage', 'official_notice', 'gov24_api']
+const POSTED_TEXT: Record<string, string> = { open: '신청접수중', closing_soon: '마감 임박', upcoming: '준비중', closed: '마감',
+  closed_early: '조기 마감', budget_exhausted: '예산 소진', ended: '종료' }
+const trimmed = (value: string | null | undefined) => (typeof value === 'string' ? value.trim() : '')
+
+/**
+ * One period-judged program (selected_region.benefits) in the existing benefit card shape.
+ * `extra` is the same program's /api/team/programs row (collected 지역화폐·특이사항·문의처), used only to fill
+ * empty text. The judgment always comes from the date lookup and is never upgraded.
+ */
+export function benefitFromItem(p: ProgramItem, region: string, extra?: Benefit): Benefit {
+  const trip = p.trip_period
+  const app = p.application_period
+  return {
+    id: `${p.program_id}@${region}`, name: p.name, region_name: region,
+    source_status: p.posted_status ? POSTED_TEXT[p.posted_status] || p.posted_status : '확인 필요',
+    status: p.posted_status || 'unknown',
+    source_url: trimmed(p.official_url), apply_url: trimmed(p.apply_url) || null,
+    trip_start: trip?.start || '', trip_end: trip?.end || '',
+    period_note: trip && (trip.start || trip.end) ? `여행 인정 기간 ${trip.start || '미확인'} ~ ${trip.end || '미확인'}` : '여행 인정 기간 미확인',
+    payment_rule: extra?.payment_rule || trimmed(p.payout_method),
+    conditions: extra?.conditions || trimmed(p.conditions_text),
+    contact: extra?.contact || '',
+    collected_at: p.last_success_at || extra?.collected_at || '', verified_at: p.last_verified_at,
+    needs_review: p.verification_status !== 'verified', present_in_source: true, refund_rate: extra?.refund_rate ?? null,
+    data_origin: p.data_origin ?? extra?.data_origin, source_type: p.source_type ?? extra?.source_type ?? null,
+    application_start: app?.start || '', application_end: app?.end || '',
+    source_pages: (p.sources || []).filter(s => OFFICIAL_SOURCE_TYPES.includes(s.type)).map(s => ({ title: s.title, url: s.url })),
+    judgment: p.judgment, excluded_reason: p.excluded_reason, audience: p.audience ?? 'general',
+  }
+}
+
+export type RegionBenefits = { shown: Benefit[]; excluded: Benefit[]; state: SelectedRegion['states']['benefits']; partial: boolean }
+/** applicable first, then needs_verification (both shown), excluded kept separately. Nothing is dropped. */
+export function benefitsFromSelected(data: DateRecommendResponse, region: string, rows: Benefit[] = []): RegionBenefits {
+  const sel = data.selected_region
+  const extra = (p: ProgramItem) => rows.find(r => r.id === `${p.program_id}@${region}`)
+  const map = (list: ProgramItem[]) => list.map(p => benefitFromItem(p, region, extra(p)))
+  if (!sel) return { shown: [], excluded: [], state: 'unavailable', partial: false }
+  // General tourist support leads; group-limited travel support follows (it is never 'applicable' anyway).
+  const shown = map([...sel.benefits.applicable, ...sel.benefits.needs_verification])
+  return { shown: [...shown.filter(b => b.audience !== 'targeted'), ...shown.filter(b => b.audience === 'targeted')],
+           excluded: map(sel.benefits.excluded),
+           state: sel.states.benefits, partial: sel.states.benefits_partial }
 }
 
 export function validateDates(start: string, end: string, today: string): string | null {
@@ -127,7 +176,7 @@ export function errorMessage(status: number, body: unknown): string {
     const msg = String((detail[0] as { msg?: string }).msg || '')
     return msg.replace(/^Value error, /, '') || '입력값을 확인해 주세요.'
   }
-  if (status >= 500) return '서버에서 오류가 났어요. 백엔드 실행 상태를 확인해 주세요.'
+  if (status >= 500) return '서버에서 오류가 났어요. 잠시 후 다시 시도해 주세요.'
   return `요청을 처리하지 못했어요 (HTTP ${status}).`
 }
 
@@ -140,13 +189,13 @@ export async function fetchRecommendations(input: SearchInput, signal?: AbortSig
     })
   } catch (error) {
     if ((error as Error).name === 'AbortError') throw error
-    throw new Error('백엔드 서버에 연결하지 못했어요. 백엔드(127.0.0.1:8000)가 켜져 있는지 확인해 주세요.')
+    throw new Error('서버에 연결하지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.')
   }
   const body = await response.json().catch(() => null)
   if (!response.ok) throw new Error(errorMessage(response.status, body))
-  if (!body || !Array.isArray(body.regions) || !body.data_status) throw new Error('추천 결과 형식을 확인할 수 없어요.')
+  if (!body || !Array.isArray(body.regions) || !body.data_status) throw new Error('서버 응답을 읽지 못했어요. 잠시 후 다시 시도해 주세요.')
   if (input.sigungu_code && body.selected_region?.sigungu_code !== input.sigungu_code)
-    throw new Error('선택한 지역의 결과가 응답에 없어요. 백엔드 버전을 확인해 주세요.')
+    throw new Error('선택한 여행지의 결과를 받지 못했어요. 다시 시도해 주세요.')
   return body as DateRecommendResponse
 }
 

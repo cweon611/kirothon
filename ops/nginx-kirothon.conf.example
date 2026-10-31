@@ -1,0 +1,33 @@
+# Reference only: compare with the server's existing nginx site before changing anything.
+# The built frontend calls the API with relative paths (/api/...), so it needs the static files and
+# the API on the SAME origin. No Vite dev proxy is involved in production.
+# Keep the existing listen address (127.0.0.1:8080, reached through the SSH tunnel) and Basic Auth.
+server {
+    listen 127.0.0.1:8080;
+    server_name _;
+
+    auth_basic "kirothon";
+    auth_basic_user_file /etc/nginx/kirothon.htpasswd;   # existing file; do not recreate
+
+    root /var/www/kirothon-preview;                      # published by ops/deploy.py (frontend/dist)
+    index index.html;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000;                # uvicorn (kirothon-api.service)
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_read_timeout 60s;
+        client_max_body_size 1m;
+    }
+
+    location /assets/ {
+        try_files $uri =404;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
+    location / {
+        # The app keeps its step in the URL hash (#step-N), so every path serves index.html.
+        try_files $uri /index.html;
+        add_header Cache-Control "no-cache";
+    }
+}

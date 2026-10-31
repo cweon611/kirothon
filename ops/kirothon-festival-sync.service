@@ -1,0 +1,22 @@
+[Unit]
+Description=Kirothon team data refresh: festivals only (daily)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+UMask=0077
+WorkingDirectory=/home/ubuntu/kirothon/backend
+EnvironmentFile=/home/ubuntu/kirothon-config/team.env
+Environment=KIROTHON_DB_PATH=/home/ubuntu/kirothon-data/records.sqlite3
+Environment=KIROTHON_AI_MODE=mock
+ExecStart=/bin/bash /home/ubuntu/kirothon-tools/team-data-sync.sh festivals
+TimeoutStartSec=900
+Nice=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/ubuntu/kirothon-data

@@ -1,0 +1,11 @@
+[Unit]
+Description=Weekly full team data refresh (places, hubs, related, festivals, support programs)
+
+[Timer]
+# Monday 04:20 KST. Not on every boot: Persistent=true only catches up a run missed while the server was off.
+OnCalendar=Mon *-*-* 04:20:00 Asia/Seoul
+RandomizedDelaySec=600
+Persistent=true
+
+[Install]
+WantedBy=timers.target

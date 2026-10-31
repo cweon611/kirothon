@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily festival refresh
+
+[Timer]
+OnCalendar=*-*-* 05:10:00 Asia/Seoul
+RandomizedDelaySec=600
+Persistent=true
+
+[Install]
+WantedBy=timers.target

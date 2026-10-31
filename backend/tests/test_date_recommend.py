@@ -364,17 +364,42 @@ def test_gov24_restricted_audience_is_not_recommended(client):
         {**t50._row("VISIT1", "영광 여행 숙박비 지원", provider="전라남도 영광군"), "지원대상": "관외 거주 관광객"},
         {**t50._row("PLAIN1", "영광 여행 프로그램 운영", provider="전라남도 영광군"), "지원대상": "신청자"},
     ]
+    rows += [
+        {**t50._row("CARE1", "저소득 한부모가족 유급 자녀돌봄휴가비 지원", provider="전라남도 영광군"),
+         "지원대상": "저소득 한부모가족"},
+        {**t50._row("BIZ1", "관광객 유치 여행사 인센티브 지원", provider="전라남도 영광군"),
+         "지원대상": "등록 여행사", "사용자구분": "법인/시설/단체"},
+        {**t50._row("DIS1", "장애인 가족사랑여행 지원", provider="전라남도 영광군"), "지원대상": "관내 등록 장애인 가족"},
+    ]
     bsync.run_sync("gov24_api", "manual", t50.factory, gov24_client=t50.gov_client(t50.FakeGov24(rows=rows)))
     seed(festival_run())
     benefit_port.set_benefit_port(BenefitsEnginePort())
     sel = post(client, sigungu_code=YG)["selected_region"]
-    shown = {p["program_id"]: p for p in sel["benefits"]["applicable"] + sel["benefits"]["needs_verification"]}
-    excluded = {p["program_id"]: p for p in sel["benefits"]["excluded"]}
-    assert "gov24:SCHOOL1" in excluded and "gov24:PLAIN1" in excluded
-    assert "수급자" in excluded["gov24:SCHOOL1"]["excluded_reason"]
-    assert "근거가 원문에 없음" in excluded["gov24:PLAIN1"]["excluded_reason"]
-    assert shown["gov24:VISIT1"]["judgment"] == "needs_verification"
-    assert shown["gov24:VISIT1"]["match_basis"] == "text_hint"
+    every = {p["program_id"]: p for k in ("applicable", "needs_verification", "excluded") for p in sel["benefits"][k]}
+    # Not travel support (school trip, care-leave pay, a grant for businesses): absent from every list.
+    assert not {"gov24:SCHOOL1", "gov24:CARE1", "gov24:BIZ1"} & set(every)
+    shown = {p["program_id"]: p for p in sel["benefits"]["needs_verification"]}
+    assert shown["gov24:VISIT1"]["audience"] == "general" and shown["gov24:VISIT1"]["match_basis"] == "text_hint"
+    # Travel support limited to a group: kept, marked targeted, never 'applicable' while membership is unknown.
+    for pid in ("gov24:DIS1", "gov24:PLAIN1"):
+        assert shown[pid]["audience"] == "targeted" and shown[pid]["judgment"] == "needs_verification"
+    assert not sel["benefits"]["applicable"]
+
+
+def test_gov24_audience_kinds():
+    from app.team.benefits.engine import audience_kind
+    from app.team.benefits.schemas import BenefitProgram
+    def prog(name, **raw):
+        return BenefitProgram(id=f"gov24:{name}", program_id=f"gov24:{name}", name=name, source_type="gov24_api",
+                              sources=[], verification_status="unverified", raw_text=raw)
+    assert audience_kind(prog("국민기초생활수급자 고등학생 수학여행비 지원")) == "not_travel"
+    assert audience_kind(prog("저소득 한부모가족 유급 자녀돌봄휴가비 지원", 사용자구분="개인")) == "not_travel"
+    assert audience_kind(prog("관광객 유치 여행사 인센티브 지원", 사용자구분="법인/시설/단체")) == "not_travel"
+    assert audience_kind(prog("공중위생업소(숙박업) 시설개선 지원")) == "not_travel"
+    assert audience_kind(prog("관광취약계층 행복여행활동 지원", 지원대상="기초생활수급자")) == "targeted"
+    assert audience_kind(prog("섬 여행 숙박비 지원", 지원대상="관외 거주 관광객")) == "general"
+    tour50 = prog("반값여행").model_copy(update={"source_type": "official_webpage"})
+    assert audience_kind(tour50) == "general"
 
 
 def test_match_basis_for_official_page_rounds(client):

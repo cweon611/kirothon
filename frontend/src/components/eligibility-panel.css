@@ -53,3 +53,4 @@
 .eligibility-link{display:inline-flex;align-items:center;gap:4px;margin-top:10px;font-size:12px;font-weight:800;color:var(--teal-dark)}
 .eligibility-disclaimer{margin:0;font-size:11px;line-height:1.6;color:var(--gray-400)}
 .eligibility button:focus-visible,.eligibility summary:focus-visible,.eligibility a:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.eligibility-card summary strong{overflow-wrap:anywhere;min-width:0}

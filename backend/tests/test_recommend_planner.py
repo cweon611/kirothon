@@ -149,12 +149,15 @@ def minutes(hhmm):
     return int(hhmm[:2]) * 60 + int(hhmm[3:])
 
 
-def test_day_trip_ends_by_19_and_links_gwangju_first():
+def test_day_trip_ends_by_19_and_stays_in_the_destination():
+    """Regression: a Gwangju origin used to force a Gwangju culture spot (g1) into every course."""
     body = course(trip("day", start=TUE))
     day = body["days"][0]
     assert minutes(day["items"][-1]["end"]) <= 19 * 60
-    assert day["items"][0]["place"]["sigungu_code"] == DONGGU
-    assert "광주 문화관광" in day["items"][0]["reason_tags"]
+    assert all(i["place"]["sigungu_code"] == MUAN for i in items(body, "spot"))
+    assert DONGGU not in {i["place"]["sigungu_code"] for i in items(body) if i["place"]}
+    overnight = course(trip("1N2D", start=TUE))
+    assert all(i["place"]["sigungu_code"] == MUAN for i in items(overnight, "spot"))
     assert [i["meal"] for i in items(body, "meal")][0] == "lunch"
     assert all(i["reason_tags"] and i["reason_text"] for i in day["items"])
 
@@ -181,9 +184,9 @@ def test_spots_wait_for_opening_and_out_of_hours_are_replaced():
     early = lite("m8", "테스트새벽시장", MUAN, 34.975, 126.495, restdate="연중무휴", usetime="05:00~08:00")
     body = course(trip("1N2D", start=TUE), snap=snapshot([early]))
     assert "m8" not in {i["place"]["content_id"] for i in items(body, "spot")}
-    link = body["days"][0]["items"][0]
-    assert link["place"]["content_id"] == "g1" and link["start"] == "10:00"
-    assert link["check_reasons"] == []
+    first = body["days"][0]["items"][0]
+    assert first["kind"] == "spot" and first["place"]["sigungu_code"] == MUAN
+    assert minutes(first["start"]) >= 9 * 60   # departs 09:00, never scheduled before opening/arrival
 
 
 def test_overnight_stays_in_refund_region_and_day2_returns_by_17():

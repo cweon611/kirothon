@@ -9,7 +9,7 @@ from sqlmodel import Session
 
 from .benefit_bridge import region_of
 from .benefits import sync as benefit_sync
-from .benefits.engine import CLOSED, KST, STALE_DAYS
+from .benefits.engine import CLOSED, KST, STALE_DAYS, audience_kind
 from .benefits.regions import region_matches
 from .benefits.routes import source_statuses
 from .benefits.schemas import BenefitProgram
@@ -46,6 +46,24 @@ def _dates(rng) -> dict | None:
             "end": rng.end.isoformat() if rng.end else None} if rng else None
 
 
+OFFICIAL_SOURCE_TYPES = ("official_webpage", "official_notice", "gov24_api")
+
+
+def display_fields(p: BenefitProgram) -> dict:
+    """Already-collected text for the existing detail cards. Empty values become None, nothing is derived.
+
+    notes: the 반값여행 현황 page's 특이사항 text verbatim (official_webpage only).
+    source_pages: official collection pages only; news reports and project docs are left out.
+    """
+    methods = [m.strip() for m in (p.payment_rule.methods if p.payment_rule else None) or [] if m and m.strip()]
+    contacts = [c.strip() for c in p.contacts or [] if c and c.strip()]
+    notes = (p.raw_text or {}).get("특이사항", "").strip() if p.source_type == "official_webpage" else ""
+    pages = [{"title": s.title, "url": s.url} for s in p.sources
+             if s.url and s.url.strip() and s.source_type in OFFICIAL_SOURCE_TYPES]
+    return {"payment_methods": methods or None, "contacts": contacts or None,
+            "notes": notes or None, "source_pages": pages}
+
+
 def list_programs(session: Session, today: date) -> dict:
     regions = {code: region_of(code) for code in sigungu_map()}
     stored = benefit_sync.load_programs(session)
@@ -53,6 +71,9 @@ def list_programs(session: Session, today: date) -> dict:
     official = {p.program_id for p, origin in programs if origin != "manual_registry"}
     items = []
     for p, origin in programs:
+        audience = audience_kind(p)
+        if audience == "not_travel":
+            continue  # e.g. 수학여행비, 자녀돌봄휴가비: not a travel benefit, not listed
         targets = p.target_regions or p.region_hints
         codes = [code for code, region in regions.items()
                  if any(region_matches(target, region) for target in targets or [])]
@@ -74,6 +95,7 @@ def list_programs(session: Session, today: date) -> dict:
             "stale": _stale(p, today),
             "superseded_by": [i for i in p.related_program_ids if i in official] if origin == "manual_registry" else [],
             "official_info_url": p.official_info_url, "application_url": p.application_url,
+            **display_fields(p), "audience": audience,
         })
     rank = {True: 0, None: 1, False: 2}
     items.sort(key=lambda i: (rank[i["open_now"]], STATUS_ORDER.get(i["posted_status"], 4),

@@ -1,9 +1,10 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { CalendarClock, Check, ChevronDown, CircleCheck, CircleHelp, CircleX, ExternalLink, RefreshCw, ShieldCheck, UserRound } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { type Trip, addDays, shortDate, safeUrl } from '@/lib/benefits'
+import { type Trip, addDays, shortDate } from '@/lib/benefits'
+import { programLinks } from '@/lib/links'
 import { formatKrw } from '@/lib/course'
-import { type Answer, type CheckResponse, type CheckResult, type Profile, type RefundResponse, OTHER, SIDO, dDay, emptyProfile, refundRequest, refundResults, tripCheckRequest, uniqueLabels, verdictOf } from '@/lib/eligibility'
+import { type Answer, type CheckResponse, type CheckResult, type Profile, type RefundResponse, OTHER, SIDO, dDay, emptyProfile, refundRequest, refundResults, tripCheckRequest, uniqueLabels, resultVerdict } from '@/lib/eligibility'
 import './eligibility-panel.css'
 
 type Source = {kind:'course'; courseId:string} | {kind:'trip'; region:string}
@@ -80,10 +81,10 @@ function Results({results,response}:{results:CheckResult[]; response:CheckRespon
 }
 
 function ResultCard({row,open}:{row:CheckResult; open:boolean}) {
-  const verdict=verdictOf(row.verdict)
+  const verdict=resultVerdict(row)
   const amount=row.estimate?.amount
   const missing=uniqueLabels(row.missing_user_fields??[])
-  const link=safeUrl(row.how_to_apply?.application_url??null) ?? safeUrl(row.how_to_apply?.official_info_url??null)
+  const links=programLinks({applyUrl:row.how_to_apply?.application_url,infoUrl:row.how_to_apply?.official_info_url,sourceType:row.source_type})
   return <details className={`eligibility-card tone-${verdict.tone}`} open={open}>
     <summary>
       <span className={`badge badge-${verdict.tone}`}>{verdict.label}</span>
@@ -101,7 +102,7 @@ function ResultCard({row,open}:{row:CheckResult; open:boolean}) {
       <CalendarClock size={15}/><div><strong>{step.title}</strong><span>{[step.due?`${shortDate(step.due)}까지`:step.period?`${shortDate(step.period.start)} ~ ${shortDate(step.period.end)}`:step.due_text,step.detail].filter(Boolean).join(' · ')}</span></div>{dDay(step)&&<em>{dDay(step)}</em>}
     </li>)}</ol>}
     {!!row.official_checks_needed?.length&&<details className="eligibility-note"><summary>공고에서 확인할 항목 {row.official_checks_needed.length}개</summary><ul>{row.official_checks_needed.map(text=><li key={text}>{text}</li>)}</ul></details>}
-    {link&&<a className="eligibility-link" href={link} target="_blank" rel="noopener noreferrer">공식 안내 보기 <ExternalLink size={13}/></a>}
+    {links[0]&&<a className="eligibility-link" href={links[0].href} target="_blank" rel="noopener noreferrer">{links[0].label} <ExternalLink size={13}/><span className="sr-only"> (새 탭)</span></a>}
   </details>
 }
 

@@ -491,22 +491,54 @@ RESTRICTED_WORDS = ("수급자", "차상위", "저소득", "학생", "아동", "
                     "주민", "군민", "시민", "도민", "구민", "거주자", "기업")
 
 
+# Names of public services whose purpose is not travel support even though they mention 여행/휴가
+# (school trips, care-leave pay, business facility grants). Matched against the official service name.
+NOT_TRAVEL_WORDS = ("수학여행", "체험학습", "현장학습", "돌봄휴가", "자녀돌봄", "시설개선", "위생업소")
+TRAVEL_WORDS = ("여행", "관광", "휴양", "캠핑")
+AUDIENCE_LABEL = {"general": "일반 관광객 대상", "targeted": "특정 대상 전용 관광지원"}
+
+
+def _audience_blob(p: BenefitProgram) -> str:
+    return " ".join([p.name] + [p.raw_text.get(k, "") for k in ("지원대상", "선정기준", "서비스목적요약", "서비스목적")])
+
+
+def audience_kind(p: BenefitProgram) -> str:
+    """general | targeted | not_travel, from the collected official text only.
+
+    - not_travel: the service is not for individuals (gov24 사용자구분 without 개인), or its purpose is not
+      travel (수학여행비, 자녀돌봄휴가비 …). These are never shown as travel benefits.
+    - general: the official text names visitors/tourists (관광객·방문객·반값여행 …).
+    - targeted: a travel/tourism service for a specific group (장애인 가족여행, 관광취약계층 …).
+    Non-gov24 sources (반값여행 현황 page, registry) are travel programs by construction: general.
+    """
+    if p.source_type != "gov24_api":
+        return "general"
+    users = (p.raw_text.get("사용자구분") or "").strip()
+    if users and "개인" not in users:
+        return "not_travel"
+    if any(w in p.name for w in NOT_TRAVEL_WORDS):
+        return "not_travel"
+    if any(w in _audience_blob(p) for w in VISITOR_WORDS):
+        return "general"
+    if any(w in p.name for w in TRAVEL_WORDS):
+        return "targeted"
+    return "not_travel"
+
+
 def _check_audience(c: _Ctx):
     p = c.program
     if p.source_type != "gov24_api":
         return
-    texts = [p.name] + [p.raw_text.get(k, "") for k in ("지원대상", "선정기준", "서비스목적요약", "서비스목적")]
-    blob = " ".join(texts)
     target = (p.raw_text.get("지원대상") or "").strip()
     quote = f"원문 지원대상: {target[:80]}" if target else "원문 지원대상 없음"
-    label = "지원 대상(일반 관광객 여부)"
-    if any(w in blob for w in VISITOR_WORDS):
-        c.add("audience", label, "met", f"원문에 방문객 대상 표현이 있음 — {quote}", program_fields=["raw_text"])
+    if audience_kind(p) == "general":
+        c.add("audience", "지원 대상", "met", f"원문에 방문객 대상 표현이 있음 — {quote}", program_fields=["raw_text"])
         return
-    restricted = [w for w in RESTRICTED_WORDS if w in blob]
-    detail = (f"특정 대상({', '.join(restricted[:4])}) 전용으로 보임 — {quote}" if restricted
-              else f"방문객 대상이라는 근거가 원문에 없음 — {quote}")
-    c.add("audience", label, "unmet", detail, program_fields=["raw_text"])
+    # targeted: the user's group membership is never asked, so it stays unresolved (never 'eligible').
+    restricted = [w for w in RESTRICTED_WORDS if w in _audience_blob(p)]
+    who = f"({', '.join(restricted[:4])}) " if restricted else ""
+    c.add("audience", "지원 대상(특정 대상 전용)", "missing_user_info",
+          f"특정 대상{who}전용 관광지원 — 해당 여부는 공고에서 확인 필요 — {quote}", user_fields=["audience"])
 
 
 def _check_source(c: _Ctx):
@@ -671,6 +703,8 @@ def estimate(c: _Ctx, verdict: str) -> tuple[Estimate, set[str]]:
 
 # ------------------------------------------------------------------ public
 def evaluate(program: BenefitProgram, origin: str, req: BenefitCheckRequest, ref: date) -> ProgramEvaluation | None:  # noqa: C901
+    if audience_kind(program) == "not_travel":
+        return None  # not a travel benefit: left out of every travel recommendation/check list
     visits = match_visits(program, req)
     if not visits:
         return None
@@ -743,6 +777,7 @@ def evaluate(program: BenefitProgram, origin: str, req: BenefitCheckRequest, ref
         timeline=timeline, estimate=est, how_to_apply=how,
         sources=p.sources, last_verified_at=p.last_verified_at, conflicts=p.conflicts,
         related_program_ids=p.related_program_ids,
+        audience="targeted" if audience_kind(p) == "targeted" else "general",
     )
 
 

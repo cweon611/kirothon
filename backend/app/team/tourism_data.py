@@ -87,7 +87,8 @@ class Snapshot:
 
     @property
     def is_empty(self) -> bool:
-        return not self.places
+        """No spot/meal/stay data. Festival rows (type 15) alone cannot make a course or a region ranking."""
+        return not self.by_sigungu
 
     def spots(self, code: str) -> list[PlaceLite]:
         return [p for p in self.by_sigungu.get(code, []) if p.content_type_id in SPOT_TYPES]
@@ -210,9 +211,11 @@ def cache_stats(session: Session) -> dict:
     success = session.exec(select(TourismSyncRun).where(TourismSyncRun.status.in_(["success", "partial"]))
                            .order_by(TourismSyncRun.id.desc()).limit(1)).first()
     places = count(Place)
+    course_places = session.exec(select(func.count()).select_from(Place).where(Place.content_type_id != "15")).one()
     return {
-        "status": "empty" if not places else ("partial" if success and success.status == "partial" else "ready"),
+        "status": "empty" if not course_places else ("partial" if success and success.status == "partial" else "ready"),
         "places": places,
+        "course_places": course_places,
         "hub_rows": count(HubRank),
         "related_rows": count(RelatedPlace),
         "last_attempt_at": last.started_at.isoformat() if last else None,

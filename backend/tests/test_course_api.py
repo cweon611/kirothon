@@ -114,6 +114,14 @@ def test_course_rejects_program_outside_region_and_reports_unchecked(client, por
 
 
 def test_swap_candidates_and_swap(client, port):
+    # Courses now use only destination spots (no forced Gwangju stop), which uses up the small fixture;
+    # two more synthetic 무안 spots keep unused candidates available for the swap.
+    with Session(engine) as session:
+        session.add_all([Place(content_id=cid, content_type_id="12", title=title, sigungu_code=MUAN, lat=lat, lng=lng,
+                               intro_json=json.dumps({"restdate": "연중무휴", "usetime": "09:00~18:00"}, ensure_ascii=False),
+                               source="kor") for cid, title, lat, lng in
+                         (("m9", "테스트해안공원", 34.978, 126.468), ("m10", "테스트습지원", 34.992, 126.512))])
+        session.commit()
     course = client.post("/api/team/courses", json={**TRIP, "sigungu_code": MUAN, "program_id": "muan_test"}).json()
     spots = [(d["day"], i) for d in course["days"] for i in d["items"] if i["kind"] == "spot"]
     day, target = next((d, i) for d, i in spots if i["swappable"] and i["place"]["sigungu_code"] == MUAN)
@@ -235,6 +243,15 @@ def test_programs_list_filters_region_and_flags_superseded(client):
     assert by_id["kto50:12780-2026-3"]["open_now"] is True and by_id["kto50:12780-2026-3"]["sigungu_codes"] == ["46810"]
     assert data["programs"][0]["open_now"] is True
     assert client.get("/api/team/meta").json()["programs_open"] == data["counts"]["open_now"]
+    # Display fields come straight from the collected page; nothing is filled in for manual entries.
+    gj = by_id["kto50:12780-2026-3"]
+    assert gj["payment_methods"] == ["chak 앱"] and gj["contacts"] == ["061-000-0007"]
+    assert gj["notes"] == "관광지 2개소(사진) 방문" and gj["application_url"] == "https://example.go.kr/12780/apply"
+    assert gj["source_pages"] == [{"title": "한국관광공사 대한민국 반값여행 현황",
+                                   "url": "https://korean.visitkorea.or.kr/dgtourcard/tour50.do"}]
+    manual = by_id["manual:jangheung-vacation-2026h2"]
+    assert manual["notes"] is None and manual["payment_methods"] is None
+    assert manual["source_pages"] == []   # news reports / project docs are not official pages
 
 
 def test_empty_cache_is_explicit(client):
@@ -248,3 +265,55 @@ def test_empty_cache_is_explicit(client):
     res = client.post("/api/team/courses", json={**TRIP, "sigungu_code": MUAN})
     assert res.status_code == 503 and res.json()["code"] == "tourism_cache_empty"
     assert json.loads(json.dumps(client.get("/api/team/meta").json()))["tourism_data"]["status"] == "empty"
+
+
+def test_festival_rows_alone_do_not_make_an_empty_course(client):
+    """Regression: a DB holding only festivals (type 15) used to return 200 courses with 0 spots,
+    no meals and no stay. It must report missing tourism data instead."""
+    with Session(engine) as session:
+        for model in (Place, HubRank, RelatedPlace):
+            for row in session.exec(select(model)).all():
+                session.delete(row)
+        session.add(Place(content_id="f1", content_type_id="15", title="테스트 축제", sigungu_code=MUAN,
+                          event_start="2026-11-01", event_end="2026-11-30", source="kor"))
+        session.commit()
+    res = client.post("/api/team/courses", json={**TRIP, "sigungu_code": MUAN})
+    assert res.status_code == 503 and res.json()["code"] == "tourism_cache_empty"
+    assert client.post("/api/team/recommend", json=TRIP).json()["notice"]["code"] == "tourism_cache_empty"
+    stats = client.get("/api/team/meta").json()["tourism_data"]
+    assert stats["status"] == "empty" and stats["places"] == 1 and stats["course_places"] == 0
+
+
+def test_region_without_spots_is_explicit_while_others_still_work(client):
+    """Spots exist for 무안 (fixtures) but not for 담양: 담양 gets the explicit notice, 무안 a real course."""
+    other = client.post("/api/team/courses", json={**TRIP, "sigungu_code": "46710"})
+    assert other.status_code == 503 and other.json()["code"] == "tourism_cache_empty"
+    ok = client.post("/api/team/courses", json={**TRIP, "sigungu_code": MUAN})
+    assert ok.status_code == 200
+    assert any(i["kind"] == "spot" and i["place"] for d in ok.json()["days"] for i in d["items"])
+
+
+def test_course_refund_never_features_a_program_for_a_specific_group():
+    """Regression: the 강진 course featured '저소득 한부모가족 … 휴가비'. Such services are no longer evaluated;
+    group-limited travel support and programs with an unmet condition are not featured either."""
+    from types import SimpleNamespace as NS
+    from app.team.course_refund import pick_course_program
+    cond = lambda code: NS(code=code)  # noqa: E731
+    targeted = NS(benefit_id="gov24:dis", unmet_conditions=[], audience="targeted")
+    off_period = NS(benefit_id="manual:jn-island", unmet_conditions=[cond("trip_period")], audience="general")
+    travel = NS(benefit_id="kto50:12780-2026-3", unmet_conditions=[], audience="general")
+    assert pick_course_program([targeted, off_period, travel], None) is travel
+    assert pick_course_program([targeted, off_period], None) is None
+    assert pick_course_program([targeted, travel], "gov24:dis") is targeted  # the course's own program stays
+
+
+def test_data_readiness_reports_course_data_per_region(client):
+    """The preparation summary must say which regions can build a course (fixtures: 무안·함평 have spots)."""
+    from app.team.data_readiness import report
+    with Session(engine) as session:
+        data = report(session)
+    regions = {r["sigungu_code"]: r for r in data["regions"]}
+    assert regions[MUAN]["course_ready"] and regions[MUAN]["food"] > 0 and regions[MUAN]["stay"] > 0
+    assert regions["46710"]["course_ready"] is False and "spot" in regions["46710"]["lacking"]
+    assert data["course"]["ready"] is False and "담양군" in data["course"]["regions_without_spots"]
+    assert data["course"]["regions_total"] == 27 and {"status", "records"} <= set(data["festivals"])

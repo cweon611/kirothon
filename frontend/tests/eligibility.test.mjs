@@ -35,3 +35,18 @@ test('missing fields read as plain words and d-day labels',()=>{
   assert.equal(dDay({d_day:18,passed:false}),'D-18'); assert.equal(dDay({d_day:0}),'D-DAY')
   assert.equal(dDay({d_day:-2,passed:true}),'기한 지남'); assert.equal(dDay({d_day:null}),null)
 })
+
+import { resultVerdict, refundResults as mergeRefund } from '../src/lib/eligibility.ts'
+import { programKind } from '../src/lib/benefits.ts'
+test('group-limited travel support is labelled apart from general support and never shown as eligible', () => {
+  const row = (id, audience, verdict = 'needs_verification') => ({ benefit_id: id, name: id, verdict, audience, can_apply_now: null,
+    met_conditions: [], unmet_conditions: [], missing_user_fields: [], estimate: null })
+  const targeted = row('gov24:장애인가족여행', 'targeted'), travel = row('kto50:12780-2026-3', 'general')
+  assert.equal(resultVerdict(targeted).label, '특정 대상 전용 · 확인 필요')
+  assert.equal(resultVerdict(travel).label, '확인이 더 필요해요')   // needs_verification is never upgraded
+  assert.equal(resultVerdict(row('x', 'targeted', 'ineligible')).label, '이번 조건으로는 어려워요')
+  // Order is the server's; nothing is moved to the back on the client.
+  assert.deepEqual(mergeRefund({ selected: null, check: { results: [targeted, travel] } }).map(r => r.benefit_id), ['gov24:장애인가족여행', 'kto50:12780-2026-3'])
+  assert.equal(programKind({ data_origin: 'gov24_api', audience: 'targeted' }), '특정 대상 전용 관광지원')
+  assert.equal(programKind({ data_origin: 'gov24_api', audience: 'general' }), '공공서비스')
+})

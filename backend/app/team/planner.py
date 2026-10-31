@@ -21,7 +21,6 @@ DEFAULT_MEAL_COST = 12_000
 DEFAULT_ROOM_PRICE = 100_000
 MOVE_WARN_MIN = 40
 MEAL_RADIUS_KM = 5.0
-GWANGJU_LINK_MAX_MIN = 90
 DEPART = {1: 9 * 60, 2: 9 * 60 + 30}
 END_LIMIT = {"day": 19 * 60, "1N2D": 17 * 60}  # day trip: last item end, 1N2D day 2: return departure
 MEALS = {
@@ -195,28 +194,6 @@ def resolve_required(ctx: Ctx) -> list[PlaceLite]:
                      f"이 지역 관광 데이터에서 {len(options)}곳만 찾았어요.",
                      places=list(c.any_of_place_names))
     return found
-
-
-def gwangju_link(ctx: Ctx) -> PlaceLite | None:
-    """Requirement 1: origin in Gwangju and (1N2D or day trip <= 90 min) -> one Gwangju culture spot first."""
-    if not ctx.origin.in_gwangju or ctx.region.startswith("29"):
-        return None
-    centroid, _ = ctx.snapshot.centroid(ctx.region)
-    if ctx.query.trip_type == "day" and (centroid is None or move_minutes(
-            (ctx.origin.lat, ctx.origin.lng), centroid, ctx.query.transport) > GWANGJU_LINK_MAX_MIN):
-        return None
-    start = (ctx.origin.lat, ctx.origin.lng)
-    pool: list[PlaceLite] = []
-    for code in sorted(c for c in sigungu_map() if c.startswith("29")):
-        for hub in ctx.snapshot.hubs.get(code, [])[:10]:
-            place = ctx.snapshot.places.get(hub.content_id or "")
-            if place and place.content_type_id == "14" and place.coord:
-                pool.append(place)
-    if not pool:
-        pool = [p for code in sigungu_map() if code.startswith("29")
-                for p in ctx.snapshot.of_type(code, "14") if p.coord]
-    pool = [p for p in pool if closed_on(p, ctx.dates[0]) is not True]
-    return min(pool, key=lambda p: (haversine_km(start, p.coord), p.content_id)) if pool else None
 
 
 def pick_spots(ctx: Ctx, count: int, required: list[PlaceLite], excluded: set[str]) -> list[PlaceLite]:
@@ -538,7 +515,10 @@ def build_course(snapshot: Snapshot, query: TripQuery, origin: Origin, region: s
     stay_checks(ctx)
     required = resolve_required(ctx)
     required_ids = {p.content_id for p in required}
-    link = None if fixed else gwangju_link(ctx)
+    # No automatic stop outside the chosen destination: the former "Gwangju culture spot first" rule put the
+    # same Gwangju place into every course just because the origin was in Gwangju. Spots now come only from
+    # the destination's candidates; `link` stays None (kept for the existing plan/trim plumbing).
+    link: PlaceLite | None = None
     excluded: set[str] = set()
     base_warnings, base_notes = list(ctx.warnings), list(ctx.notes)
     for _ in range(10):

@@ -383,6 +383,8 @@ class ProgramEvaluation(BaseModel):
     last_verified_at: datetime | None
     conflicts: list[FieldConflict]
     related_program_ids: list[str] = Field(default_factory=list)
+    audience: Literal["general", "targeted"] = Field(
+        default="general", description="general = 일반 관광객 대상, targeted = 특정 대상 전용 관광지원(대상 여부 확인 필요)")
 
 
 class SourceStatus(BaseModel):

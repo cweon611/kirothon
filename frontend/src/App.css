@@ -8,3 +8,9 @@ html{color-scheme:light;scroll-behavior:auto}body{font-size:15px;line-height:1.6
 .hero-title{max-width:none}
 
 .review-preview-notice{padding:9px 16px;background:#e9d9af;color:#3b4a48;font-size:11px;line-height:1.7;text-align:center}
+
+/* Overflow fixes only: long names, collected notice text and long link labels wrap instead of overflowing. */
+.benefit-program,.region-name,.comparison-card h2,.source-text,.region-description{overflow-wrap:anywhere}
+/* Collected notice text keeps its own line breaks (e.g. 지역화폐 / 숙박 증빙 on separate lines). */
+.source-text,.region-description,.comparison-card p{white-space:pre-line}
+.official-cta{white-space:normal;text-align:center}

@@ -214,6 +214,9 @@ def create_course(body: CourseIn, session: SessionDep):
     snapshot = load_snapshot(session)
     if snapshot.is_empty:
         return error(503, "tourism_cache_empty", "관광 데이터 캐시가 비어 있어 코스를 만들 수 없어요.")
+    if not snapshot.spots(body.sigungu_code):
+        # A course without a single collected spot would be an empty template, not a recommendation.
+        return error(503, "tourism_cache_empty", "이 지역의 관광 데이터가 아직 수집되지 않아 일정을 만들 수 없어요.")
     query = body.to_query(body.meal_cost_krw, body.room_price_krw)
     program, status = None, "none"
     if body.program_id:

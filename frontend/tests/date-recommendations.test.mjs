@@ -12,7 +12,10 @@ const response = (states, festivals = [], undated = [], status = 'ok') => ({
 test('festival adapter keeps the destination, never invents links, and separates failure from none',()=>{
   const ok = festivalsFromSelected(response({festivals:'found'},[fest('a','2026-10-23','2026-11-21')],[fest('b',null,null)]),'무안군')
   assert.equal(ok.state,'found')
-  assert.deepEqual(ok.rows.map(r=>[r.id,r.region_name,r.source_url,r.location]),[['a','무안군','','장소 미확인'],['b','무안군','','장소 미확인']])
+  // Missing place/link/dates stay empty so the card leaves those rows out (no placeholder text).
+  assert.deepEqual(ok.rows.map(r=>[r.id,r.region_name,r.source_url,r.location,r.period_note]),
+    [['a','무안군','','','2026-10-23 ~ 2026-11-21'],['b','무안군','','','']])
+  assert.equal(festivalsFromSelected(response({festivals:'found'},[{...fest('c','2026-11-20','2026-11-20'),place:'  ',source_url:'  '}]),'무안군').rows[0].location,'')
   assert.equal(festivalState(ok.rows[0],'2026-11-20','2026-11-22','2026-10-30'),'match')   // started before the trip, still running
   assert.equal(festivalState(ok.rows[1],'2026-11-20','2026-11-22','2026-10-30'),'unknown')
   assert.equal(ok.usingPrevious,false)
@@ -79,4 +82,39 @@ test('labels map internal field names and distinguish manual registry data',()=>
   assert.match(originLabel({data_origin:'kto_tour50'}),/공식 페이지/)
   assert.equal(periodText(null),'미확인')
   assert.equal(periodText({start:'2026-11-01',end:null}),'2026-11-01 ~ 미확인')
+})
+
+import { benefitsFromSelected } from '../src/lib/date-recommendations.ts'
+const item = (id, judgment, over = {}) => ({ program_id: id, round_id: null, name: `제도 ${id}`, judgment, posted_status: null,
+  application_open: null, trip_period: null, application_period: null, application_start_at: null, application_end_at: null,
+  support: null, payout_method: null, conditions_text: null, estimated_amount: null, budget_remaining: null,
+  apply_url: null, official_url: null, missing_user_fields: [], needs_official_check: [], reasons: [], data_origin: 'manual_registry',
+  source_type: 'news_report', verification_status: 'unverified', review_status: null, last_success_at: null, last_verified_at: null,
+  stale: null, sources: [], ...over })
+test('step 3 programs come from the period lookup: every program kept, needs_verification never upgraded', () => {
+  const data = { selected_region: { sigungu_code: '46810', name: '강진군', festivals: [], festivals_undated: [],
+    states: { festivals: 'none_in_period', festivals_stale: false, benefits: 'found', benefits_partial: true, needs_user_info: true },
+    benefits: {
+      applicable: [],
+      needs_verification: [
+        item('kto50:12780-2026-3', 'needs_verification', { data_origin: 'kto_tour50', source_type: 'official_webpage',
+          trip_period: { start: '2026-10-20', end: '2026-11-30' }, posted_status: 'open',
+          apply_url: 'https://www.gangjintour.com/', official_url: 'https://www.gangjintour.com/',
+          sources: [{ type: 'official_webpage', title: '한국관광공사 대한민국 반값여행 현황', url: 'https://korean.visitkorea.or.kr/dgtourcard/tour50.do' }] }),
+        item('manual:muan', 'needs_verification', { official_url: 'https://news.mtn.co.kr/a',
+          sources: [{ type: 'news_report', title: 'MTN 보도', url: 'https://news.mtn.co.kr/a' }] })],
+      excluded: [item('kto50:12780-2026-2', 'ineligible', { excluded_reason: '여행 인정 기간 불충족' })] } },
+    data_status: { festivals: { status: 'ok', last_success_at: null } } }
+  const extra = [{ id: 'kto50:12780-2026-3@강진군', payment_rule: 'chak 앱', conditions: '관광지 2개소 방문', contact: '061-433-3349' }]
+  const out = benefitsFromSelected(data, '강진군', extra)
+  assert.deepEqual(out.shown.map(b => [b.id, b.judgment]), [['kto50:12780-2026-3@강진군', 'needs_verification'], ['manual:muan@강진군', 'needs_verification']])
+  assert.equal(out.excluded[0].excluded_reason, '여행 인정 기간 불충족')
+  assert.equal(out.partial, true)
+  const [gj, muan] = out.shown
+  assert.deepEqual([gj.payment_rule, gj.conditions, gj.contact, gj.source_status], ['chak 앱', '관광지 2개소 방문', '061-433-3349', '신청접수중'])
+  assert.equal(gj.period_note, '여행 인정 기간 2026-10-20 ~ 2026-11-30')
+  // Unknown period / no official page: card stays, period says 미확인, the news report is not an official link.
+  assert.equal(muan.period_note, '여행 인정 기간 미확인')
+  assert.deepEqual(muan.source_pages, [])
+  assert.equal(benefitsFromSelected({ selected_region: null }, '강진군').state, 'unavailable')
 })

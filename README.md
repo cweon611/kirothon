@@ -162,6 +162,24 @@ PowerShell 창 두 개에서 각각 실행:
 ```
 
 접속: http://127.0.0.1:5173. 로컬 DB는 프로젝트 .local-data/에만 저장한다.
+
+### 로컬 데이터 준비 (일정 추천·축제·지원제도)
+
+1. `backend\.env.example`을 `backend\.env`로 복사하고 공공데이터포털 Decoding 키를 넣는다
+   (`TOURAPI_SERVICE_KEY`: 관광공사 국문 관광정보·중심/연관 관광지, `KIROTHON_DATA_GO_KR_SERVICE_KEY`: 공공서비스(혜택)).
+   `backend\.env`는 git에 올리지 않는다.
+2. 한 번에 준비: `.\scripts\prepare-data.ps1`
+   - 1단계 관광 수집(`app.team.sync_tourism`): 관광지·음식점·숙소·축제·중심/연관 관광지
+   - 2단계 지원제도 수집(`app.team.benefits.cli sync`): 반값여행 현황 페이지(키 불필요) + 공공서비스 API
+   - 3단계 준비 상태 보고(`app.team.data_readiness`): 시군구별 관광지·음식점·숙소 수, 일정 생성 가능 여부, 출처별 마지막 정상 수집 시각
+   - 마지막 요약에서 단계별 `ok`/`failed`와 `course_data`(27개 시군구 모두 관광지 보유 여부)를 확인한다. 하나라도 실패하면 종료 코드 1.
+   - 기존 데이터는 지우지 않는다. 실패한 출처는 이전 정상 자료를 유지하고, 화면에 '이전 자료 사용 중'으로 표시된다.
+3. 상태만 다시 보기: backend 폴더에서 `.\.venv\Scripts\python.exe -m app.team.data_readiness` (dev-backend.ps1과 같은 DB를 보려면 `$env:KIROTHON_DB_PATH`를 `.local-data\records.sqlite3`로 지정).
+
+`prepare-date-data.ps1`은 이전 이름으로 남겨 두었고 같은 준비 명령을 실행한다. 데이터 준비 후 dev-backend.ps1을 다시 시작할 필요는 없다.
+
+운영 방식 실행(개발 프록시 없이 API가 빌드된 화면까지 제공, DB는 코드 폴더 밖 `$HOME\kirothon-data`), 환경변수 전체 목록,
+자동 갱신 주기와 서버(systemd·nginx) 적용 방법은 [docs/operations.md](docs/operations.md)에 정리했다.
 창을 닫거나 Ctrl+C를 누르면 로컬 개발 프로세스만 종료된다. 서버 서비스는 영향을 받지 않는다.
 setup-local.ps1은 버전 확인 후 기존 로컬 의존성 환경을 설치/동기화하므로 본인 작업 복사본에서만 실행한다.
 
