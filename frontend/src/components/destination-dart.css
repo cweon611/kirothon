@@ -1,61 +1,59 @@
 /* The map is the first screen: controls float over a single full-viewport scene. */
-.app-shell.dart-home-shell{display:block;background:#17394f;color:#edf2eb;min-height:100dvh}
+.app-shell.dart-home-shell{--map-paper:#fffdf6;display:block;background:var(--map-paper);color:#355647;min-height:100dvh}
 .dart-home-shell .desktop-rail,.dart-home-shell .mobile-step-label,.dart-home-shell .mobile-progress,.dart-home-screen .slogan{display:none}
 .dart-home-shell .app-main{margin:0;max-width:none;width:100%;background:transparent}
 .dart-home-screen{width:100%;max-width:none;height:100dvh;margin:0;padding:0;position:relative;overflow:hidden}
 .dart-home-screen .site-header{position:absolute;z-index:20;inset:16px 24px auto;height:48px;padding:0;border:0;pointer-events:none}
 .dart-home-screen .site-header button{pointer-events:auto}
-.dart-home-screen .brand,.dart-home-screen .brand-name{color:#f5f3e9}
-.dart-home-screen .brand{filter:drop-shadow(0 2px 9px #10253688)}
-.dart-home-screen .brand-mark{background:#efc47e;color:#183b47}
-.dart-home-screen .icon-button{color:#d8e4e2;background:#132f43d9;border:1px solid #78939966;border-radius:50%}
-.dart-home-shell .review-preview-notice{position:fixed;z-index:22;bottom:10px;left:18px;max-width:calc(100% - 36px);border-radius:6px;padding:4px 8px;background:#153043dd;color:#b6c8c7;font-size:9px;text-align:left;pointer-events:none}
-.dart-experience{position:relative;width:100%;height:100%;isolation:isolate;background:radial-gradient(ellipse at 50% 35%,#2c5367,#112c40)}
-.dart-experience:before{content:'';position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(#aecacb0c 1px,transparent 1px),linear-gradient(90deg,#aecacb0c 1px,transparent 1px);background-size:64px 64px}
+.dart-home-screen .brand{filter:none}
+.dart-home-screen .icon-button{color:#536e59;background:#fffdf7;border:1px solid #dce2d5;border-radius:50%}
+.dart-home-shell .review-preview-notice{position:fixed;z-index:22;bottom:10px;left:18px;max-width:calc(100% - 36px);border-radius:6px;padding:4px 8px;background:#f0eddfed;color:#66735f;font-size:9px;text-align:left;pointer-events:none}
+.dart-experience{position:relative;width:100%;height:100%;isolation:isolate;background:var(--map-paper)}
+.dart-experience:before{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(#839a761c .8px,transparent .8px);background-size:22px 22px;mask-image:linear-gradient(to bottom,transparent 80px,#000 180px)}
 .dart-stage{position:absolute;inset:0;overflow:hidden}
 .destination-map{display:block;width:100%;height:100%;max-height:none;user-select:none;-webkit-user-select:none}
-.map-region-summary{position:absolute;z-index:3;left:26px;top:83px;display:flex;align-items:center;gap:8px;color:#d9e1d8;font-size:13px;pointer-events:none}
-.map-region-summary svg{color:#edc991}.map-region-summary small{color:#a7bdc2;font-size:11px;padding-left:8px;border-left:1px solid #78959e66}
+.map-region-summary{position:absolute;z-index:3;left:26px;top:83px;display:flex;align-items:center;gap:8px;color:#4c6854;font-size:13px;pointer-events:none}
+.map-region-summary svg{color:#c47c4c}.map-region-summary small{color:#6d7c6b;font-size:11px;padding-left:8px;border-left:1px solid #d8dece}
 .dart-controls{position:absolute;right:83px;top:18px;z-index:25}
 .dart-secondary-actions{display:flex;gap:8px}
-.dart-secondary-actions button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:9px 14px;background:#132f43e6;border:1px solid #78939966;border-radius:12px;color:#edf1e5;font-size:13px;backdrop-filter:blur(12px)}
-.dart-secondary-actions button:hover{background:#2a5063;color:#f3d49b}
-.dart-direct-list{position:absolute;right:0;top:54px;width:336px;max-width:calc(100vw - 32px);max-height:min(65dvh,470px);overflow-y:auto;overscroll-behavior:contain;padding:14px;background:#17394ff5;border:1px solid #67818b88;border-radius:16px;box-shadow:0 16px 60px #07172655;backdrop-filter:blur(20px)}
-.destination-group h2{color:#f1d8a6;font-size:14px;margin:10px 4px}
-.destination-group h2 span{color:#b7c9cc;font-weight:400;margin-left:8px;font-size:12px}
+.dart-secondary-actions button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:9px 14px;background:#fffdf8ed;border:1px solid #dce2d5;border-radius:16px;color:#3b5b46;font-size:13px;backdrop-filter:blur(12px)}
+.dart-secondary-actions button:hover{background:#eef2e5;color:#355c43}
+.dart-direct-list{position:absolute;right:0;top:54px;width:336px;max-width:calc(100vw - 32px);max-height:min(65dvh,470px);overflow-y:auto;overscroll-behavior:contain;padding:14px;background:#fffdf8fa;border:1px solid #dce2d5;border-radius:16px;box-shadow:0 16px 45px #4e61441a;backdrop-filter:blur(20px)}
+.destination-group h2{color:#426248;font-size:14px;margin:10px 4px}
+.destination-group h2 span{color:#73816b;font-weight:400;margin-left:8px;font-size:12px}
 .destination-group>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:14px}
-.destination-group button{display:flex;align-items:center;justify-content:space-between;gap:4px;min-height:44px;border:1px solid #53748566;background:#24495e;border-radius:8px;padding:8px 9px;color:#edf2df;font-size:12px}
-.destination-group button:hover{background:#3e6572;border-color:#e9c585}
-.dart-error{position:absolute;right:0;top:55px;max-width:280px;background:#17394ff0;padding:10px 14px;border-radius:10px;color:#e6d7b4;font-size:11px}
+.destination-group button{display:flex;align-items:center;justify-content:space-between;gap:4px;min-height:44px;border:1px solid #e0e5d7;background:#f3f5ec;border-radius:8px;padding:8px 9px;color:#425d48;font-size:12px}
+.destination-group button:hover{background:#e9efdf;border-color:#9aaf86}
+.dart-error{position:absolute;left:0;top:54px;width:300px;max-width:calc(100vw - 32px);display:flex;align-items:center;gap:10px;background:#fff9eef0;padding:5px 10px;border:1px solid #e9dfcb;border-radius:10px;color:#7d6a50;font-size:10px}.dart-error button{flex-shrink:0}
 .dart-direct-list~.dart-error{position:static;margin-top:10px}.dart-error button{text-decoration:underline;min-height:32px}
-.map-compass{position:absolute;right:29px;top:91px;z-index:2;color:#9fb8bd;font-size:10px;display:flex;flex-direction:column;align-items:center;pointer-events:none}.map-compass span{font-size:30px;line-height:1.3}
-.county{transition:fill .4s,fill-opacity .4s,stroke .4s}.county.selected-county{fill:#f5c479!important;fill-opacity:1!important;stroke:#fff5db;stroke-width:2}
-.sling-destination{pointer-events:auto;cursor:pointer;outline:none}.sling-destination text{opacity:0;pointer-events:none;fill:#fff7e0;stroke:#173347;stroke-width:4px;paint-order:stroke;stroke-linejoin:round;font-size:14px;font-weight:650}
-.sling-destination:hover text,.sling-destination:focus text,.sling-destination.picked text{opacity:1}.sling-destination:focus circle{stroke:#fff;stroke-width:3px}
-.region-pin-halo{fill:#f9d185;fill-opacity:.2}.sling-destination.picked .region-pin-halo{fill-opacity:.55}
-.gwangju-label{font-size:16px;fill:#55405d;paint-order:stroke;stroke:#e7c7df;stroke-width:2px;font-weight:700;letter-spacing:3px}.sea-label{fill:#9bb8bc;font-size:12px;opacity:.6;letter-spacing:5px}
-.landing-ring{fill:none;stroke:#ffe7b6;stroke-width:.7;stroke-dasharray:2 3;opacity:.7}
-.sling-projectile{touch-action:none;cursor:grab;outline:none}.sling-projectile:active{cursor:grabbing}.sling-projectile:focus-visible .sling-grab-ring{stroke:white;stroke-width:3;stroke-dasharray:none}.sling-touch-area{pointer-events:all}
-.slingshot-art{filter:drop-shadow(0 5px 4px #07192960);pointer-events:none}.has-result .slingshot-art{opacity:.3}
-.pull-hint text{fill:#d9c293;font-size:12px}
-.sling-status{position:absolute;left:16px;right:16px;bottom:44px;color:#d0dfd9;font-size:12px;display:flex;align-items:center;justify-content:center;gap:14px;pointer-events:none;text-shadow:0 2px 5px #102b3d}
-.is-aiming .sling-status{color:#ffe3a7}.has-result .sling-status{visibility:hidden}
-.dart-result{position:absolute;z-index:5;bottom:52px;left:16px;right:16px;max-width:350px;margin:auto;background:#f6f5ed;color:#163b4b;border:1px solid #fff9eb;border-radius:20px;padding:21px 24px 14px;box-shadow:0 12px 60px #071e3b66;animation:result-reveal .3s ease both}
+.map-compass{position:absolute;right:29px;top:91px;z-index:2;color:#84917a;font-size:10px;display:flex;flex-direction:column;align-items:center;pointer-events:none}.map-compass span{font-size:30px;line-height:1.3}
+.county{transition:fill .4s,fill-opacity .4s,stroke .4s}.county.selected-county{fill:#f2bc93!important;fill-opacity:1!important;stroke:#fffdf6;stroke-width:2}
+.sling-destination{pointer-events:auto;cursor:pointer;outline:none}.sling-destination text{opacity:0;pointer-events:none;fill:#294830;stroke:#fffdf3;stroke-width:3px;paint-order:stroke;stroke-linejoin:round;font-size:15px;font-weight:700}
+.sling-destination.labeled-destination text,.sling-destination:hover text,.sling-destination:focus text,.sling-destination.picked text{opacity:1} .sling-destination:focus circle{stroke:#31583d;stroke-width:3px}
+.region-pin-halo{fill:#d9875f;fill-opacity:.12}.sling-destination.picked .region-pin-halo{fill-opacity:.55}
+.gwangju-label{font-size:16px;fill:#4b684c;paint-order:stroke;stroke:#edf2dd;stroke-width:2px;font-weight:700;letter-spacing:3px}.sea-label{fill:#60796b;font-size:12px;opacity:1;letter-spacing:5px}
+.landing-ring{fill:none;stroke:#bc7951;stroke-width:.7;stroke-dasharray:2 3;opacity:.7}
+.sling-projectile{touch-action:none;cursor:grab;outline:none}.sling-projectile:active{cursor:grabbing}.sling-projectile:focus-visible .sling-grab-ring{stroke:#547a52;stroke-width:3;stroke-dasharray:none}.sling-touch-area{pointer-events:all}
+.slingshot-art{filter:drop-shadow(0 4px 3px #88604425);pointer-events:none}.has-result .slingshot-art{opacity:.3}
+.pull-hint text{fill:#7b8066;font-size:12px}
+.sling-status{position:absolute;left:16px;right:16px;bottom:44px;color:#556c51;font-size:12px;display:flex;align-items:center;justify-content:center;gap:14px;pointer-events:none}
+.is-aiming .sling-status{color:#9b5b39}.has-result .sling-status{visibility:hidden}
+.dart-result{position:absolute;z-index:5;bottom:52px;left:16px;right:16px;max-width:350px;margin:auto;background:#fffdf7;color:#35533e;border:1px solid #e0e5d5;border-radius:20px;padding:21px 24px 14px;box-shadow:0 12px 45px #50624026;animation:result-reveal .3s ease both}
 .result-stamp{display:flex;align-items:center;gap:6px;font-size:11px;color:#967039}.dart-result-title{display:flex;align-items:center;justify-content:space-between;margin-top:10px}.dart-result-title>div>span{font-size:11px;color:#657a72}.dart-result-title h2{font-size:30px;line-height:1.35;letter-spacing:-.03em;font-weight:750;margin:2px 0 0;outline:none}
 .destination-seal{display:grid;place-items:center;width:47px;height:47px;border-radius:50%;border:1px dashed #b3c2b2;color:#628776;background:#e9eee4}
 .dart-result>p{font-size:12px;line-height:1.7;color:#536c61;margin:10px 0 13px}
-.dart-result-cta{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#173c4b;color:#f8f7ed;border-radius:11px;min-height:48px;padding:11px 15px;font-size:14px;font-weight:600;width:100%}.dart-result-cta:hover{background:#28576a}
+.dart-result-cta{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#52734e;color:#fffdf5;border-radius:11px;min-height:48px;padding:11px 15px;font-size:14px;font-weight:600;width:100%}.dart-result-cta:hover{background:#3f603c}
 .sling-result-reset{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;min-height:38px;font-size:12px;color:#48665a;margin-top:6px}.sling-result-reset:hover{text-decoration:underline}
-.dart-footer{position:absolute;z-index:3;right:22px;bottom:13px;font-size:9px;color:#a1b7bd}.dart-footer a{display:flex;align-items:center;gap:5px}
-.dart-home-shell button:focus-visible,.dart-home-shell a:focus-visible{outline:3px solid #f4cf8b;outline-offset:4px}
+.dart-footer{position:absolute;z-index:3;right:22px;bottom:13px;font-size:9px;color:#73816d}.dart-footer a{display:flex;align-items:center;gap:5px}
+.dart-home-shell button:focus-visible,.dart-home-shell a:focus-visible{outline:3px solid #72925e;outline-offset:4px}
 @keyframes result-reveal{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 .trip-edit-dialog{background:#fbfaf5!important;color:#193744!important;max-height:90dvh;overflow:auto}.trip-edit-dialog .field-grid{margin-top:12px}.trip-edit-dialog .field{background:white}.trip-edit-dialog .field-help{margin-bottom:0}
 @media(max-width:700px),(min-width:500px){
- .dart-home-screen .site-header{inset:12px 16px auto;height:44px}.dart-home-screen .brand-name{font-size:18px}
+ .dart-home-screen .site-header{inset:12px 16px auto;height:48px}.dart-home-screen .brand-logo{width:128px;height:48px}
  .map-region-summary{left:17px;top:70px;font-size:12px}.map-region-summary small{font-size:10px}
  .dart-controls{top:105px;left:16px;right:auto}.dart-secondary-actions button{font-size:12px;padding:8px 12px;min-height:42px}
  .dart-direct-list{left:0;right:auto;top:51px;max-height:calc(100dvh - 220px)}
- .map-compass{top:72px;right:24px}.sling-destination text{font-size:17px}
+ .map-compass{top:72px;right:24px}.sling-destination text{font-size:15px}
  .dart-result{bottom:70px;padding:17px 20px 10px;max-width:335px}.dart-result-title h2{font-size:27px}
  .sling-status{bottom:68px;font-size:11px;gap:8px}.dart-footer{bottom:42px;left:16px;right:auto;font-size:8px}
  .dart-home-shell .review-preview-notice{left:8px;bottom:6px;max-width:calc(100% - 16px);font-size:8px}

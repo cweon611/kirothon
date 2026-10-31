@@ -2,7 +2,7 @@ import type { Trip } from './benefits'
 import { SIGUNGU } from './course.ts'
 
 // Shapes from POST /api/benefits/check and POST /api/team/courses/{id}/refund (docs/benefits-api.md).
-export type Condition = {code:string; label?:string|null; status:string; detail?:string|null}
+export type Condition = {code:string; label?:string|null; status:string; detail?:string|null; rule_confirmed?:boolean}
 export type Estimate = {
   benefit_type?:string|null; amount:number|null; amount_kind?:string|null; recognized_spend?:number|null;
   refund_rate?:number|null; cap_amount?:number|null; min_spend?:number|null; shortfall_to_min_spend?:number|null;
@@ -83,11 +83,30 @@ export function tripCheckRequest(profile:Profile, trip:Trip, region:string, end:
 }
 
 export const VERDICT = {
-  potentially_eligible:{label:'받을 가능성이 있어요',tone:'green'},
-  needs_verification:{label:'확인이 더 필요해요',tone:'orange'},
-  ineligible:{label:'이번 조건으로는 어려워요',tone:'gray'},
+  potentially_eligible:{label:'입력 기준 충족',tone:'green'},
+  needs_verification:{label:'추가 확인 필요',tone:'orange'},
+  ineligible:{label:'미충족 조건 있음',tone:'gray'},
 } as Record<string,{label:string;tone:string}>
 export const verdictOf = (value:string) => VERDICT[value] ?? {label:'판정 정보 없음',tone:'gray'}
+
+/** API met_conditions also contains not_applicable; unverified rules are never confirmed matches. */
+export function conditionGroups(row:Pick<CheckResult,'met_conditions'|'unmet_conditions'|'unresolved_conditions'>) {
+  const groups:{met:Condition[];unmet:Condition[];notApplicable:Condition[];review:Condition[]} = {met:[],unmet:[],notApplicable:[],review:[]}
+  for (const condition of [...(row.met_conditions??[]),...(row.unmet_conditions??[]),...(row.unresolved_conditions??[])]) {
+    if (condition.rule_confirmed!==true) groups.review.push(condition)
+    else if (condition.status==='met') groups.met.push(condition)
+    else if (condition.status==='unmet') groups.unmet.push(condition)
+    else if (condition.status==='not_applicable') groups.notApplicable.push(condition)
+    else groups.review.push(condition)
+  }
+  return groups
+}
+
+export function conditionReviewLabel(condition:Condition) {
+  if (condition.status==='missing_user_info') return '정보 입력 필요'
+  if (condition.status==='conflict') return '출처 불일치'
+  return '공고 기준 확인 필요'
+}
 
 const FIELD_LABELS:Record<string,string> = {
   residence:'거주지', birth_date:'생년월일', age:'나이', is_family:'가족 여행 여부', same_address:'같은 주소 여부',

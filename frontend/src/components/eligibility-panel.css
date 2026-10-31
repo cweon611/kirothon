@@ -37,6 +37,13 @@
 .eligibility-conditions>span,.eligibility-missing>span{display:flex;align-items:center;gap:5px;font-weight:800}
 .eligibility-conditions.unmet>span{color:var(--coral-dark)}
 .eligibility-conditions.met>span{color:var(--green)}
+.eligibility-conditions.review>span{color:var(--orange)}
+.eligibility-conditions.neutral>span{color:var(--gray-600)}
+.eligibility-conditions>span small{margin-left:auto;font-size:11px;font-weight:500}
+.eligibility-conditions li{margin-top:8px}
+.eligibility-conditions li p{margin:2px 0 0;font-size:12px;overflow-wrap:anywhere}
+.condition-review-label{display:inline-block;margin-left:6px;padding:1px 5px;border-radius:4px;background:var(--orange-pale);color:var(--orange);font-size:10px;font-style:normal}
+.eligibility-result-context{font-size:11px;line-height:1.7;color:var(--gray-600)}
 .eligibility-missing>span{color:var(--orange)}
 .eligibility-conditions ul,.eligibility-missing ul,.eligibility-notes,.eligibility-note ul{margin:4px 0 0;padding-left:18px;line-height:1.6;color:var(--navy-soft)}
 .eligibility-notes{font-size:11px;color:var(--gray-600)}

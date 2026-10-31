@@ -28,7 +28,7 @@ export function FestivalRecommendations({region,trip}:{region:string;trip:Trip})
   const shown=showAll?ranked:live.slice(0,3)
   const stateLabels={match:'여행일과 겹쳐요',other:'다른 일정',unknown:'일정 확인 필요',ended:'종료된 행사',unconfirmed:'개최 여부 확인 필요'}
   return <section className="festival-section" aria-labelledby="festival-title">
-    <div className="festival-intro"><span className="festival-eyebrow"><Sparkles size={15}/> 여행의 이유가 되는 순간</span><h2 id="festival-title">{region}에서 만나는 축제</h2><p>가고 싶은 축제 하나, 이번 여행에 더해보세요.</p></div>
+    <div className="festival-intro"><span className="festival-eyebrow"><Sparkles size={15}/> 지역 축제 안내</span><h2 id="festival-title">{region} 축제</h2><p>여행일 기준 지역 축제 추천</p></div>
     <div className="festival-trip"><CalendarDays size={17}/><span>{trip.date} ~ {end}</span><strong>{loading?'확인 중':`여행일에 맞는 축제 ${matching.length}개`}</strong></div>
     {loading?<div className="festival-empty" role="status"><RefreshCw className="loading-spin" size={22}/><p>지역 축제를 찾고 있어요.</p></div>:error?<div className="festival-empty" role="alert"><p>축제 정보를 불러오지 못했어요.</p><button className="text-button" onClick={()=>{setLoading(true);setError(false);setRetry(value=>value+1)}}>다시 불러오기</button></div>:<>
       {!matching.length&&<p className="festival-hint">{live.length?'여행일과 겹치는 축제는 아직 없어요. 다른 일정의 축제를 둘러보세요.':ranked.length?'현재 확인된 예정 축제가 없어요. 지난 축제를 참고하거나 공식 목록을 확인해 주세요.':'이 지역에서 확인된 축제 정보가 아직 없어요. 새 일정은 공식 목록에서 확인해 주세요.'}</p>}

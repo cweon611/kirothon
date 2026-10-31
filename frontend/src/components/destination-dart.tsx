@@ -5,11 +5,28 @@ import { mapPoint, clampPull, randomLanding, nearestDestination, flightPoint, SL
 import { isOpen, isStale, type Benefit } from '@/lib/benefits'
 import { regionDirectionsUrl } from '@/lib/directions'
 import { DirectionsLink } from '@/components/directions-link'
+import slingshotImage from '@/assets/slingshot-front.png'
 import './destination-dart.css'
 
-const palette = ['#82b3aa', '#9caac9', '#c9b68c', '#aabda0', '#c69ca8', '#a0b5c5']
+const palette = ['#719568', '#93ad7c', '#b1bb8d', '#819e73', '#a2b581', '#88a57c']
 const anchors = map.regions.map(region => ({ ...region, ...mapPoint(region) }))
 const labelOffsets: Record<string, Point> = {강진군:{x:-24,y:-10},장흥군:{x:25,y:-12},해남군:{x:-22,y:20},완도군:{x:0,y:24},영암군:{x:0,y:-16},고흥군:{x:0,y:-16},영광군:{x:0,y:-16}}
+// Front-facing sprite: collars sit at 19% / 81% of the square, 15% from its top.
+const slingFrame = { x: SLING.x - 77, y: SLING.y - 44, size: 154 }
+const slingForks = {
+  left: { x: slingFrame.x + slingFrame.size * .19, y: slingFrame.y + slingFrame.size * .15 },
+  right: { x: slingFrame.x + slingFrame.size * .81, y: slingFrame.y + slingFrame.size * .15 },
+}
+
+function TravelToken() {
+  return <g aria-hidden="true">
+    <ellipse cy="19" rx="13" ry="3" fill="#a96b48" opacity=".12"/>
+    <circle r="18" fill="url(#sling-ball)" stroke="#fffaf0" strokeWidth="2.5"/>
+    <path d="M-11 -8Q-7 -13 -1 -13" fill="none" stroke="#ffe6d2" strokeWidth="2.5" strokeLinecap="round"/>
+    <path d="M-9 -2L10 -8L4 10L0 3Z" fill="#fffdf5" stroke="#fffdf5" strokeWidth="1.5" strokeLinejoin="round"/>
+    <path d="M0 3L5 -3" stroke="#df916d" strokeWidth="1.3" strokeLinecap="round"/>
+  </g>
+}
 
 export function DestinationDart({ data, loading, error, origin, onRetry, onChoose, onBrowse }: {
   data: Benefit[]; loading: boolean; error: string; origin: string; onRetry: () => void;
@@ -21,7 +38,7 @@ export function DestinationDart({ data, loading, error, origin, onRetry, onChoos
   const [pull, setPull] = useState<Point>({x:0,y:0})
   const [ball, setBall] = useState<Point | null>(null)
   const [landing, setLanding] = useState<Point | null>(null)
-  const [message, setMessage] = useState('노란 탄환을 아래로 당겼다가 놓아보세요.')
+  const [message, setMessage] = useState('살구빛 공을 당겨, 오늘의 여행지를 만나보세요.')
   const [directOpen, setDirectOpen] = useState(false)
   const svg = useRef<SVGSVGElement>(null)
   const handle = useRef<SVGGElement>(null)
@@ -102,18 +119,24 @@ export function DestinationDart({ data, loading, error, origin, onRetry, onChoos
     <div className={`dart-stage sling-stage ${dragging?'is-aiming':''} ${flying?'is-flying':''} ${result?'has-result':''}`}>
       <div className="map-compass" aria-hidden="true">N<span>✦</span></div>
       <svg ref={svg} className="destination-map sling-map" viewBox="0 0 520 650" role="group" aria-label="광주 전남 여행지도와 직접 당기는 새총">
-        <defs><radialGradient id="map-ocean"><stop stopColor="#244e66"/><stop offset="1" stopColor="#132e45"/></radialGradient><pattern id="map-grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#aecacb" strokeOpacity=".07" strokeWidth=".7"/></pattern><linearGradient id="sling-wood" x1="0" y1="0" x2="1" y2="0"><stop stopColor="#925a34"/><stop offset=".5" stopColor="#d7a46d"/><stop offset="1" stopColor="#b47741"/></linearGradient><radialGradient id="sling-ball" cx=".3" cy=".25"><stop stopColor="#fff0b2"/><stop offset=".6" stopColor="#edbd66"/><stop offset="1" stopColor="#b77b36"/></radialGradient></defs>
+        <defs><radialGradient id="sling-ball" cx=".3" cy=".2" r=".85"><stop stopColor="#ffc9a5"/><stop offset=".65" stopColor="#f39c76"/><stop offset="1" stopColor="#dc805d"/></radialGradient></defs>
 
-        <g transform="translate(-300 -1070) scale(3)" aria-hidden="true">{map.provinces.map(province=><path key={province.name} d={province.path} fill={province.name==='Gwangju'?'#bd9fb8':'#94b4a4'} stroke="#e1ead8" strokeWidth=".5"/>)}{map.counties.map((county,i)=><path key={`${county.name}-${i}`} className={destination?.shape===county.name?'county selected-county':'county'} d={county.path} fill={palette[i%palette.length]} fillOpacity=".82" stroke="#dfe9dc" strokeWidth=".7" vectorEffect="non-scaling-stroke"/>)}</g>
+        <g transform="translate(-300 -1070) scale(3)" aria-hidden="true">{map.provinces.map(province=><path key={province.name} d={province.path} fill={province.name==='Gwangju'?'#a6b57c':'#7e9e73'} stroke="#f7f5ed" strokeWidth=".5"/>)}{map.counties.map((county,i)=><path key={`${county.name}-${i}`} className={destination?.shape===county.name?'county selected-county':'county'} d={county.path} fill={palette[i%palette.length]} fillOpacity="1" stroke="#fffdf3" strokeWidth="1.2" vectorEffect="non-scaling-stroke"/>)}</g>
         <text className="gwangju-label" x="262" y="113" textAnchor="middle">광주</text><text className="sea-label" x="45" y="325">서 해</text><text className="sea-label" x="398" y="469">남 해</text>
-        {anchors.map(region=>{const offset=labelOffsets[region.name] || {x:0,y:-15};return <g key={region.name} transform={`translate(${region.x},${region.y})`} className={`sling-destination ${result?.region_name===region.name?'picked':''}`} role="button" tabIndex={flying?-1:0} aria-label={`${region.name} 선택`} onClick={()=>select(region)} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();select(region)}}}><circle className="region-pin-halo" r="12"/><circle r="5" fill={result?.region_name===region.name?'#fff1c8':'#efc77f'} stroke="#184255" strokeWidth="2"/><text x={offset.x} y={offset.y} textAnchor="middle">{region.name}</text>{result?.region_name===region.name&&<circle className="landing-ring" r="20"/>}</g>})}
-        {aiming && <g className="sling-aim" aria-hidden="true" transform={`translate(${SLING.x},${SLING.y-10}) rotate(${Math.atan2(direction.y,direction.x)*180/Math.PI+90})`}><path d="M0 -32V-76M-6 -68L0 -76L6 -68" fill="none" stroke="#ffe2a5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity=".8"/></g>}
+        {anchors.map(region=>{const offset=labelOffsets[region.name] || {x:0,y:-15};return <g key={region.name} transform={`translate(${region.x},${region.y})`} className={`sling-destination ${region.province==='전라남도'?'labeled-destination':''} ${result?.region_name===region.name?'picked':''}`} role="button" tabIndex={flying?-1:0} aria-label={`${region.name} 선택`} onClick={()=>select(region)} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();select(region)}}}><circle className="region-pin-halo" r="12"/><circle r="5.5" fill={result?.region_name===region.name?'#c76437':'#fff8e8'} stroke="#466a43" strokeWidth="2"/><text x={offset.x} y={offset.y} textAnchor="middle">{region.name}</text>{result?.region_name===region.name&&<circle className="landing-ring" r="20"/>}</g>})}
+        {aiming && <g className="sling-aim" aria-hidden="true" transform={`translate(${SLING.x},${SLING.y-10}) rotate(${Math.atan2(direction.y,direction.x)*180/Math.PI+90})`}><path d="M0 -32V-76M-6 -68L0 -76L6 -68" fill="none" stroke="#bc7850" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity=".8"/></g>}
 
-        {result && landing && destination && <path d={`M${landing.x} ${landing.y}L${destination.x} ${destination.y}`} stroke="#fff0bb" strokeWidth="1.5" strokeDasharray="3 5" opacity=".8"/>}
-        <g className="slingshot-art" aria-hidden="true"><ellipse cx="260" cy="618" rx="45" ry="8" fill="#081f31" opacity=".5"/><path d="M260 606L260 551Q236 537 230 493 M260 551Q283 533 290 493" fill="none" stroke="#6f452c" strokeWidth="21" strokeLinecap="round" strokeLinejoin="round"/><path d="M260 606L260 551Q236 537 230 493 M260 551Q283 533 290 493" fill="none" stroke="url(#sling-wood)" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round"/><path d="M252 578H268M252 586H268M252 594H268" stroke="#795032" strokeWidth="3"/><path d={`M230 496L${pouch.x} ${pouch.y}L290 496`} fill="none" stroke="#392f38" strokeWidth={dragging?5:7} strokeLinecap="round"/><path d={`M230 493L${pouch.x} ${pouch.y-3}L290 493`} fill="none" stroke="#d39c72" strokeWidth="3" strokeLinecap="round"/></g>
-        {(flying||result) && ball && <g transform={`translate(${projectile.x},${projectile.y})`} aria-hidden="true"><ellipse cy="13" rx="12" ry="4" fill="#071e35" opacity=".3"/><circle r="12" fill="url(#sling-ball)" stroke="#fff0ba" strokeWidth="1.5"/>{result&&<circle r="22" fill="none" stroke="#ffe7b5" opacity=".6" strokeDasharray="3 5"/>}</g>}
-        {!flying&&!result&&<g ref={handle} className="sling-projectile" transform={`translate(${pouch.x},${pouch.y})`} role="button" tabIndex={available?0:-1} aria-disabled={!available} aria-label="새총 탄환: 아래로 당겨서 놓으세요. 키보드는 방향키로 당기고 Enter로 발사" onPointerDown={begin} onPointerMove={move} onPointerUp={end} onPointerCancel={cancel} onLostPointerCapture={cancel} onKeyDown={keyboard}><circle className="sling-touch-area" r="42" fill="transparent"/><circle className="sling-grab-ring" r="25" fill="#f3c47715" stroke="#f3c477" strokeDasharray="3 5"/><circle r="16" fill="url(#sling-ball)" stroke="#fff0ba" strokeWidth="2"/><path d="M-5 -4L0 1L5 -4" fill="none" stroke="#8a6637" strokeWidth="2"/></g>}
-        {!dragging&&!flying&&!result&&!aiming&&<g className="pull-hint" aria-hidden="true"><path d="M315 530v39m-5-5l5 5 5-5" fill="none" stroke="#d9c293" strokeWidth="1.5" strokeDasharray="3 3"/><text x="330" y="550">당겨요</text></g>}
+        {result && landing && destination && <path d={`M${landing.x} ${landing.y}L${destination.x} ${destination.y}`} stroke="#b97851" strokeWidth="1.5" strokeDasharray="3 5" opacity=".8"/>}
+        <g className="slingshot-art" aria-hidden="true">
+          <ellipse cx={SLING.x} cy="615" rx="31" ry="5" fill="#9a8060" opacity=".14"/>
+          <image href={slingshotImage} x={slingFrame.x} y={slingFrame.y} width={slingFrame.size} height={slingFrame.size}/>
+          <path d={`M${slingForks.left.x} ${slingForks.left.y}L${pouch.x} ${pouch.y}L${slingForks.right.x} ${slingForks.right.y}`} fill="none" stroke="#b78332" strokeWidth={aiming?5:7} strokeLinecap="round" strokeLinejoin="round"/>
+          <path d={`M${slingForks.left.x} ${slingForks.left.y-1}L${pouch.x} ${pouch.y-1}L${slingForks.right.x} ${slingForks.right.y-1}`} fill="none" stroke="#ffe09a" strokeWidth={aiming?2:3} strokeLinecap="round" strokeLinejoin="round"/>
+          <rect x={pouch.x-18} y={pouch.y-7} width="36" height="19" rx="8" fill="#946035" stroke="#d29a59" strokeWidth="2"/>
+        </g>
+        {(flying||result) && ball && <g transform={`translate(${projectile.x},${projectile.y}) scale(.8)`} aria-hidden="true"><TravelToken/>{result&&<circle r="28" fill="none" stroke="#bc7951" opacity=".6" strokeDasharray="3 5"/>}</g>}
+        {!flying&&!result&&<g ref={handle} className="sling-projectile" transform={`translate(${pouch.x},${pouch.y})`} role="button" tabIndex={available?0:-1} aria-disabled={!available} aria-label="새총 탄환: 아래로 당겨서 놓으세요. 키보드는 방향키로 당기고 Enter로 발사" onPointerDown={begin} onPointerMove={move} onPointerUp={end} onPointerCancel={cancel} onLostPointerCapture={cancel} onKeyDown={keyboard}><circle className="sling-touch-area" r="42" fill="transparent"/><circle className="sling-grab-ring" r="26" fill="#f5b48c18" stroke="#df9f7770" strokeWidth="1.5"/><TravelToken/></g>}
+        {!dragging&&!flying&&!result&&!aiming&&<g className="pull-hint" aria-hidden="true"><path d="M330 530v39m-5-5l5 5 5-5" fill="none" stroke="#8b9275" strokeWidth="1.5" strokeDasharray="3 3"/><text x="345" y="550">당겨요</text></g>}
       </svg>
       <div className="sling-status" role="status" aria-live="polite">{aiming?<><span>{directionLabel}</span><span>거리는 랜덤 · 손을 놓으면 출발!</span></>:<span>{message}</span>}</div>
       {result&&<div className="dart-result sling-result"><div className="result-stamp"><Sparkles size={15}/>{landing?'내가 쏜 곳에서 시작하는 여행':'직접 고른 여행지'}</div><div className="dart-result-title"><div><span>{result.province} · {landing?'착지 지점 근처':'여행 목적지'}</span><h2 tabIndex={-1} ref={resultHeading}>{result.region_name}</h2></div><span className="destination-seal"><MapPin size={24}/></span></div><p>{loading?'혜택 정보를 확인하고 있어요.':error?'혜택 연결이 지연 중이에요. 축제는 따로 살펴볼 수 있어요.':!benefit?'지역 축제를 살펴보세요. 연결된 환급 혜택은 아직 없어요.':isStale(benefit)?'혜택 접수 상태를 다시 확인해 주세요.':isOpen(benefit)?'공식 안내에 접수중으로 표시된 여행 혜택이 있어요.':`수집된 혜택 상태: ${benefit.source_status||'확인 필요'}`}</p><button className="dart-result-cta" onClick={()=>onChoose(result)}>이 지역 일정 추천받기 <ArrowRight size={18}/></button>{!loading&&!benefit&&<DirectionsLink url={regionDirectionsUrl(origin,result.region_name)}>혜택 없이 바로 길찾기</DirectionsLink>}<button className="sling-result-reset" onClick={reset}><RotateCcw size={14}/> 다시 당겨볼래요</button></div>}
