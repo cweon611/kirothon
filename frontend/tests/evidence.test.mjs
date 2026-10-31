@@ -9,10 +9,10 @@ const context = { region:'강진군', date:'2026-11-06', endDate:'2026-11-07', p
 
 test('upload rejects unsupported, empty, oversized, duplicate, count and total limits',()=>{
   assert.equal(fileIssue(file,[]),null)
-  for (const invalid of [{...file,type:'image/svg+xml'},{...file,type:'application/pdf'},{...file,size:0},{...file,size:MAX_FILE_BYTES+1}]) assert.ok(fileIssue(invalid,[]))
+  for (const invalid of [{...file,name:'a.svg',type:'image/svg+xml'},{...file,name:'a.heic',type:'image/heic'},{...file,size:0},{...file,size:MAX_FILE_BYTES+1}]) assert.ok(fileIssue(invalid,[]))
   assert.match(fileIssue(file,[item]),/이미 추가/)
   assert.match(fileIssue(file,Array.from({length:12},(_,i)=>({...item,fingerprint:String(i)}))),/12개/)
-  assert.match(fileIssue(file,[{fingerprint:'other',size:MAX_TOTAL_BYTES}]),/32MB/)
+  assert.match(fileIssue(file,[{fingerprint:'other',size:MAX_TOTAL_BYTES}]),/60MB/)
   assert.equal(fileIssue({...file,size:MAX_FILE_BYTES},[]),null)
 })
 test('only valid manually entered expense amounts contribute; photos never contribute',()=>{
@@ -38,4 +38,35 @@ test('missing fields stay explicitly missing in exported packet',()=>{
   assert.ok(output.includes('장소 미입력'))
   assert.ok(output.includes('날짜 미입력'))
   assert.ok(output.includes('금액 미입력 1건'))
+})
+
+test('evidence ids work without crypto.randomUUID (http team server)',async()=>{
+  const { newId } = await import('../src/lib/evidence.ts')
+  const insecure={getRandomValues:array=>{array.fill(171);return array}}
+  assert.equal(newId(insecure),'ab'.repeat(16))
+  assert.equal(newId({getRandomValues:()=>{throw new Error('unused')},randomUUID:()=>'uuid'}),'uuid')
+})
+
+test('formats come from type or extension, and the real bytes decide',async()=>{
+  const { claimedFormat, sniffFormat, withMime, isPdf } = await import('../src/lib/evidence.ts')
+  assert.equal(claimedFormat({name:'IMG_0001.JPG',type:''}),'jpeg')
+  assert.equal(claimedFormat({name:'photo',type:'image/jpg'}),'jpeg')
+  assert.equal(claimedFormat({name:'영수증.PDF',type:''}),'pdf')
+  assert.equal(claimedFormat({name:'a.png',type:'image/png'}),'png')
+  assert.equal(claimedFormat({name:'a.heic',type:'image/heic'}),null)
+  assert.equal(fileIssue({...file,name:'IMG.JPG',type:''},[]),null)
+  assert.equal(fileIssue({...file,name:'r.pdf',type:'application/pdf'},[]),null)
+  assert.equal(sniffFormat(new Uint8Array([0xff,0xd8,0xff,0xe0])),'jpeg')
+  assert.equal(sniffFormat(new Uint8Array([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a])),'png')
+  assert.equal(sniffFormat(new TextEncoder().encode('%PDF-1.7')),'pdf')
+  assert.equal(sniffFormat(new TextEncoder().encode('RIFF\0\0\0\0WEBP')),'webp')
+  assert.equal(sniffFormat(new TextEncoder().encode('<svg')),null)
+  assert.equal(withMime('data:application/octet-stream;base64,AAAA','jpeg'),'data:image/jpeg;base64,AAAA')
+  assert.equal(withMime('data:;base64,AAAA','pdf'),'data:application/pdf;base64,AAAA')
+  assert.ok(isPdf({dataUrl:'data:application/pdf;base64,AAAA'}))
+})
+test('PDF evidence exports as a download link, not an image',()=>{
+  const output=buildEvidenceDocument(context,[{...item,name:'숙박.pdf',dataUrl:'data:application/pdf;base64,JVBERi0='}])
+  assert.ok(output.includes('href="data:application/pdf;base64,JVBERi0=" download="숙박.pdf"'))
+  assert.ok(!output.includes('<img src=""'))
 })
